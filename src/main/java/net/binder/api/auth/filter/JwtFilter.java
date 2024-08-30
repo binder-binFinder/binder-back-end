@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import net.binder.api.auth.dto.CustomOAuth2User;
 import net.binder.api.auth.dto.LoginUser;
@@ -31,14 +33,14 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
-        System.out.println("authorization = " + authorization);
-        if (authorization == null || !authorization.startsWith("Bearer ")) {
+        Cookie cookie = getCookie(request);
+
+        if (cookie == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String token = getToken(authorization);
+        String token = cookie.getValue();
 
         try {
             String username = jwtUtil.getUsername(token);
@@ -54,8 +56,11 @@ public class JwtFilter extends OncePerRequestFilter {
         }
     }
 
-    private String getToken(String authorization) {
-        return authorization.substring(7);
+    private static Cookie getCookie(HttpServletRequest request) {
+        return Arrays.stream(request.getCookies())
+                .filter(c -> c.getName().equals(HttpHeaders.AUTHORIZATION))
+                .findFirst()
+                .orElse(null);
     }
 
     private Authentication getAuthentication(String username, String role) {
