@@ -4,12 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import net.binder.api.auth.filter.JwtFilter;
+import net.binder.api.auth.handler.CustomAccessDeniedHandler;
 import net.binder.api.auth.handler.CustomAuthenticationEntryPoint;
 import net.binder.api.auth.handler.CustomAuthenticationSuccessHandler;
 import net.binder.api.auth.service.CustomOAuth2UserService;
 import net.binder.api.auth.util.JwtUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -22,6 +24,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @EnableWebSecurity
 @Configuration
 @RequiredArgsConstructor
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
@@ -30,12 +33,15 @@ public class SecurityConfig {
 
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
+
     private final JwtUtil jwtUtil;
 
     private final ObjectMapper objectMapper;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http)
+            throws Exception {
 
         http
                 .cors(cors -> cors.configurationSource(getCorsConfigurationSource()));
@@ -56,7 +62,8 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**", "/v3/**").permitAll() // 스웨거
                         .anyRequest().authenticated())
                 .exceptionHandling(exceptionHandling -> exceptionHandling
-                        .authenticationEntryPoint(customAuthenticationEntryPoint)); // 미인증시
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                        .accessDeniedHandler(customAccessDeniedHandler)); // 미인증시
 
         http.
                 addFilterBefore(new JwtFilter(jwtUtil, objectMapper), UsernamePasswordAuthenticationFilter.class);
