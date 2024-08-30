@@ -27,18 +27,25 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
 
-        String email = oAuth2User.getEmail();
+        String email = oAuth2User.getName();
         String role = oAuth2User.getRole();
 
         String token = jwtUtil.generateToken(email, role);
-        String redirectUri = request.getHeader(HttpHeaders.REFERER) + "/auth/result"; // 개발 환경이므로 해당 방식으로 리다이렉트
+        String redirectUri = getRedirectUri(request); // 개발 환경이므로 해당 방식으로 리다이렉트
 
-        String uriString = UriComponentsBuilder.fromUriString(redirectUri)
+        String uriString = getUriString(redirectUri, token);
+
+        response.sendRedirect(uriString);
+    }
+
+    private String getRedirectUri(HttpServletRequest request) {
+        return request.getHeader(HttpHeaders.REFERER) + "/auth/result";
+    }
+
+    private String getUriString(String redirectUri, String token) {
+        return UriComponentsBuilder.fromUriString(redirectUri)
                 .queryParam(HttpHeaders.AUTHORIZATION, token)
                 .build()
                 .toUriString();
-
-        System.out.println("uriString = " + uriString);
-        response.sendRedirect(uriString);
     }
 }
