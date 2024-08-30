@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import net.binder.api.auth.dto.CustomOAuth2User;
 import net.binder.api.auth.dto.GoogleResponse;
 import net.binder.api.auth.dto.LoginUser;
+import net.binder.api.auth.dto.NaverResponse;
 import net.binder.api.auth.dto.OAuth2Response;
 import net.binder.api.member.entity.Member;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -43,6 +44,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private OAuth2Response getOAuth2Response(String registrationId, Map<String, Object> attributes) {
         if (registrationId.equals("google")) {
             return new GoogleResponse(attributes);
+        }
+        if (registrationId.equals("naver")) {
+            return new NaverResponse(attributes);
         }
         return null;
     }
