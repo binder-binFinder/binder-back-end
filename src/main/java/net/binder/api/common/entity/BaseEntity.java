@@ -1,4 +1,4 @@
-package net.binder.api.auth.common.entity;
+package net.binder.api.common.entity;
 
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
