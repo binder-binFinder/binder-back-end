@@ -4,6 +4,7 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import net.binder.api.auth.dto.CustomOAuth2User;
 import net.binder.api.auth.dto.GoogleResponse;
+import net.binder.api.auth.dto.KakaoResponse;
 import net.binder.api.auth.dto.LoginUser;
 import net.binder.api.auth.dto.NaverResponse;
 import net.binder.api.auth.dto.OAuth2Response;
@@ -13,10 +14,8 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
@@ -33,10 +32,15 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             return null;
         }
 
-        Member member = socialMemberService.getMember(oAuth2Response.getProvider(),
-                oAuth2Response.getProviderId(),
-                oAuth2Response.getEmail(),
-                oAuth2Response.getName());
+        String provider = oAuth2Response.getProvider();
+        String providerId = oAuth2Response.getProviderId();
+        String email = oAuth2Response.getEmail();
+
+        Member member = socialMemberService.findBySocialAccountOrEmail(provider, providerId, email);
+
+        if (member == null) {
+            member = socialMemberService.register(provider, providerId, email, oAuth2Response.getName());
+        }
 
         return new CustomOAuth2User(LoginUser.from(member));
     }
@@ -47,6 +51,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         }
         if (registrationId.equals("naver")) {
             return new NaverResponse(attributes);
+        }
+        if (registrationId.equals("kakao")) {
+            return new KakaoResponse(attributes);
         }
         return null;
     }

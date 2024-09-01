@@ -1,6 +1,8 @@
 package net.binder.api.auth.service;
 
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import net.binder.api.auth.util.NicknameGenerator;
 import net.binder.api.member.entity.Member;
 import net.binder.api.member.entity.Role;
 import net.binder.api.member.entity.SocialAccount;
@@ -9,42 +11,62 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
+@Transactional
 public class SocialMemberService {
+
+    private static final int MAX_ATTEMPTS = 10;
 
     private final MemberRepository memberRepository;
 
-    public Member getMember(String provider, String providerId, String email, String nickname) {
+    public Member findBySocialAccountOrEmail(String provider, String providerId, String email) {
         // 소셜 계정으로 검색 후 멤버가 있다면 반환, 없다면 기존 멤버과 연동 시도
         return memberRepository.findBySocialAccount(provider, providerId)
-                .orElseGet(() -> linkOrRegister(provider, providerId, email, nickname));
+                .orElseGet(() -> link(provider, providerId, email));
     }
 
-    private Member linkOrRegister(String provider, String providerId, String email, String nickname) {
-        // 이메일고 일치하는 멤버가 있다면 소셜 계정 연결 후 반환, 없다면 신규 등록
+    private Member link(String provider, String providerId, String email) {
+        // 이메일고 일치하는 멤버가 있다면 소셜 계정 연결 후 반환
 
-        Member member = memberRepository.findByEmail(email)
-                .orElseGet(() -> register(email, nickname));
-
-        SocialAccount socialAccount = SocialAccount.builder()
-                .provider(provider)
-                .providerId(providerId)
-                .build();
-
-        member.linkSocialAccount(socialAccount);
-
-        return member;
+        return memberRepository.findByEmail(email)
+                .map(member -> {
+                    SocialAccount socialAccount = new SocialAccount(provider, providerId);
+                    member.linkSocialAccount(socialAccount);
+                    return member;
+                })
+                .orElse(null);
     }
 
-    private Member register(String email, String nickname) {
+    public Member register(String provider, String providerId, String email, String nickname) {
+
+        String uniqueNickname = generateUniqueNickname(nickname);
+
         Member member = Member.builder()
                 .email(email)
-                .nickname(nickname)
+                .nickname(uniqueNickname)
                 .role(Role.ROLE_USER)
                 .build();
 
+        SocialAccount socialAccount = new SocialAccount(provider, providerId);
+
+        member.linkSocialAccount(socialAccount);
+
         memberRepository.save(member);
         return member;
+
+    }
+
+    private String generateUniqueNickname(String nickname) {
+        String uniqueNickname = nickname;
+
+        for (int i = 0; i < MAX_ATTEMPTS; i++) { // 기존 닉네임과 최대한 유사하게 유지
+            if (!memberRepository.existsByNickname(uniqueNickname)) {
+                return uniqueNickname;
+            }
+            uniqueNickname = NicknameGenerator.generateNewNickname(nickname);
+        }
+
+        // 실패하면 랜덤 UUID 발급
+        return UUID.randomUUID().toString();
     }
 }
