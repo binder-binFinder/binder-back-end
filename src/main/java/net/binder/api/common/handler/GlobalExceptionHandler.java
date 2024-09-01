@@ -23,14 +23,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler
     public ResponseEntity<ErrorResponse> handleBizException(BizException e) {
-        String message = e.getMessage();
+        HttpStatus httpStatus = null;
 
         if (e instanceof NotFoundException) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ErrorResponse.from(message));
+            httpStatus = HttpStatus.NOT_FOUND;
+        }
+        if (httpStatus == null) {
+            httpStatus = HttpStatus.BAD_REQUEST;
         }
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ErrorResponse.from(message));
+        return ResponseEntity.status(httpStatus)
+                .body(ErrorResponse.from(e.getMessage()));
     }
 }
