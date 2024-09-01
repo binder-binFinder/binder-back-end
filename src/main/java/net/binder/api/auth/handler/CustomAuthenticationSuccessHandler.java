@@ -45,7 +45,7 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         Cookie cookie = new Cookie(HttpHeaders.AUTHORIZATION, token);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
-//        cookie.setSecure(true);
+        cookie.setSecure(true);
         return cookie;
     }
 }
