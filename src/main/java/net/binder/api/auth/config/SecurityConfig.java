@@ -86,7 +86,7 @@ public class SecurityConfig {
             configuration.setAllowCredentials(true);
             configuration.setAllowedHeaders(List.of("*"));
 
-            configuration.setExposedHeaders(List.of("Authorization"));
+            configuration.setExposedHeaders(List.of("Authorization", "Set-Cookie"));
 
             return configuration;
         };
