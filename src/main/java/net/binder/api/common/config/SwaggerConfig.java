@@ -2,6 +2,7 @@ package net.binder.api.common.config;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.servers.Server;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
@@ -15,8 +16,8 @@ import org.springframework.http.HttpHeaders;
 @OpenAPIDefinition(
         info = @Info(
                 title = "Binder",
-                description = "Binder API 명세서")
-)
+                description = "Binder API 명세서"),
+        servers = {@Server(url = "https://api.bin-finder.net")})
 public class SwaggerConfig {
 
     @Bean
