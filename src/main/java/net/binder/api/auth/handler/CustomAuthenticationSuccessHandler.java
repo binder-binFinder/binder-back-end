@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import net.binder.api.auth.dto.CustomOAuth2User;
 import net.binder.api.auth.util.JwtUtil;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -15,14 +14,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
+    private static final String REDIRECT_URI = "https://www.bin-finder.net";
+    public static final String DOMAIN = ".bin-finder.net";
+
     private final JwtUtil jwtUtil;
 
-    private final String redirectUri;
 
-    public CustomAuthenticationSuccessHandler(JwtUtil jwtUtil,
-                                              @Value("${spring.security.oauth2.redirect-uri}") String redirectUri) {
+    public CustomAuthenticationSuccessHandler(JwtUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
-        this.redirectUri = redirectUri;
     }
 
     @Override
@@ -37,7 +36,7 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         String token = jwtUtil.generateToken(email, role);
 
         response.addCookie(getCookie(token));
-        response.sendRedirect(redirectUri);
+        response.sendRedirect(REDIRECT_URI);
 
     }
 
@@ -46,6 +45,7 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         cookie.setSecure(true);
+        cookie.setDomain(DOMAIN);
         return cookie;
     }
 }
