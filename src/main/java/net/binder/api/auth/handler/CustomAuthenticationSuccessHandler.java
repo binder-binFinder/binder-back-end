@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private static final String REDIRECT_URI = "https://www.bin-finder.net";
-    public static final String DOMAIN = "www.bin-finder.net";
 
     private final JwtUtil jwtUtil;
 
@@ -45,7 +44,7 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         cookie.setSecure(true);
-        cookie.setDomain(".bin-finder.net");  // 점(.)을 앞에 추가하여 서브도메인 포함
+        cookie.setDomain("bin-finder.net");  // 점(.)을 앞에 추가하여 서브도메인 포함
         cookie.setMaxAge(3600);  // 1시간 유효
         cookie.setAttribute("SameSite", "None");  // 크로스 사이트 요청 허용
         return cookie;
