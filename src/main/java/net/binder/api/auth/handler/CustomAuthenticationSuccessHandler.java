@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private static final String REDIRECT_URI = "https://www.bin-finder.net";
-    public static final String DOMAIN = ".bin-finder.net";
+    public static final String DOMAIN = "www.bin-finder.net";
 
     private final JwtUtil jwtUtil;
 
