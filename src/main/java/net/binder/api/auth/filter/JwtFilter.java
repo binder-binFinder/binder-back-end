@@ -57,7 +57,11 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     private static Cookie getCookie(HttpServletRequest request) {
-        return Arrays.stream(request.getCookies())
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            return null;
+        }
+        return Arrays.stream(cookies)
                 .filter(c -> c.getName().equals(HttpHeaders.AUTHORIZATION))
                 .findFirst()
                 .orElse(null);
