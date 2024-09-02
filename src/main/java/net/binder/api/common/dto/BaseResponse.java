@@ -10,7 +10,7 @@ public class BaseResponse {
 
     private final Long id;
 
-    private final LocalDateTime createAt;
+    private final LocalDateTime createdAt;
 
     private final LocalDateTime modifiedAt;
 

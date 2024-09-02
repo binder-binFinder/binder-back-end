@@ -17,9 +17,9 @@ public class MemberDetailResponse extends BaseResponse {
     private final Role role;
 
     @Builder
-    public MemberDetailResponse(Long id, LocalDateTime createAt, LocalDateTime modifiedAt, String email,
+    public MemberDetailResponse(Long id, LocalDateTime createdAt, LocalDateTime modifiedAt, String email,
                                 String nickname, Role role) {
-        super(id, createAt, modifiedAt);
+        super(id, createdAt, modifiedAt);
         this.email = email;
         this.nickname = nickname;
         this.role = role;
@@ -31,7 +31,7 @@ public class MemberDetailResponse extends BaseResponse {
                 .nickname(member.getNickname())
                 .role(member.getRole())
                 .id(member.getId())
-                .createAt(member.getCreateAt())
+                .createdAt(member.getCreatedAt())
                 .modifiedAt(member.getModifiedAt())
                 .build();
     }

@@ -8,12 +8,12 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import net.binder.api.common.entity.BaseEntity;
+import net.binder.api.common.entity.IdEntity;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class SocialAccount extends BaseEntity {
+public class SocialAccount extends IdEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
