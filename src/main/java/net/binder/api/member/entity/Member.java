@@ -12,12 +12,12 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import net.binder.api.common.entity.BaseEntity;
+import net.binder.api.common.entity.BaseEntityWithSoftDelete;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
-public class Member extends BaseEntity {
+public class Member extends BaseEntityWithSoftDelete {
 
     @Column(unique = true)
     private String email;
@@ -28,14 +28,17 @@ public class Member extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    private String image_url;
+
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<SocialAccount> socialAccounts = new ArrayList<>();
 
     @Builder
-    public Member(String email, String nickname, Role role) {
+    public Member(String email, String nickname, Role role, String image_url) {
         this.email = email;
         this.nickname = nickname;
         this.role = role;
+        this.image_url = image_url;
     }
 
     public void linkSocialAccount(SocialAccount socialAccount) {

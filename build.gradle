@@ -43,6 +43,10 @@ dependencies {
 
     //swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
+
+    //spatial
+    implementation 'org.hibernate:hibernate-spatial:6.5.2.Final'
+
 }
 
 tasks.named('test') {
