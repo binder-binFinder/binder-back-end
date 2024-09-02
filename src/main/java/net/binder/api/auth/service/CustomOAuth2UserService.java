@@ -39,7 +39,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         Member member = socialMemberService.findBySocialAccountOrEmail(provider, providerId, email);
 
         if (member == null) {
-            member = socialMemberService.register(provider, providerId, email, oAuth2Response.getName());
+            member = socialMemberService.register(provider, providerId, email);
         }
 
         return new CustomOAuth2User(LoginUser.from(member));
