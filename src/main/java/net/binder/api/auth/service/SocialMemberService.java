@@ -1,8 +1,6 @@
 package net.binder.api.auth.service;
 
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import net.binder.api.auth.util.NicknameGenerator;
 import net.binder.api.member.entity.Member;
 import net.binder.api.member.entity.Role;
 import net.binder.api.member.entity.SocialAccount;
@@ -14,8 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional
 public class SocialMemberService {
-
-    private static final int MAX_ATTEMPTS = 10;
 
     private final MemberRepository memberRepository;
 
@@ -37,9 +33,9 @@ public class SocialMemberService {
                 .orElse(null);
     }
 
-    public Member register(String provider, String providerId, String email, String nickname) {
+    public Member register(String provider, String providerId, String email) {
 
-        String uniqueNickname = generateUniqueNickname(nickname);
+        String uniqueNickname = generateUniqueNickname(provider, providerId);
 
         Member member = Member.builder()
                 .email(email)
@@ -56,17 +52,7 @@ public class SocialMemberService {
 
     }
 
-    private String generateUniqueNickname(String nickname) {
-        String uniqueNickname = nickname;
-
-        for (int i = 0; i < MAX_ATTEMPTS; i++) { // 기존 닉네임과 최대한 유사하게 유지
-            if (!memberRepository.existsByNickname(uniqueNickname)) {
-                return uniqueNickname;
-            }
-            uniqueNickname = NicknameGenerator.generateNewNickname(nickname);
-        }
-
-        // 실패하면 랜덤 UUID 발급
-        return UUID.randomUUID().toString();
+    private String generateUniqueNickname(String provider, String providerId) {
+        return provider + "_" + providerId;
     }
 }
