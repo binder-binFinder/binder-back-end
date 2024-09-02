@@ -28,14 +28,17 @@ public class Member extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    private String image_url;
+
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<SocialAccount> socialAccounts = new ArrayList<>();
 
     @Builder
-    public Member(String email, String nickname, Role role) {
+    public Member(String email, String nickname, Role role, String image_url) {
         this.email = email;
         this.nickname = nickname;
         this.role = role;
+        this.image_url = image_url;
     }
 
     public void linkSocialAccount(SocialAccount socialAccount) {
