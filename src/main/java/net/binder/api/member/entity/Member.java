@@ -12,12 +12,12 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import net.binder.api.common.entity.BaseEntity;
+import net.binder.api.common.entity.BaseEntityWithSoftDelete;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
-public class Member extends BaseEntity {
+public class Member extends BaseEntityWithSoftDelete {
 
     @Column(unique = true)
     private String email;

@@ -11,13 +11,13 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.binder.api.bin.entity.Bin;
-import net.binder.api.common.entity.IdEntity;
+import net.binder.api.common.entity.BaseEntity;
 import net.binder.api.member.entity.Member;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class MemberCreateBin extends IdEntity {
+public class MemberCreateBin extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")

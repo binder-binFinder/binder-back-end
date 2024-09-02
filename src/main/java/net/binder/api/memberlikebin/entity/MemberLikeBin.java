@@ -4,16 +4,17 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import java.time.LocalDateTime;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import net.binder.api.bin.entity.Bin;
-import net.binder.api.common.entity.IdEntity;
+import net.binder.api.common.entity.BaseEntity;
 import net.binder.api.member.entity.Member;
-import org.springframework.data.annotation.CreatedDate;
 
 @Entity
 @Getter
-public class MemberLikeBin extends IdEntity {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class MemberLikeBin extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
@@ -22,7 +23,4 @@ public class MemberLikeBin extends IdEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bin_id")
     private Bin bin;
-
-    @CreatedDate
-    private LocalDateTime createdAt;
 }

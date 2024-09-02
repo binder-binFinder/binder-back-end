@@ -28,15 +28,4 @@ public class BaseEntity {
 
     @LastModifiedDate
     private LocalDateTime modifiedAt;
-
-    private LocalDateTime deletedAt;
-
-    public boolean softDelete() {
-        if (deletedAt != null) {
-            return false;
-        }
-        deletedAt = LocalDateTime.now();
-
-        return true;
-    }
 }
