@@ -24,21 +24,21 @@ public class Bin extends BaseEntity {
 
     private String address;
 
-    private long match_count;
+    private long matchCount;
 
-    private long mismatch_count;
+    private long mismatchCount;
 
-    private String image_url;
+    private String imageUrl;
 
     @Builder
-    public Bin(String title, BinType type, Point point, String address, long match_count, long mismatch_count,
-               String image_url) {
+    public Bin(String title, BinType type, Point point, String address, long matchCount, long mismatchCount,
+               String imageUrl) {
         this.title = title;
         this.type = type;
         this.point = point;
         this.address = address;
-        this.match_count = match_count;
-        this.mismatch_count = mismatch_count;
-        this.image_url = image_url;
+        this.matchCount = matchCount;
+        this.mismatchCount = mismatchCount;
+        this.imageUrl = imageUrl;
     }
 }
