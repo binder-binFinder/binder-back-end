@@ -21,6 +21,7 @@ public class AuthController {
         Cookie cookie = new Cookie(HttpHeaders.AUTHORIZATION, null);
         cookie.setMaxAge(0);
         cookie.setPath("/");
+        cookie.setDomain("bin-finder.net");
 
         response.addCookie(cookie);
     }
