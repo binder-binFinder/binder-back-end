@@ -8,10 +8,12 @@ import lombok.RequiredArgsConstructor;
 import net.binder.api.auth.util.CookieProvider;
 import net.binder.api.common.annotation.CurrentUser;
 import net.binder.api.member.dto.MemberDetailResponse;
+import net.binder.api.member.dto.MemberProfileUpdateRequest;
 import net.binder.api.member.entity.Member;
 import net.binder.api.member.service.MemberService;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -40,5 +42,11 @@ public class MemberController {
         Cookie cookie = CookieProvider.getLogoutCookie();
 
         response.addCookie(cookie);
+    }
+
+    @Operation(summary = "회원 프로필 수정")
+    @PatchMapping
+    public void updateProfile(@CurrentUser String email, MemberProfileUpdateRequest request) {
+        memberService.updateProfile(email, request.getNickname(), request.getImageUrl());
     }
 }
