@@ -17,8 +17,15 @@ public class SocialMemberService {
 
     public Member findBySocialAccountOrEmail(String provider, String providerId, String email) {
         // 소셜 계정으로 검색 후 멤버가 있다면 반환, 없다면 기존 멤버과 연동 시도
-        return memberRepository.findBySocialAccount(provider, providerId)
+        Member member = memberRepository.findBySocialAccount(provider, providerId)
                 .orElseGet(() -> link(provider, providerId, email));
+
+        // 탈퇴한 회원이라면 복구 시도
+        if (member.isDeleted()) {
+            member.restore();
+        }
+        
+        return member;
     }
 
     private Member link(String provider, String providerId, String email) {

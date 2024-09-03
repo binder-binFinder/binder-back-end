@@ -90,6 +90,22 @@ class SocialMemberServiceTest {
         assertThat(result.getSocialAccounts().get(0).getProviderId()).isEqualTo(PROVIDER_ID);
     }
 
+    @Test
+    @DisplayName("탈퇴한 회원이 로그인하면 회원 정보가 복구된다.")
+    void getMember_isDeletedMember() {
+        //Given
+        Member member = createMemberWithSocialAccount();
+        member.softDelete();
+        assertThat(member.isDeleted()).isTrue();
+
+        //When
+        Member findMember = socialMemberService.findBySocialAccountOrEmail(PROVIDER, PROVIDER_ID, EMAIL);
+
+        //Then
+        assertThat(member).isEqualTo(findMember);
+        assertThat(findMember.isDeleted()).isFalse();
+    }
+
     private Member createMember() {
         Member member = Member.builder()
                 .email(EMAIL)

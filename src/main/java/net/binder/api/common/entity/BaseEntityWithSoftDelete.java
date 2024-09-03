@@ -39,4 +39,12 @@ public class BaseEntityWithSoftDelete {
 
         return true;
     }
+
+    public void restore() {
+        deletedAt = null;
+    }
+
+    public boolean isDeleted() {
+        return deletedAt != null;
+    }
 }
