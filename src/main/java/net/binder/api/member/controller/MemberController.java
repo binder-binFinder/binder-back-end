@@ -30,8 +30,9 @@ public class MemberController {
         String email = customOAuth2User.getName();
 
         Member member = memberService.findByEmail(email);
+        long likeCount = memberService.calculateLikeCount(member);
 
-        return MemberDetailResponse.from(member);
+        return MemberDetailResponse.from(member, likeCount);
     }
 
     @Operation(summary = "회원 탈퇴")

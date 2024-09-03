@@ -5,6 +5,7 @@ import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.common.exception.NotFoundException;
 import net.binder.api.member.entity.Member;
 import net.binder.api.member.repository.MemberRepository;
+import net.binder.api.memberlikebin.repository.MemberLikeBinRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+
+    private final MemberLikeBinRepository memberLikeBinRepository;
 
     @Transactional(readOnly = true)
     public Member findByEmail(String email) {
@@ -28,5 +31,10 @@ public class MemberService {
         if (!deleted) {
             throw new BadRequestException("이미 탈퇴한 회원입니다.");
         }
+    }
+
+    @Transactional(readOnly = true)
+    public long calculateLikeCount(Member member) {
+        return memberLikeBinRepository.countByMember(member);
     }
 }
