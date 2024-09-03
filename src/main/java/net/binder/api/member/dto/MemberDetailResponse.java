@@ -36,7 +36,7 @@ public class MemberDetailResponse extends BaseResponse {
                 .email(member.getEmail())
                 .nickname(member.getNickname())
                 .role(member.getRole())
-                .imageUrl(member.getImage_url())
+                .imageUrl(member.getImageUrl())
                 .likeCount(likeCount)
                 .id(member.getId())
                 .createdAt(member.getCreatedAt())

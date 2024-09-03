@@ -37,4 +37,14 @@ public class MemberService {
     public long calculateLikeCount(Member member) {
         return memberLikeBinRepository.countByMember(member);
     }
+
+    public void updateProfile(String email, String nickname, String imageUrl) {
+        Member member = findByEmail(email);
+
+        if (!member.isOwnNickname(nickname) && memberRepository.existsByNickname(nickname)) {
+            throw new BadRequestException("이미 존재하는 닉네임입니다.");
+        }
+
+        member.changeProfile(nickname, imageUrl);
+    }
 }

@@ -28,21 +28,30 @@ public class Member extends BaseEntityWithSoftDelete {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    private String image_url;
+    private String imageUrl;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<SocialAccount> socialAccounts = new ArrayList<>();
 
     @Builder
-    public Member(String email, String nickname, Role role, String image_url) {
+    public Member(String email, String nickname, Role role, String imageUrl) {
         this.email = email;
         this.nickname = nickname;
         this.role = role;
-        this.image_url = image_url;
+        this.imageUrl = imageUrl;
     }
 
     public void linkSocialAccount(SocialAccount socialAccount) {
         this.socialAccounts.add(socialAccount);
         socialAccount.linkMember(this);
+    }
+
+    public boolean isOwnNickname(String nickname) {
+        return this.nickname.equals(nickname);
+    }
+
+    public void changeProfile(String nickname, String imageUrl) {
+        this.nickname = nickname;
+        this.imageUrl = imageUrl;
     }
 }
