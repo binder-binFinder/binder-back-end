@@ -16,24 +16,28 @@ public class MemberDetailResponse extends BaseResponse {
 
     private final Role role;
 
-    private final String image_url;
+    private final String imageUrl;
+
+    private final long likeCount;
 
     @Builder
     public MemberDetailResponse(Long id, LocalDateTime createdAt, LocalDateTime modifiedAt, String email,
-                                String nickname, Role role, String imageUrl) {
+                                String nickname, Role role, String imageUrl, Long likeCount) {
         super(id, createdAt, modifiedAt);
         this.email = email;
         this.nickname = nickname;
         this.role = role;
-        this.image_url = imageUrl;
+        this.imageUrl = imageUrl;
+        this.likeCount = likeCount;
     }
 
-    public static MemberDetailResponse from(Member member) {
+    public static MemberDetailResponse from(Member member, long likeCount) {
         return MemberDetailResponse.builder()
                 .email(member.getEmail())
                 .nickname(member.getNickname())
                 .role(member.getRole())
                 .imageUrl(member.getImage_url())
+                .likeCount(likeCount)
                 .id(member.getId())
                 .createdAt(member.getCreatedAt())
                 .modifiedAt(member.getModifiedAt())
