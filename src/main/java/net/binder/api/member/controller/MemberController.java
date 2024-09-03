@@ -5,12 +5,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import net.binder.api.auth.dto.CustomOAuth2User;
 import net.binder.api.auth.util.CookieProvider;
+import net.binder.api.common.annotation.CurrentUser;
 import net.binder.api.member.dto.MemberDetailResponse;
 import net.binder.api.member.entity.Member;
 import net.binder.api.member.service.MemberService;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,9 +25,7 @@ public class MemberController {
 
     @Operation(summary = "본인 정보 조회")
     @GetMapping("/me")
-    public MemberDetailResponse profile(@AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
-        String email = customOAuth2User.getName();
-
+    public MemberDetailResponse profile(@CurrentUser String email) {
         Member member = memberService.findByEmail(email);
         long likeCount = memberService.calculateLikeCount(member);
 
@@ -37,9 +34,7 @@ public class MemberController {
 
     @Operation(summary = "회원 탈퇴")
     @DeleteMapping
-    public void delete(@AuthenticationPrincipal CustomOAuth2User customOAuth2User, HttpServletResponse response) {
-        String email = customOAuth2User.getName();
-
+    public void delete(@CurrentUser String email, HttpServletResponse response) {
         memberService.deleteMember(email);
 
         Cookie cookie = CookieProvider.getLogoutCookie();
