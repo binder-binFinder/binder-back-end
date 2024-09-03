@@ -6,10 +6,10 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import net.binder.api.auth.dto.CustomOAuth2User;
+import net.binder.api.auth.util.CookieProvider;
 import net.binder.api.member.dto.MemberDetailResponse;
 import net.binder.api.member.entity.Member;
 import net.binder.api.member.service.MemberService;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,11 +41,7 @@ public class MemberController {
 
         memberService.deleteMember(email);
 
-        Cookie cookie = new Cookie(HttpHeaders.AUTHORIZATION, null);
-        cookie.setMaxAge(0);
-        cookie.setPath("/");
-        cookie.setDomain("bin-finder.net");
-        cookie.setAttribute("SameSite", "None");
+        Cookie cookie = CookieProvider.getLogoutCookie();
 
         response.addCookie(cookie);
     }
