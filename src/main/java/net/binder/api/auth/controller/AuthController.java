@@ -22,6 +22,7 @@ public class AuthController {
         cookie.setMaxAge(0);
         cookie.setPath("/");
         cookie.setDomain("bin-finder.net");
+        cookie.setAttribute("SameSite", "None");
 
         response.addCookie(cookie);
     }

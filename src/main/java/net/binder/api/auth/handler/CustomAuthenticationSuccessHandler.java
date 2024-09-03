@@ -42,11 +42,10 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private Cookie getCookie(String token) {
         Cookie cookie = new Cookie(HttpHeaders.AUTHORIZATION, token);
         cookie.setHttpOnly(true);
-        cookie.setPath("/");
         cookie.setSecure(true);
-        cookie.setDomain("bin-finder.net");  // 점(.)을 앞에 추가하여 서브도메인 포함
-        cookie.setMaxAge(3600);  // 1시간 유효
-//        cookie.setAttribute("SameSite", "None");  // 크로스 사이트 요청 허용
+        cookie.setPath("/");
+        cookie.setDomain("bin-finder.net");
+        cookie.setAttribute("SameSite", "None");
         return cookie;
     }
 }
