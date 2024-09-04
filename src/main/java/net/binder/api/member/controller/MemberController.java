@@ -4,15 +4,18 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
-import net.binder.api.auth.dto.CustomOAuth2User;
-import net.binder.api.member.dto.MemberDetailResponse;
-import net.binder.api.member.entity.Member;
+import net.binder.api.auth.util.CookieProvider;
+import net.binder.api.common.annotation.CurrentUser;
+import net.binder.api.member.dto.MemberDeleteRequest;
+import net.binder.api.member.dto.MemberProfile;
+import net.binder.api.member.dto.MemberProfileUpdateRequest;
+import net.binder.api.member.dto.MemberTimeLine;
 import net.binder.api.member.service.MemberService;
-import org.springframework.http.HttpHeaders;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,27 +29,29 @@ public class MemberController {
 
     @Operation(summary = "본인 정보 조회")
     @GetMapping("/me")
-    public MemberDetailResponse profile(@AuthenticationPrincipal CustomOAuth2User customOAuth2User) {
-        String email = customOAuth2User.getName();
-
-        Member member = memberService.findByEmail(email);
-
-        return MemberDetailResponse.from(member);
+    public MemberProfile profile(@CurrentUser String email) {
+        return memberService.getProfile(email);
     }
 
     @Operation(summary = "회원 탈퇴")
-    @DeleteMapping
-    public void delete(@AuthenticationPrincipal CustomOAuth2User customOAuth2User, HttpServletResponse response) {
-        String email = customOAuth2User.getName();
+    @DeleteMapping("/me")
+    public void delete(@CurrentUser String email, MemberDeleteRequest request, HttpServletResponse response) {
+        memberService.deleteMember(email, request.getInput());
 
-        memberService.deleteMember(email);
-
-        Cookie cookie = new Cookie(HttpHeaders.AUTHORIZATION, null);
-        cookie.setMaxAge(0);
-        cookie.setPath("/");
-        cookie.setDomain("bin-finder.net");
-        cookie.setAttribute("SameSite", "None");
+        Cookie cookie = CookieProvider.getLogoutCookie();
 
         response.addCookie(cookie);
+    }
+
+    @Operation(summary = "회원 프로필 수정")
+    @PatchMapping("/me")
+    public void updateProfile(@CurrentUser String email, MemberProfileUpdateRequest request) {
+        memberService.updateProfile(email, request.getNickname(), request.getImageUrl());
+    }
+
+    @Operation(summary = "회원 타임라인 조회")
+    @GetMapping("/me/timeline")
+    public List<MemberTimeLine> timeline(@CurrentUser String email) {
+        return memberService.getTimeLines(email);
     }
 }

@@ -8,7 +8,7 @@ import net.binder.api.member.entity.Member;
 import net.binder.api.member.entity.Role;
 
 @Getter
-public class MemberDetailResponse extends BaseResponse {
+public class MemberProfile extends BaseResponse {
 
     private final String email;
 
@@ -16,24 +16,28 @@ public class MemberDetailResponse extends BaseResponse {
 
     private final Role role;
 
-    private final String image_url;
+    private final String imageUrl;
+
+    private final Long bookmarkCount;
 
     @Builder
-    public MemberDetailResponse(Long id, LocalDateTime createdAt, LocalDateTime modifiedAt, String email,
-                                String nickname, Role role, String imageUrl) {
+    public MemberProfile(Long id, LocalDateTime createdAt, LocalDateTime modifiedAt, String email,
+                         String nickname, Role role, String imageUrl, Long bookmarkCount) {
         super(id, createdAt, modifiedAt);
         this.email = email;
         this.nickname = nickname;
         this.role = role;
-        this.image_url = imageUrl;
+        this.imageUrl = imageUrl;
+        this.bookmarkCount = bookmarkCount;
     }
 
-    public static MemberDetailResponse from(Member member) {
-        return MemberDetailResponse.builder()
+    public static MemberProfile from(Member member, Long bookmarkCount) {
+        return MemberProfile.builder()
                 .email(member.getEmail())
                 .nickname(member.getNickname())
                 .role(member.getRole())
-                .imageUrl(member.getImage_url())
+                .imageUrl(member.getImageUrl())
+                .bookmarkCount(bookmarkCount)
                 .id(member.getId())
                 .createdAt(member.getCreatedAt())
                 .modifiedAt(member.getModifiedAt())

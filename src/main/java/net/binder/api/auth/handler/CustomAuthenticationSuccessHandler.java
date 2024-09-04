@@ -1,12 +1,11 @@
 package net.binder.api.auth.handler;
 
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import net.binder.api.auth.dto.CustomOAuth2User;
+import net.binder.api.auth.util.CookieProvider;
 import net.binder.api.auth.util.JwtUtil;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -34,18 +33,8 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         String token = jwtUtil.generateToken(email, role);
 
-        response.addCookie(getCookie(token));
+        response.addCookie(CookieProvider.getLoginCookie(token));
         response.sendRedirect(REDIRECT_URI);
-
     }
 
-    private Cookie getCookie(String token) {
-        Cookie cookie = new Cookie(HttpHeaders.AUTHORIZATION, token);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        cookie.setPath("/");
-        cookie.setDomain("bin-finder.net");
-        cookie.setAttribute("SameSite", "None");
-        return cookie;
-    }
 }

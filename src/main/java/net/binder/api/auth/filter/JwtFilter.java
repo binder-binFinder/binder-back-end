@@ -8,10 +8,10 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import net.binder.api.auth.dto.CustomOAuth2User;
 import net.binder.api.auth.dto.LoginUser;
+import net.binder.api.auth.util.CookieProvider;
 import net.binder.api.auth.util.JwtUtil;
 import net.binder.api.common.util.ErrorResponseUtil;
 import org.springframework.http.HttpHeaders;
@@ -33,14 +33,12 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        Cookie cookie = getCookie(request);
+        String token = extractToken(request);
 
-        if (cookie == null) {
+        if (token == null) {
             filterChain.doFilter(request, response);
             return;
         }
-
-        String token = cookie.getValue();
 
         try {
             String username = jwtUtil.getUsername(token);
@@ -56,16 +54,23 @@ public class JwtFilter extends OncePerRequestFilter {
         }
     }
 
-    private static Cookie getCookie(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies == null) {
+    private static String extractToken(HttpServletRequest request) {
+
+        String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            return authorizationHeader.substring(7);
+        }
+
+        Cookie cookie = CookieProvider.getAuthorizationCookie(request);
+
+        if (cookie == null) {
             return null;
         }
-        return Arrays.stream(cookies)
-                .filter(c -> c.getName().equals(HttpHeaders.AUTHORIZATION))
-                .findFirst()
-                .orElse(null);
+
+        return cookie.getValue();
     }
+
 
     private Authentication getAuthentication(String username, String role) {
         LoginUser loginUser = new LoginUser(username, role);
