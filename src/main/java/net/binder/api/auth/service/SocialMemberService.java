@@ -21,10 +21,10 @@ public class SocialMemberService {
                 .orElseGet(() -> link(provider, providerId, email));
 
         // 탈퇴한 회원이라면 복구 시도
-        if (member.isDeleted()) {
+        if (member != null && member.isDeleted()) {
             member.restore();
         }
-        
+
         return member;
     }
 
