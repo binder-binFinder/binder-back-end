@@ -5,6 +5,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.binder.api.bin.entity.Bin;
@@ -24,4 +25,9 @@ public class MemberLikeBin extends BaseEntity {
     @JoinColumn(name = "bin_id")
     private Bin bin;
 
+    @Builder
+    public MemberLikeBin(Member member, Bin bin) {
+        this.member = member;
+        this.bin = bin;
+    }
 }
