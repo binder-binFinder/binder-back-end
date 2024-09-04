@@ -1,6 +1,7 @@
 package net.binder.api.member.service;
 
 import java.util.List;
+import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.common.exception.NotFoundException;
@@ -44,13 +45,21 @@ public class MemberService {
     }
 
     public void updateProfile(String email, String nickname, String imageUrl) {
+
         Member member = findByEmail(email);
 
-        if (!member.isOwnNickname(nickname) && memberRepository.existsByNickname(nickname)) {
-            throw new BadRequestException("이미 존재하는 닉네임입니다.");
-        }
+        validateNicknamePattern(nickname);
+        validateDuplicateNickname(nickname, member);
 
         member.changeProfile(nickname, imageUrl);
+    }
+
+    private void validateNicknamePattern(String nickname) {
+        String regex = "^[a-zA-Z0-9가-힣]{2,16}$";
+        if (!Pattern.matches(regex, nickname)) {
+            throw new BadRequestException("닉네임은 영문, 숫자, 한글만 사용하여 2~16자로 구성되어야 합니다.");
+        }
+
     }
 
     @Transactional(readOnly = true)
@@ -68,6 +77,12 @@ public class MemberService {
     private void validateAlreadyDeleted(boolean deleted) {
         if (!deleted) {
             throw new BadRequestException("이미 탈퇴한 회원입니다.");
+        }
+    }
+
+    private void validateDuplicateNickname(String nickname, Member member) {
+        if (!member.isOwnNickname(nickname) && memberRepository.existsByNickname(nickname)) {
+            throw new BadRequestException("이미 존재하는 닉네임입니다.");
         }
     }
 }
