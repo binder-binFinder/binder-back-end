@@ -34,13 +34,13 @@ public class MemberService {
                 .orElseThrow(() -> new NotFoundException("이메일과 일치하는 사용자를 찾을 수 없습니다."));
     }
 
-    public void deleteMember(String email) {
+    public void deleteMember(String email, String input) {
+        validateInvalidInput(input);
+
         Member member = findByEmail(email);
         boolean deleted = member.softDelete();
 
-        if (!deleted) {
-            throw new BadRequestException("이미 탈퇴한 회원입니다.");
-        }
+        validateAlreadyDeleted(deleted);
     }
 
     public void updateProfile(String email, String nickname, String imageUrl) {
@@ -57,5 +57,17 @@ public class MemberService {
     public List<MemberTimeLine> getTimeLines(String email) {
         Member member = findByEmail(email);
         return memberRepository.findTimeLines(member);
+    }
+
+    private void validateInvalidInput(String input) {
+        if (!input.equals("탈퇴하기")) {
+            throw new BadRequestException("탈퇴하기 문구가 올바르게 입력되지 않았습니다.");
+        }
+    }
+
+    private void validateAlreadyDeleted(boolean deleted) {
+        if (!deleted) {
+            throw new BadRequestException("이미 탈퇴한 회원입니다.");
+        }
     }
 }

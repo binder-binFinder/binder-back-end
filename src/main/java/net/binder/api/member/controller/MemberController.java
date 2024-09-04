@@ -8,6 +8,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import net.binder.api.auth.util.CookieProvider;
 import net.binder.api.common.annotation.CurrentUser;
+import net.binder.api.member.dto.MemberDeleteRequest;
 import net.binder.api.member.dto.MemberProfile;
 import net.binder.api.member.dto.MemberProfileUpdateRequest;
 import net.binder.api.member.dto.MemberTimeLine;
@@ -34,8 +35,8 @@ public class MemberController {
 
     @Operation(summary = "회원 탈퇴")
     @DeleteMapping("/me")
-    public void delete(@CurrentUser String email, HttpServletResponse response) {
-        memberService.deleteMember(email);
+    public void delete(@CurrentUser String email, MemberDeleteRequest request, HttpServletResponse response) {
+        memberService.deleteMember(email, request.getInput());
 
         Cookie cookie = CookieProvider.getLogoutCookie();
 
