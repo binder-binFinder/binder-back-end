@@ -1,11 +1,13 @@
 package net.binder.api.member.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.common.exception.NotFoundException;
+import net.binder.api.member.dto.MemberTimeLine;
 import net.binder.api.member.entity.Member;
 import net.binder.api.member.repository.MemberRepository;
-import net.binder.api.memberlikebin.repository.MemberLikeBinRepository;
+import net.binder.api.memberlikebin.repository.BookmarkRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,7 +18,7 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
 
-    private final MemberLikeBinRepository memberLikeBinRepository;
+    private final BookmarkRepository bookmarkRepository;
 
     @Transactional(readOnly = true)
     public Member findByEmail(String email) {
@@ -35,7 +37,7 @@ public class MemberService {
 
     @Transactional(readOnly = true)
     public long calculateLikeCount(Member member) {
-        return memberLikeBinRepository.countByMember(member);
+        return bookmarkRepository.countByMember(member);
     }
 
     public void updateProfile(String email, String nickname, String imageUrl) {
@@ -46,5 +48,11 @@ public class MemberService {
         }
 
         member.changeProfile(nickname, imageUrl);
+    }
+
+    @Transactional(readOnly = true)
+    public List<MemberTimeLine> getTimeLines(String email) {
+        Member member = findByEmail(email);
+        return memberRepository.findTimeLines(member);
     }
 }

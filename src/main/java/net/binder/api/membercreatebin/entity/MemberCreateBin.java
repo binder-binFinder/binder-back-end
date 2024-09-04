@@ -8,6 +8,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.binder.api.bin.entity.Bin;
@@ -31,4 +32,12 @@ public class MemberCreateBin extends BaseEntity {
     private MemberCreateBinStatus status;
 
     private String rejectionReason;
+
+    @Builder
+    public MemberCreateBin(Member member, Bin bin, MemberCreateBinStatus status, String rejectionReason) {
+        this.member = member;
+        this.bin = bin;
+        this.status = status;
+        this.rejectionReason = rejectionReason;
+    }
 }
