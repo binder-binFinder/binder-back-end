@@ -48,6 +48,70 @@ class MemberServiceTest {
     }
 
     @Test
+    @DisplayName("프로필 업데이트 실패 - 닉네임 패턴 불일치 (짧은 길이)")
+    void updateProfile_invalidNicknameTooShort() {
+        // given
+        String invalidNickname = "a";
+
+        // when & then
+        assertThatThrownBy(() ->
+                memberService.updateProfile(testMember.getEmail(), invalidNickname, testMember.getImageUrl()))
+                .isInstanceOf(BadRequestException.class);
+    }
+
+    @Test
+    @DisplayName("프로필 업데이트 실패 - 닉네임 패턴 불일치 (긴 길이)")
+    void updateProfile_invalidNicknameTooLong() {
+        // given
+        String invalidNickname = "abcdefghijklmnopq"; // 17자
+
+        // when & then
+        assertThatThrownBy(() ->
+                memberService.updateProfile(testMember.getEmail(), invalidNickname, testMember.getImageUrl()))
+                .isInstanceOf(BadRequestException.class);
+    }
+
+    @Test
+    @DisplayName("프로필 업데이트 실패 - 닉네임 패턴 불일치 (특수문자 포함)")
+    void updateProfile_invalidNicknameSpecialCharacters() {
+        // given
+        String invalidNickname = "test@user";
+
+        // when & then
+        assertThatThrownBy(() ->
+                memberService.updateProfile(testMember.getEmail(), invalidNickname, testMember.getImageUrl()))
+                .isInstanceOf(BadRequestException.class);
+    }
+
+    @Test
+    @DisplayName("프로필 업데이트 성공 - 유효한 닉네임 (한글)")
+    void updateProfile_validNicknameKorean() {
+        // given
+        String validNickname = "테스트사용자";
+
+        // when
+        memberService.updateProfile(testMember.getEmail(), validNickname, testMember.getImageUrl());
+
+        // then
+        Member updatedMember = memberRepository.findByEmail(testMember.getEmail()).orElseThrow();
+        assertThat(updatedMember.getNickname()).isEqualTo(validNickname);
+    }
+
+    @Test
+    @DisplayName("프로필 업데이트 성공 - 유효한 닉네임 (영문, 숫자, 한글 혼합)")
+    void updateProfile_validNicknameMixed() {
+        // given
+        String validNickname = "test사용자123";
+
+        // when
+        memberService.updateProfile(testMember.getEmail(), validNickname, testMember.getImageUrl());
+
+        // then
+        Member updatedMember = memberRepository.findByEmail(testMember.getEmail()).orElseThrow();
+        assertThat(updatedMember.getNickname()).isEqualTo(validNickname);
+    }
+
+    @Test
     @DisplayName("프로필 업데이트 성공 - 닉네임과 이미지 URL 모두 변경")
     void updateProfile_success() {
         // given
