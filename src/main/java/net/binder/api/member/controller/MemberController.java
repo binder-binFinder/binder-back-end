@@ -8,10 +8,9 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import net.binder.api.auth.util.CookieProvider;
 import net.binder.api.common.annotation.CurrentUser;
-import net.binder.api.member.dto.MemberDetailResponse;
+import net.binder.api.member.dto.MemberProfile;
 import net.binder.api.member.dto.MemberProfileUpdateRequest;
 import net.binder.api.member.dto.MemberTimeLine;
-import net.binder.api.member.entity.Member;
 import net.binder.api.member.service.MemberService;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,11 +28,8 @@ public class MemberController {
 
     @Operation(summary = "본인 정보 조회")
     @GetMapping("/me")
-    public MemberDetailResponse profile(@CurrentUser String email) {
-        Member member = memberService.findByEmail(email);
-        long likeCount = memberService.calculateLikeCount(member);
-
-        return MemberDetailResponse.from(member, likeCount);
+    public MemberProfile profile(@CurrentUser String email) {
+        return memberService.getProfile(email);
     }
 
     @Operation(summary = "회원 탈퇴")
