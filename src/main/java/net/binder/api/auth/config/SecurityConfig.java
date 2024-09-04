@@ -60,10 +60,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/").permitAll() // AWS 헬스 체크
                         .requestMatchers("/swagger-ui/**", "/v3/**").permitAll() // 스웨거
+                        .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint(customAuthenticationEntryPoint)
-                        .accessDeniedHandler(customAccessDeniedHandler)); // 미인증시
+                        .accessDeniedHandler(customAccessDeniedHandler));
 
         http.
                 addFilterBefore(new JwtFilter(jwtUtil, objectMapper), UsernamePasswordAuthenticationFilter.class);
