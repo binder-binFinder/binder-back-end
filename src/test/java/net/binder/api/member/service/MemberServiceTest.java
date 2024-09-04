@@ -3,11 +3,19 @@ package net.binder.api.member.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.util.List;
+import net.binder.api.bin.entity.Bin;
+import net.binder.api.bin.entity.BinType;
+import net.binder.api.bin.repository.BinRepository;
 import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.common.exception.NotFoundException;
+import net.binder.api.member.dto.MemberTimeLine;
 import net.binder.api.member.entity.Member;
 import net.binder.api.member.entity.Role;
 import net.binder.api.member.repository.MemberRepository;
+import net.binder.api.membercreatebin.entity.MemberCreateBin;
+import net.binder.api.membercreatebin.entity.MemberCreateBinStatus;
+import net.binder.api.membercreatebin.repository.MemberCreateBinRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,6 +32,12 @@ class MemberServiceTest {
 
     @Autowired
     private MemberRepository memberRepository;
+
+    @Autowired
+    private BinRepository binRepository;
+
+    @Autowired
+    private MemberCreateBinRepository memberCreateBinRepository;
 
     private Member testMember;
 
@@ -102,5 +116,41 @@ class MemberServiceTest {
         // when & then
         assertThatThrownBy(() -> memberService.updateProfile(nonExistentEmail, "새닉네임", "http://example.com/new.jpg"))
                 .isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("사용자가 작성한 쓰레기통 목록을 최신 날짜순으로 가져온다.")
+    void findTimeLines() {
+        // Given
+
+        Bin bin1 = getBin("Bin1", BinType.GENERAL, "Address1", 5L, "image1");
+        Bin bin2 = getBin("Bin2", BinType.RECYCLE, "Address2", 10L, "image2");
+        Bin deletedBin = getBin("Bin3", BinType.RECYCLE, "Address3", 15L, "image3");
+        deletedBin.softDelete();
+        binRepository.saveAll(List.of(bin1, bin2, deletedBin));
+
+        MemberCreateBin mcb1 = new MemberCreateBin(testMember, bin1, MemberCreateBinStatus.APPROVED, null);
+        MemberCreateBin mcb2 = new MemberCreateBin(testMember, bin2, MemberCreateBinStatus.PENDING, null);
+        MemberCreateBin mcbDeleted = new MemberCreateBin(testMember, deletedBin, MemberCreateBinStatus.APPROVED, null);
+        memberCreateBinRepository.saveAll(List.of(mcb1, mcb2, mcbDeleted));
+
+        // When
+        List<MemberTimeLine> result = memberService.getTimeLines("test@example.com");
+
+        // Then
+        assertThat(result).hasSize(2);
+        assertThat(result).extracting("title").containsExactly("Bin2", "Bin1");
+        assertThat(result).extracting("bookmarkCount").containsExactly(10L, 5L);
+        assertThat(result).extracting("title").doesNotContain("Bin3");
+    }
+
+    private Bin getBin(String title, BinType type, String address, Long bookmarkCount, String imageUrl) {
+        return Bin.builder()
+                .title(title)
+                .type(type)
+                .address(address)
+                .bookmarkCount(bookmarkCount)
+                .imageUrl(imageUrl)
+                .build();
     }
 }

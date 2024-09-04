@@ -4,11 +4,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import net.binder.api.auth.util.CookieProvider;
 import net.binder.api.common.annotation.CurrentUser;
 import net.binder.api.member.dto.MemberDetailResponse;
 import net.binder.api.member.dto.MemberProfileUpdateRequest;
+import net.binder.api.member.dto.MemberTimeLine;
 import net.binder.api.member.entity.Member;
 import net.binder.api.member.service.MemberService;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -35,7 +37,7 @@ public class MemberController {
     }
 
     @Operation(summary = "회원 탈퇴")
-    @DeleteMapping
+    @DeleteMapping("/me")
     public void delete(@CurrentUser String email, HttpServletResponse response) {
         memberService.deleteMember(email);
 
@@ -45,8 +47,14 @@ public class MemberController {
     }
 
     @Operation(summary = "회원 프로필 수정")
-    @PatchMapping
+    @PatchMapping("/me")
     public void updateProfile(@CurrentUser String email, MemberProfileUpdateRequest request) {
         memberService.updateProfile(email, request.getNickname(), request.getImageUrl());
+    }
+
+    @Operation(summary = "회원 타임라인 조회")
+    @GetMapping("/me/timeline")
+    public List<MemberTimeLine> timeline(@CurrentUser String email) {
+        return memberService.getTimeLines(email);
     }
 }

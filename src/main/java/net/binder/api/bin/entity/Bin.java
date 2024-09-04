@@ -32,26 +32,26 @@ public class Bin extends BaseEntityWithSoftDelete {
 
     private String address;
 
-    private long likeCount;
+    private Long likeCount;
 
-    private long dislikeCount;
+    private Long dislikeCount;
 
-    private long bookmarkCount;
+    private Long bookmarkCount;
 
     private String imageUrl;
 
     private LocalDateTime deletedAt;
 
     @Builder
-    public Bin(String title, BinType type, Point point, String address, long likeCount, long dislikeCount,
-               long bookmarkCount, String imageUrl) {
+    public Bin(String title, BinType type, Point point, String address, Long likeCount, Long dislikeCount,
+               Long bookmarkCount, String imageUrl) {
         this.title = title;
         this.type = type;
         this.point = point;
         this.address = address;
         this.likeCount = likeCount;
         this.dislikeCount = dislikeCount;
-        this.bookmarkCount =bookmarkCount;
+        this.bookmarkCount = bookmarkCount;
         this.imageUrl = imageUrl;
     }
 
@@ -70,9 +70,5 @@ public class Bin extends BaseEntityWithSoftDelete {
         this.point = point;
         this.address = address;
         this.imageUrl = imageUrl;
-    }
-
-    public void upLike(){
-        this.likeCount++;
     }
 }
