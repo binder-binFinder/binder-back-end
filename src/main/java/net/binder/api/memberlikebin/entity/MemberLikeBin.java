@@ -23,4 +23,5 @@ public class MemberLikeBin extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bin_id")
     private Bin bin;
+
 }
