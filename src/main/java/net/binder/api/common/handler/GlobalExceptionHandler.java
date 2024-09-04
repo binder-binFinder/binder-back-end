@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -34,5 +35,10 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(httpStatus)
                 .body(ErrorResponse.from(e.getMessage()));
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNoResourceFoundException() {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.from("존재하지 않는 페이지입니다."));
     }
 }
