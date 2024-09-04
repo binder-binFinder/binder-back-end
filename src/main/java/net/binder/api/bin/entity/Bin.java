@@ -1,8 +1,7 @@
 package net.binder.api.bin.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -14,6 +13,14 @@ import org.locationtech.jts.geom.Point;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name= "sameBin",
+                        columnNames={"address", "type"}
+                )
+        }
+)
 public class Bin extends BaseEntityWithSoftDelete {
 
     private String title;
@@ -52,5 +59,13 @@ public class Bin extends BaseEntityWithSoftDelete {
         deletedAt = LocalDateTime.now();
 
         return true;
+    }
+
+    public void update(String title, BinType type, Point point, String address, String imageUrl) {
+        this.title = title;
+        this.type = type;
+        this.point = point;
+        this.address = address;
+        this.imageUrl = imageUrl;
     }
 }
