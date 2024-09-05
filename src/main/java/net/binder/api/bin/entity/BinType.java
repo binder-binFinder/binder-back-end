@@ -9,9 +9,13 @@ import java.util.Arrays;
 @Getter
 @AllArgsConstructor
 public enum BinType {
+
     GENERAL("general"),
+
     RECYCLE("recycle"),
+
     CIGAR("cigar"),
+
     BEVERAGE( "beverage");
 
     private final String name;
