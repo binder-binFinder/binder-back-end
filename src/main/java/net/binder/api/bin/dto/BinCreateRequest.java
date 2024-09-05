@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class BinSave {
+public class BinCreateRequest {
 
     private final String title;
 
