@@ -112,7 +112,10 @@ public class BinService {
     private Point getPoint(Double latitude, Double longitude) {
         GeometryFactory geometryFactory = new GeometryFactory();
         Coordinate coordinate = new Coordinate(longitude, latitude);
-        return geometryFactory.createPoint(coordinate);
+
+        Point point = geometryFactory.createPoint(coordinate);
+        point.setSRID(4326);
+        return point;
     }
 
     private BinRegistration getBinRegistration(Member member) {

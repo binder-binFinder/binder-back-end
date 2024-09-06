@@ -1,5 +1,9 @@
 package net.binder.api.binregistration.entity;
 
+import static net.binder.api.binregistration.entity.BinRegistrationStatus.APPROVED;
+import static net.binder.api.binregistration.entity.BinRegistrationStatus.PENDING;
+import static net.binder.api.binregistration.entity.BinRegistrationStatus.REJECTED;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -31,8 +35,6 @@ public class BinRegistration extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private BinRegistrationStatus status;
 
-    private String rejectionReason;
-
     @Builder
     public BinRegistration(Member member, Bin bin, BinRegistrationStatus status) {
         this.member = member;
@@ -42,5 +44,18 @@ public class BinRegistration extends BaseEntity {
 
     public void setBin(Bin bin) {
         this.bin = bin;
+    }
+
+    public void approve() {
+        this.status = APPROVED;
+    }
+
+    public void reject() {
+        this.status = REJECTED;
+        this.bin.softDelete();
+    }
+
+    public boolean isPending() {
+        return this.status == PENDING;
     }
 }

@@ -1,4 +1,4 @@
-package net.binder.api.binmodification.entity;
+package net.binder.api.notification.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -11,14 +11,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.binder.api.bin.entity.Bin;
-import net.binder.api.bin.entity.BinType;
 import net.binder.api.common.entity.BaseEntity;
 import net.binder.api.member.entity.Member;
 
+@Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity
-public class BinModification extends BaseEntity {
+public class Notification extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
@@ -28,33 +27,24 @@ public class BinModification extends BaseEntity {
     @JoinColumn(name = "bin_id")
     private Bin bin;
 
-    private String title;
-
-    private String address;
-
     @Enumerated(EnumType.STRING)
-    private BinType type;
+    private NotificationType type;
 
-    private String imageUrl;
+    private boolean isRead;
 
-    private double latitude;
-
-    private double longitude;
-
-    @Enumerated(EnumType.STRING)
-    private BinModificationStatus status;
+    private String additionalInfo;
 
     @Builder
-    public BinModification(Member member, Bin bin, String title, String address, BinType type, String imageUrl,
-                           double latitude, double longitude, BinModificationStatus status) {
+    public Notification(Member member, Bin bin, NotificationType type, String additionalInfo) {
         this.member = member;
         this.bin = bin;
-        this.title = title;
-        this.address = address;
         this.type = type;
-        this.imageUrl = imageUrl;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.status = status;
+        this.isRead = false;
+        this.additionalInfo = additionalInfo;
+
+    }
+
+    public void markAsRead() {
+        this.isRead = true;
     }
 }
