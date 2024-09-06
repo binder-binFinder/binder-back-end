@@ -1,6 +1,7 @@
 package net.binder.api.binregistration.entity;
 
 import static net.binder.api.binregistration.entity.BinRegistrationStatus.APPROVED;
+import static net.binder.api.binregistration.entity.BinRegistrationStatus.PENDING;
 import static net.binder.api.binregistration.entity.BinRegistrationStatus.REJECTED;
 
 import jakarta.persistence.Entity;
@@ -51,5 +52,9 @@ public class BinRegistration extends BaseEntity {
 
     public void reject() {
         this.status = REJECTED;
+    }
+
+    public boolean isPending() {
+        return this.status == PENDING;
     }
 }

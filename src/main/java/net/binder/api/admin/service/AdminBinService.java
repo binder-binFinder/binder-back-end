@@ -4,9 +4,8 @@ import static net.binder.api.notification.entity.NotificationType.BIN_REGISTRATI
 import static net.binder.api.notification.entity.NotificationType.BIN_REGISTRATION_REJECTED;
 
 import lombok.RequiredArgsConstructor;
-import net.binder.api.bin.entity.Bin;
-import net.binder.api.bin.repository.BinRepository;
 import net.binder.api.binregistration.entity.BinRegistration;
+import net.binder.api.binregistration.repository.BinRegistrationRepository;
 import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.common.exception.NotFoundException;
 import net.binder.api.notification.service.NotificationService;
@@ -18,39 +17,39 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AdminBinService {
 
-    private final BinRepository binRepository;
+    private final BinRegistrationRepository binRegistrationRepository;
 
     private final NotificationService notificationService;
 
     public void approveRegistration(Long id) {
-        Bin bin = findOrThrow(id);
+        BinRegistration binRegistration = findRegistrationOrThrow(id);
 
-        validateRegistrationStatus(bin);
+        validateRegistrationStatus(binRegistration);
 
-        BinRegistration binRegistration = bin.getBinRegistration();
         binRegistration.approve();
 
-        notificationService.sendNotification(binRegistration.getMember(), bin, BIN_REGISTRATION_APPROVED, null);
+        notificationService.sendNotification(binRegistration.getMember(), binRegistration.getBin(),
+                BIN_REGISTRATION_APPROVED, null);
     }
 
     public void rejectRegistration(Long id, String rejectReason) {
-        Bin bin = findOrThrow(id);
+        BinRegistration binRegistration = findRegistrationOrThrow(id);
 
-        validateRegistrationStatus(bin);
+        validateRegistrationStatus(binRegistration);
 
-        BinRegistration binRegistration = bin.getBinRegistration();
         binRegistration.reject();
 
-        notificationService.sendNotification(binRegistration.getMember(), bin, BIN_REGISTRATION_REJECTED, rejectReason);
+        notificationService.sendNotification(binRegistration.getMember(), binRegistration.getBin(),
+                BIN_REGISTRATION_REJECTED, rejectReason);
     }
 
-    private Bin findOrThrow(Long id) {
-        return binRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("존재하지 않는 쓰레기통입니다."));
+    private BinRegistration findRegistrationOrThrow(Long id) {
+        return binRegistrationRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 쓰레기통 등록 요청입니다."));
     }
 
-    private void validateRegistrationStatus(Bin bin) {
-        if (!bin.isPending()) {
+    private void validateRegistrationStatus(BinRegistration binRegistration) {
+        if (!binRegistration.isPending()) {
             throw new BadRequestException("이미 심사가 완료된 상태입니다.");
         }
     }
