@@ -49,7 +49,7 @@ public class Bin extends BaseEntityWithSoftDelete {
 
     private String imageUrl;
 
-    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "bin", cascade = CascadeType.ALL)
     private BinRegistration binRegistration;
 
     private LocalDateTime deletedAt;
