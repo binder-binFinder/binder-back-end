@@ -1,6 +1,7 @@
 package net.binder.api.image.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import net.binder.api.image.dto.ImageUploadResponse;
 import net.binder.api.image.service.ImageService;
@@ -14,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/images")
+@Tag(name = "이미지 관리")
 public class ImageController {
 
     private final ImageService imageService;
