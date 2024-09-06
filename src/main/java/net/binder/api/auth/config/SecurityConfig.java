@@ -11,6 +11,7 @@ import net.binder.api.auth.service.CustomOAuth2UserService;
 import net.binder.api.auth.util.JwtUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -61,6 +62,7 @@ public class SecurityConfig {
                         .requestMatchers("/").permitAll() // AWS 헬스 체크
                         .requestMatchers("/swagger-ui/**", "/v3/**").permitAll() // 스웨거
                         .requestMatchers("/error").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/bins/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint(customAuthenticationEntryPoint)

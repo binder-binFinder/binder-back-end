@@ -4,29 +4,27 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.binder.api.common.exception.BadRequestException;
 
-import java.util.Arrays;
-
 @Getter
 @AllArgsConstructor
 public enum BinType {
 
-    GENERAL("general"),
+    GENERAL,
 
-    RECYCLE("recycle"),
+    RECYCLE,
 
-    CIGAR("cigar"),
+    CIGAR,
 
-    BEVERAGE( "beverage");
+    BEVERAGE;
 
-    private final String name;
+    public static BinType getType(String type) {
+        String upperCase = type.toUpperCase();
 
-    public static BinType getType(String type){
         BinType[] types = BinType.values();
-        for(BinType binType : types){
-            if(binType.getName().equals(type)){
+        for (BinType binType : types) {
+            if (binType.name().equals(upperCase)) {
                 return binType;
             }
         }
-        throw new BadRequestException(type+"은 정해진 쓰레기통 타입이 아닙니다.");
+        throw new BadRequestException(type + "은 정해진 쓰레기통 타입이 아닙니다.");
     }
 }

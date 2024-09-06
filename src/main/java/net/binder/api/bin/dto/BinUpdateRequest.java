@@ -1,6 +1,7 @@
 package net.binder.api.bin.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -20,9 +21,9 @@ public class BinUpdateRequest {
     @NotBlank
     private final String imageUrl;
 
-    @NotBlank
+    @NotNull
     private final Double latitude;
 
-    @NotBlank
+    @NotNull
     private final Double longitude;
 }

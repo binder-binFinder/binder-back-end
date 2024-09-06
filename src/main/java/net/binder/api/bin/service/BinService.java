@@ -2,7 +2,7 @@ package net.binder.api.bin.service;
 
 import lombok.RequiredArgsConstructor;
 import net.binder.api.bin.dto.BinCreateRequest;
-import net.binder.api.bin.dto.BinDetailResponseForLoginUser;
+import net.binder.api.bin.dto.BinDetailResponse;
 import net.binder.api.bin.dto.BinUpdateRequest;
 import net.binder.api.bin.entity.Bin;
 import net.binder.api.bin.entity.BinDetailProjection;
@@ -42,6 +42,7 @@ public class BinService {
     public void requestBinRegistration(BinCreateRequest binCreateRequest, String email) {
         Member member = memberService.findByEmail(email);
         BinType type = BinType.getType(binCreateRequest.getType());
+
         Point point = getPoint(binCreateRequest.getLatitude(), binCreateRequest.getLongitude());
         BinRegistration binRegistration = getBinRegistration(member);
 
@@ -59,34 +60,25 @@ public class BinService {
     }
 
     @Transactional(readOnly = true)
-    public BinDetailResponseForLoginUser findByIdForLoginUser(Member member, Long bindId) {
+    public BinDetailResponse getBinDetail(String email, Long binId) {
+        Bin bin = findById(binId);
 
-        BinDetailProjection projection = binRepository.findDetailByIdAndMemberIdNative(bindId, member.getId()).
+        if (email == null) {
+            return BinDetailResponse.from(bin);
+        }
+        Member member = memberService.findByEmail(email);
+
+        BinDetailProjection projection = binRepository.findDetailByIdAndMemberIdNative(binId, member.getId()).
                 orElseThrow(() ->
                         new NotFoundException("존재하지 않는 쓰레기통입니다."));
 
-        return new BinDetailResponseForLoginUser(
-                projection.getId(),
-                projection.getCreatedAt(),
-                projection.getModifiedAt(),
-                projection.getTitle(),
-                projection.getType(),
-                projection.getLatitude(),
-                projection.getLongitude(),
-                projection.getAddress(),
-                projection.getLikeCount(),
-                projection.getDislikeCount(),
-                projection.getImageUrl(),
-                projection.getIsLiked() == 1,
-                projection.getIsDisliked() == 1,
-                projection.getIsBookmarked() == 1
-        );
+        return BinDetailResponse.from(projection);
     }
 
     @Transactional(readOnly = true)
     public Bin findById(Long binId) {
 
-        return binRepository.findByIdAndNotDeleted(binId).
+        return binRepository.findByIdAndDeletedAtIsNull(binId).
                 orElseThrow(() ->
                         new NotFoundException("존재하지 않는 쓰레기통입니다."));
     }
@@ -117,9 +109,9 @@ public class BinService {
                 .build();
     }
 
-    private Point getPoint(double latitude, double longitude) {
+    private Point getPoint(Double latitude, Double longitude) {
         GeometryFactory geometryFactory = new GeometryFactory();
-        Coordinate coordinate = new Coordinate(latitude, longitude);
+        Coordinate coordinate = new Coordinate(longitude, latitude);
         return geometryFactory.createPoint(coordinate);
     }
 
