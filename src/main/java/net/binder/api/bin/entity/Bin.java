@@ -1,13 +1,20 @@
 package net.binder.api.bin.entity;
 
-import jakarta.persistence.*;
+import static net.binder.api.binregistration.entity.BinRegistrationStatus.PENDING;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
-
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import net.binder.api.binregistration.entity.BinRegistration;
 import net.binder.api.common.entity.BaseEntityWithSoftDelete;
 import net.binder.api.member.entity.Member;
 import org.locationtech.jts.geom.Point;
@@ -42,15 +49,15 @@ public class Bin extends BaseEntityWithSoftDelete {
 
     private String imageUrl;
 
+    @OneToOne(mappedBy = "bin", cascade = CascadeType.ALL)
+    private BinRegistration binRegistration;
+
     private LocalDateTime deletedAt;
 
-    @ManyToOne
-    @JoinColumn(name = "member_id")
-    private Member member;
-
     @Builder
-    public Bin(String title, BinType type, Point point, String address, Long likeCount, Long dislikeCount,
-               Long bookmarkCount, String imageUrl, Member member) {
+    public Bin(String title, BinType type, Point point, String address, Long likeCount,
+               Long dislikeCount,
+               Long bookmarkCount, String imageUrl, BinRegistration binRegistration) {
         this.title = title;
         this.type = type;
         this.point = point;
@@ -59,7 +66,7 @@ public class Bin extends BaseEntityWithSoftDelete {
         this.dislikeCount = dislikeCount;
         this.bookmarkCount = bookmarkCount;
         this.imageUrl = imageUrl;
-        this.member = member;
+        this.binRegistration = binRegistration;
     }
 
     public boolean softDelete() {
@@ -93,5 +100,18 @@ public class Bin extends BaseEntityWithSoftDelete {
 
     public void decreaseDisLike() {
         this.dislikeCount--;
+    }
+
+    public boolean isOwner(Member member) {
+        return this.binRegistration.getMember().equals(member);
+    }
+
+    public void setBinRegistration(BinRegistration binRegistration) {
+        this.binRegistration = binRegistration;
+        binRegistration.setBin(this);
+    }
+
+    public boolean isPending() {
+        return this.binRegistration.getStatus() == PENDING;
     }
 }

@@ -17,7 +17,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
 
-        String message = Objects.requireNonNull(e.getFieldError()).getDefaultMessage();
+        String defaultMessage = Objects.requireNonNull(e.getFieldError()).getDefaultMessage();
+        String message = e.getFieldError().getField() + "은(는) " + defaultMessage;
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorResponse.from(message));
     }

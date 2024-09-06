@@ -6,11 +6,12 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import net.binder.api.bin.entity.BinType;
+import net.binder.api.bin.entity.Bin;
 import net.binder.api.common.entity.BaseEntity;
 import net.binder.api.member.entity.Member;
 
@@ -19,37 +20,27 @@ import net.binder.api.member.entity.Member;
 @Entity
 public class BinRegistration extends BaseEntity {
 
-    private String title;
-
-    private String address;
-
-    private BinType type;
-
-    private String imageUrl;
-
-    private double latitude;
-
-    private double longitude;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "bin_id")
+    private Bin bin;
+
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private BinRegistrationStatus status;
 
     private String rejectionReason;
 
     @Builder
-    public BinRegistration(String title, String address, BinType type, String imageUrl, double latitude, double longitude, Member member, Status status, String rejectionReason) {
-        this.title = title;
-        this.address = address;
-        this.type = type;
-        this.imageUrl = imageUrl;
-        this.latitude = latitude;
-        this.longitude = longitude;
+    public BinRegistration(Member member, Bin bin, BinRegistrationStatus status) {
         this.member = member;
+        this.bin = bin;
         this.status = status;
-        this.rejectionReason = rejectionReason;
+    }
+
+    public void setBin(Bin bin) {
+        this.bin = bin;
     }
 }
