@@ -32,6 +32,7 @@ public class BinModification extends BaseEntity {
 
     private String address;
 
+    @Enumerated(EnumType.STRING)
     private BinType type;
 
     private String imageUrl;
