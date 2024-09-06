@@ -33,8 +33,6 @@ public class BinRegistration extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private BinRegistrationStatus status;
 
-    private String rejectionReason;
-
     @Builder
     public BinRegistration(Member member, Bin bin, BinRegistrationStatus status) {
         this.member = member;

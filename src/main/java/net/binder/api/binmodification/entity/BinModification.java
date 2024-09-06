@@ -44,8 +44,6 @@ public class BinModification extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private BinModificationStatus status;
 
-    private String rejectionReason;
-
     @Builder
     public BinModification(Member member, Bin bin, String title, String address, BinType type, String imageUrl,
                            double latitude, double longitude, BinModificationStatus status) {
