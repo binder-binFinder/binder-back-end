@@ -1,6 +1,7 @@
 package net.binder.api.admin.service;
 
 import static net.binder.api.notification.entity.NotificationType.BIN_REGISTRATION_APPROVED;
+import static net.binder.api.notification.entity.NotificationType.BIN_REGISTRATION_REJECTED;
 
 import lombok.RequiredArgsConstructor;
 import net.binder.api.bin.entity.Bin;
@@ -30,6 +31,17 @@ public class AdminBinService {
         binRegistration.approve();
 
         notificationService.sendNotification(binRegistration.getMember(), bin, BIN_REGISTRATION_APPROVED, null);
+    }
+
+    public void rejectRegistration(Long id, String rejectReason) {
+        Bin bin = findOrThrow(id);
+
+        validateRegistrationStatus(bin);
+
+        BinRegistration binRegistration = bin.getBinRegistration();
+        binRegistration.reject();
+
+        notificationService.sendNotification(binRegistration.getMember(), bin, BIN_REGISTRATION_REJECTED, rejectReason);
     }
 
     private Bin findOrThrow(Long id) {
