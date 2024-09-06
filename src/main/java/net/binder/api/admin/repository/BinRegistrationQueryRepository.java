@@ -23,6 +23,8 @@ public class BinRegistrationQueryRepository {
         BooleanBuilder booleanBuilder = getBooleanBuilder(filter);
 
         return jpaQueryFactory.selectFrom(binRegistration)
+                .join(binRegistration.bin).fetchJoin()
+                .join(binRegistration.member).fetchJoin()
                 .where(booleanBuilder)
                 .orderBy(binRegistration.createdAt.desc())
                 .fetch();
