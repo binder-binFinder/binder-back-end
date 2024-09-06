@@ -24,7 +24,11 @@ public interface BinDetailProjection {
 
     Long getDislikeCount();
 
+    Long getBookmarkCount();
+
     String getImageUrl();
+
+    Integer getIsOwner();
 
     Integer getIsLiked();
 

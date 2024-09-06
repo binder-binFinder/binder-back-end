@@ -15,7 +15,7 @@ import net.binder.api.member.entity.Member;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class BookMark extends BaseEntity {
+public class Bookmark extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
@@ -26,7 +26,7 @@ public class BookMark extends BaseEntity {
     private Bin bin;
 
     @Builder
-    public BookMark(Member member, Bin bin) {
+    public Bookmark(Member member, Bin bin) {
         this.member = member;
         this.bin = bin;
     }

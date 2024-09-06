@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class BinCreateRequest {
+public class BinUpdateRequest {
 
     @NotBlank
     private final String title;

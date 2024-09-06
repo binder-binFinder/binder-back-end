@@ -7,15 +7,15 @@ import java.util.List;
 import net.binder.api.bin.entity.Bin;
 import net.binder.api.bin.entity.BinType;
 import net.binder.api.bin.repository.BinRepository;
+import net.binder.api.binregistration.entity.BinRegistration;
+import net.binder.api.binregistration.entity.BinRegistrationStatus;
+import net.binder.api.binregistration.repository.BinRegistrationRepository;
 import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.common.exception.NotFoundException;
-import net.binder.api.member.dto.MemberTimeLine;
+import net.binder.api.member.dto.BinRegistrationActivity;
 import net.binder.api.member.entity.Member;
 import net.binder.api.member.entity.Role;
 import net.binder.api.member.repository.MemberRepository;
-import net.binder.api.membercreatebin.entity.MemberCreateBin;
-import net.binder.api.membercreatebin.entity.MemberCreateBinStatus;
-import net.binder.api.membercreatebin.repository.MemberCreateBinRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,7 +37,7 @@ class MemberServiceTest {
     private BinRepository binRepository;
 
     @Autowired
-    private MemberCreateBinRepository memberCreateBinRepository;
+    private BinRegistrationRepository binRegistrationRepository;
 
     private Member testMember;
 
@@ -193,13 +193,13 @@ class MemberServiceTest {
         deletedBin.softDelete();
         binRepository.saveAll(List.of(bin1, bin2, deletedBin));
 
-        MemberCreateBin mcb1 = new MemberCreateBin(testMember, bin1, MemberCreateBinStatus.APPROVED, null);
-        MemberCreateBin mcb2 = new MemberCreateBin(testMember, bin2, MemberCreateBinStatus.PENDING, null);
-        MemberCreateBin mcbDeleted = new MemberCreateBin(testMember, deletedBin, MemberCreateBinStatus.APPROVED, null);
-        memberCreateBinRepository.saveAll(List.of(mcb1, mcb2, mcbDeleted));
+        BinRegistration br1 = new BinRegistration(testMember, bin1, BinRegistrationStatus.APPROVED);
+        BinRegistration br2 = new BinRegistration(testMember, bin2, BinRegistrationStatus.PENDING);
+        BinRegistration brDeleted = new BinRegistration(testMember, deletedBin, BinRegistrationStatus.APPROVED);
+        binRegistrationRepository.saveAll(List.of(br1, br2, brDeleted));
 
         // When
-        List<MemberTimeLine> result = memberService.getTimeLines("test@example.com");
+        List<BinRegistrationActivity> result = memberService.getRegistrationActivities("test@example.com");
 
         // Then
         assertThat(result).hasSize(2);

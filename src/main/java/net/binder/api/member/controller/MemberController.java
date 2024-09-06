@@ -8,10 +8,10 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import net.binder.api.auth.util.CookieProvider;
 import net.binder.api.common.annotation.CurrentUser;
+import net.binder.api.member.dto.BinRegistrationActivity;
 import net.binder.api.member.dto.MemberDeleteRequest;
 import net.binder.api.member.dto.MemberProfile;
 import net.binder.api.member.dto.MemberProfileUpdateRequest;
-import net.binder.api.member.dto.MemberTimeLine;
 import net.binder.api.member.service.MemberService;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,7 +51,7 @@ public class MemberController {
 
     @Operation(summary = "회원 타임라인 조회")
     @GetMapping("/me/timeline")
-    public List<MemberTimeLine> timeline(@CurrentUser String email) {
-        return memberService.getTimeLines(email);
+    public List<BinRegistrationActivity> timeline(@CurrentUser String email) {
+        return memberService.getRegistrationActivities(email);
     }
 }
