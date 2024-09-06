@@ -8,6 +8,9 @@ import net.binder.api.bin.entity.Bin;
 import net.binder.api.bin.entity.BinDetailProjection;
 import net.binder.api.bin.entity.BinType;
 import net.binder.api.bin.repository.BinRepository;
+import net.binder.api.binregistration.entity.BinRegistration;
+import net.binder.api.binregistration.entity.BinRegistrationStatus;
+import net.binder.api.binregistration.repository.BinRegistrationRepository;
 import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.common.exception.NotFoundException;
 import net.binder.api.member.entity.Member;
@@ -16,7 +19,6 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,33 +29,26 @@ public class BinService {
 
     private final BinRepository binRepository;
 
+    private final BinRegistrationRepository binRegistrationRepository;
+
     private final MemberService memberService;
 
     public Long create(BinCreateRequest binCreateRequest, String email) {
+        Member member = memberService.findByEmail(email);
         BinType type = BinType.getType(binCreateRequest.getType());
         Point point = getPoint(binCreateRequest.getLatitude(), binCreateRequest.getLongitude());
-        Member memberEntity = memberService.findByEmail(email);
+        Bin bin = getBin(binCreateRequest, type, point);
 
-        Bin bin = Bin.builder()
-                .title(binCreateRequest.getTitle())
-                .address(binCreateRequest.getAddress())
-                .type(type)
-                .imageUrl(binCreateRequest.getImageUrl())
-                .likeCount(0L)
-                .dislikeCount(0L)
-                .point(point)
-                .member(memberEntity)
-                .build();
-
-        Bin binEntity = null;
         try {
-            binEntity = binRepository.save(bin);
+            binRepository.save(bin);
         } catch (DataIntegrityViolationException e) {
             throw new BadRequestException("이미 등록된 쓰레기통입니다.");
 
         }
+        BinRegistration binRegistration = getBuildRegistration(member, bin);
+        binRegistrationRepository.save(binRegistration);
 
-        return binEntity.getId();
+        return bin.getId();
     }
 
     @Transactional(readOnly = true)
@@ -109,10 +104,30 @@ public class BinService {
         bin.update(binUpdate.getTitle(), type, point, binUpdate.getAddress(), binUpdate.getImageUrl());
     }
 
+    private Bin getBin(BinCreateRequest binCreateRequest, BinType type, Point point) {
+        return Bin.builder()
+                .title(binCreateRequest.getTitle())
+                .address(binCreateRequest.getAddress())
+                .type(type)
+                .imageUrl(binCreateRequest.getImageUrl())
+                .likeCount(0L)
+                .dislikeCount(0L)
+                .bookmarkCount(0L)
+                .point(point)
+                .build();
+    }
+
     private Point getPoint(double latitude, double longitude) {
         GeometryFactory geometryFactory = new GeometryFactory();
         Coordinate coordinate = new Coordinate(latitude, longitude);
-        Point point = geometryFactory.createPoint(coordinate);
-        return point;
+        return geometryFactory.createPoint(coordinate);
+    }
+
+    private BinRegistration getBuildRegistration(Member member, Bin bin) {
+        return BinRegistration.builder()
+                .member(member)
+                .bin(bin)
+                .status(BinRegistrationStatus.PENDING)
+                .build();
     }
 }

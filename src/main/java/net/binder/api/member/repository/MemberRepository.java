@@ -24,7 +24,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query("""
             SELECT new net.binder.api.member.dto.MemberTimeLine(
                 mcb.bin.id, mcb.bin.title, mcb.bin.address, mcb.bin.type,
-                mcb.status, mcb.createdAt,
+                mcb.binModificationStatus, mcb.createdAt,
                 mcb.bin.bookmarkCount
             )
             FROM Member m

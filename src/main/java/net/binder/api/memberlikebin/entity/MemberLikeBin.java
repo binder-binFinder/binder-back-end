@@ -15,7 +15,7 @@ import net.binder.api.member.entity.Member;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Bookmark extends BaseEntity {
+public class MemberLikeBin extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
@@ -26,7 +26,7 @@ public class Bookmark extends BaseEntity {
     private Bin bin;
 
     @Builder
-    public Bookmark(Member member, Bin bin) {
+    public MemberLikeBin(Member member, Bin bin) {
         this.member = member;
         this.bin = bin;
     }
