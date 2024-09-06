@@ -52,6 +52,7 @@ public class BinRegistration extends BaseEntity {
 
     public void reject() {
         this.status = REJECTED;
+        this.bin.softDelete();
     }
 
     public boolean isPending() {
