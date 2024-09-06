@@ -10,7 +10,7 @@ public interface BinRegistrationRepository extends JpaRepository<BinRegistration
 
     @Query("""
             SELECT br FROM BinRegistration br
-            WHERE br.member = :member AND br.bin.deletedAt IS NULL
+            WHERE br.member = :member
             ORDER BY br.bin.createdAt DESC
             """)
     List<BinRegistration> findAllByMember(Member member);

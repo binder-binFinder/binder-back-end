@@ -202,10 +202,9 @@ class MemberServiceTest {
         List<BinRegistrationActivity> result = memberService.getRegistrationActivities("test@example.com");
 
         // Then
-        assertThat(result).hasSize(2);
-        assertThat(result).extracting("title").containsExactly("Bin2", "Bin1");
-        assertThat(result).extracting("bookmarkCount").containsExactly(10L, 5L);
-        assertThat(result).extracting("title").doesNotContain("Bin3");
+        assertThat(result).hasSize(3);
+        assertThat(result).extracting("title").containsExactly("Bin3", "Bin2", "Bin1");
+        assertThat(result).extracting("bookmarkCount").containsExactly(15L, 10L, 5L);
     }
 
     private Bin getBin(String title, BinType type, String address, Long bookmarkCount, String imageUrl) {

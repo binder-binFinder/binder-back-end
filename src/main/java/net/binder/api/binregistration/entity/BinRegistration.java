@@ -1,5 +1,7 @@
 package net.binder.api.binregistration.entity;
 
+import static net.binder.api.binregistration.entity.BinRegistrationStatus.APPROVED;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -42,5 +44,9 @@ public class BinRegistration extends BaseEntity {
 
     public void setBin(Bin bin) {
         this.bin = bin;
+    }
+
+    public void approve() {
+        this.status = APPROVED;
     }
 }
