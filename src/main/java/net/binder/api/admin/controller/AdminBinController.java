@@ -21,15 +21,16 @@ public class AdminBinController {
     private final AdminBinService adminBinService;
 
     @Operation(summary = "쓰레기통 등록 승인")
-    @PostMapping("{id}/approve")
+    @PostMapping("registrations/{id}/approve")
     public void approveBinRegistration(@PathVariable Long id) {
 
         adminBinService.approveRegistration(id);
     }
 
     @Operation(summary = "쓰레기통 등록 거절")
-    @PostMapping("{id}/reject")
+    @PostMapping("registrations/{id}/reject")
     public void rejectBinRegistration(@PathVariable Long id, @Valid @RequestBody RejectBinRegistrationRequest request) {
         adminBinService.rejectRegistration(id, request.getRejectReason());
     }
+
 }
