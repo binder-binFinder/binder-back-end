@@ -6,12 +6,11 @@ import lombok.RequiredArgsConstructor;
 import net.binder.api.bin.dto.BinCreateRequest;
 import net.binder.api.bin.dto.BinDetailResponse;
 import net.binder.api.bin.dto.BinDetailResponseForLoginUser;
-import net.binder.api.bin.dto.BinUpdate;
+import net.binder.api.bin.dto.BinUpdateRequest;
 import net.binder.api.bin.entity.Bin;
 import net.binder.api.bin.service.BinService;
 import net.binder.api.common.annotation.CurrentUser;
 import net.binder.api.member.entity.Member;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,8 +29,8 @@ public class BinController {
 
     @Operation(summary = "쓰레기통 생성 요청")
     @PostMapping
-    public void save(@CurrentUser String email, @RequestBody BinCreateRequest binCreateRequest) {
-        binService.create(binCreateRequest, email);
+    public void requestBinRegistration(@CurrentUser String email, @RequestBody BinCreateRequest binCreateRequest) {
+        binService.requestBinRegistration(binCreateRequest, email);
     }
 
     @Operation(summary = "로그인 유저 쓰레기통 조회")
@@ -47,15 +46,10 @@ public class BinController {
         return BinDetailResponse.from(bin);
     }
 
-    @Operation(summary = "쓰레기통 삭제")
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable("id") Long id) {
-        binService.delete(id);
-    }
-
     @Operation(summary = "쓰레기통 수정 요청")
     @PatchMapping("/{id}")
-    public void update(@PathVariable("id") Long id, @RequestBody BinUpdate binUpdate) {
-        binService.update(id, binUpdate);
+    public void requestBinModification(@CurrentUser String email, @PathVariable("id") Long id,
+                                       @RequestBody BinUpdateRequest binUpdateRequest) {
+        binService.requestBinModification(email, id, binUpdateRequest);
     }
 }

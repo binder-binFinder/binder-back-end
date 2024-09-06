@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 import net.binder.api.bin.entity.BinType;
-import net.binder.api.membercreatebin.entity.MemberCreateBinStatus;
+import net.binder.api.binregistration.entity.BinRegistrationStatus;
 
 @Getter
 @ToString
@@ -19,15 +19,18 @@ public class MemberTimeLine {
 
     private final BinType type;
 
-    private final MemberCreateBinStatus status;
+    private final BinRegistrationStatus status;
 
     private final LocalDateTime createdAt;
+
+    private final LocalDateTime modifiedAt;
 
     private final Long bookmarkCount;
 
     @Builder
-    public MemberTimeLine(Long id, String title, String address, BinType type, MemberCreateBinStatus status,
+    public MemberTimeLine(Long id, String title, String address, BinType type, BinRegistrationStatus status,
                           LocalDateTime createdAt,
+                          LocalDateTime modifiedAt,
                           Long bookmarkCount) {
         this.id = id;
         this.title = title;
@@ -35,6 +38,7 @@ public class MemberTimeLine {
         this.type = type;
         this.status = status;
         this.createdAt = createdAt;
+        this.modifiedAt = modifiedAt;
         this.bookmarkCount = bookmarkCount;
     }
 }

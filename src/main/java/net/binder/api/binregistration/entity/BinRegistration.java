@@ -34,11 +34,13 @@ public class BinRegistration extends BaseEntity {
     private String rejectionReason;
 
     @Builder
-    public BinRegistration(Member member, Bin bin, BinRegistrationStatus status, String rejectionReason) {
-
+    public BinRegistration(Member member, Bin bin, BinRegistrationStatus status) {
         this.member = member;
         this.bin = bin;
         this.status = status;
-        this.rejectionReason = rejectionReason;
+    }
+
+    public void setBin(Bin bin) {
+        this.bin = bin;
     }
 }
