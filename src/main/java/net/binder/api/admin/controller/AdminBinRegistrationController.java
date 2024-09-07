@@ -10,6 +10,7 @@ import net.binder.api.admin.dto.BinRegistrationListResponse;
 import net.binder.api.admin.dto.RegistrationFilter;
 import net.binder.api.admin.dto.RejectBinRegistrationRequest;
 import net.binder.api.admin.service.AdminBinRegistrationService;
+import net.binder.api.common.annotation.CurrentUser;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,15 +29,16 @@ public class AdminBinRegistrationController {
 
     @Operation(summary = "쓰레기통 등록 승인")
     @PostMapping("/{id}/approve")
-    public void approveBinRegistration(@PathVariable Long id) {
+    public void approveBinRegistration(@CurrentUser String email, @PathVariable Long id) {
 
-        adminBinRegistrationService.approveRegistration(id);
+        adminBinRegistrationService.approveRegistration(email, id);
     }
 
     @Operation(summary = "쓰레기통 등록 거절")
     @PostMapping("/{id}/reject")
-    public void rejectBinRegistration(@PathVariable Long id, @Valid @RequestBody RejectBinRegistrationRequest request) {
-        adminBinRegistrationService.rejectRegistration(id, request.getRejectReason());
+    public void rejectBinRegistration(@CurrentUser String email, @PathVariable Long id,
+                                      @Valid @RequestBody RejectBinRegistrationRequest request) {
+        adminBinRegistrationService.rejectRegistration(email, id, request.getRejectReason());
     }
 
     @Operation(summary = "쓰레기통 등록 심사 목록")

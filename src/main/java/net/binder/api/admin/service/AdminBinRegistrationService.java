@@ -13,6 +13,8 @@ import net.binder.api.binregistration.entity.BinRegistration;
 import net.binder.api.binregistration.repository.BinRegistrationRepository;
 import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.common.exception.NotFoundException;
+import net.binder.api.member.entity.Member;
+import net.binder.api.member.service.MemberService;
 import net.binder.api.notification.service.NotificationService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,31 +24,35 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AdminBinRegistrationService {
 
+    private final MemberService memberService;
+
     private final BinRegistrationRepository binRegistrationRepository;
 
     private final BinRegistrationQueryRepository binRegistrationQueryRepository;
 
     private final NotificationService notificationService;
 
-    public void approveRegistration(Long id) {
+    public void approveRegistration(String email, Long id) {
+        Member admin = memberService.findByEmail(email);
         BinRegistration binRegistration = findRegistrationOrThrow(id);
 
         validateRegistrationStatus(binRegistration);
 
         binRegistration.approve();
 
-        notificationService.sendNotification(binRegistration.getMember(), binRegistration.getBin(),
+        notificationService.sendNotification(admin, binRegistration.getMember(), binRegistration.getBin(),
                 BIN_REGISTRATION_APPROVED, null);
     }
 
-    public void rejectRegistration(Long id, String rejectReason) {
+    public void rejectRegistration(String email, Long id, String rejectReason) {
+        Member admin = memberService.findByEmail(email);
         BinRegistration binRegistration = findRegistrationOrThrow(id);
 
         validateRegistrationStatus(binRegistration);
 
         binRegistration.reject();
 
-        notificationService.sendNotification(binRegistration.getMember(), binRegistration.getBin(),
+        notificationService.sendNotification(admin, binRegistration.getMember(), binRegistration.getBin(),
                 BIN_REGISTRATION_REJECTED, rejectReason);
     }
 
