@@ -11,6 +11,7 @@ public interface BinRegistrationRepository extends JpaRepository<BinRegistration
 
     @Query("""
             SELECT br FROM BinRegistration br
+            JOIN FETCH br.bin
             WHERE br.member = :member
             ORDER BY br.bin.createdAt DESC
             """)
