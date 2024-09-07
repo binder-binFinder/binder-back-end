@@ -51,8 +51,8 @@ public class AdminBinRegistrationService {
     }
 
     @Transactional(readOnly = true)
-    public List<BinRegistrationDetail> getBinRegistrationDetails(RegistrationFilter sort) {
-        List<BinRegistration> binRegistrations = binRegistrationQueryRepository.findAll(sort);
+    public List<BinRegistrationDetail> getBinRegistrationDetails(RegistrationFilter filter) {
+        List<BinRegistration> binRegistrations = binRegistrationQueryRepository.findAll(filter);
 
         return binRegistrations.stream()
                 .map(BinRegistrationDetail::from)

@@ -30,7 +30,7 @@ public class BinRegistrationQueryRepository {
                 .fetch();
     }
 
-    private static BooleanBuilder getBooleanBuilder(RegistrationFilter filter) {
+    private BooleanBuilder getBooleanBuilder(RegistrationFilter filter) {
         BooleanBuilder booleanBuilder = new BooleanBuilder();
         if (filter == ENTIRE) {
             return booleanBuilder;
