@@ -6,4 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface BinModificationRepository extends JpaRepository<BinModification, Long> {
     Long countByStatus(BinModificationStatus status);
+
+    boolean existsByBinIdAndStatus(Long id, BinModificationStatus binModificationStatus);
 }
