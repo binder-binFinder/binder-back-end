@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class BinModificationQueryRepository {
+public class AdminBinModificationQueryRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
 
@@ -22,7 +22,6 @@ public class BinModificationQueryRepository {
         BooleanBuilder booleanBuilder = getBooleanBuilder(filter);
 
         return jpaQueryFactory.selectFrom(binModification)
-//                .join(binModification.bin).fetchJoin()
                 .join(binModification.member).fetchJoin()
                 .where(booleanBuilder)
                 .orderBy(binModification.createdAt.desc())
