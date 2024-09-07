@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class AdminBinService {
+public class AdminBinRegistrationService {
 
     private final BinRegistrationRepository binRegistrationRepository;
 
