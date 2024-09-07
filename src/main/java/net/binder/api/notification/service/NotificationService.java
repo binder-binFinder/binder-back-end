@@ -16,10 +16,10 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
 
-    public Notification sendNotification(Member receiver, Member sender, Bin bin, NotificationType type,
+    public Notification sendNotification(Member sender, Member receiver, Bin bin, NotificationType type,
                                          String additionalInfo) {
 
-        Notification notification = new Notification(receiver, sender, bin, type, additionalInfo);
+        Notification notification = new Notification(sender, receiver, bin, type, additionalInfo);
 
         return notificationRepository.save(notification);
     }
