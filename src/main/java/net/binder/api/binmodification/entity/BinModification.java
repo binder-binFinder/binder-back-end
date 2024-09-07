@@ -61,4 +61,8 @@ public class BinModification extends BaseEntity {
     public boolean isPending() {
         return this.status == BinModificationStatus.PENDING;
     }
+
+    public void approve() {
+        this.status = BinModificationStatus.APPROVED;
+    }
 }

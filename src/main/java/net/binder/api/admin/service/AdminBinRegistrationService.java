@@ -8,7 +8,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import net.binder.api.admin.dto.BinRegistrationDetail;
 import net.binder.api.admin.dto.RegistrationFilter;
-import net.binder.api.admin.repository.BinRegistrationQueryRepository;
+import net.binder.api.admin.repository.AdminBinRegistrationQueryRepository;
 import net.binder.api.binregistration.entity.BinRegistration;
 import net.binder.api.binregistration.repository.BinRegistrationRepository;
 import net.binder.api.common.exception.BadRequestException;
@@ -28,7 +28,7 @@ public class AdminBinRegistrationService {
 
     private final BinRegistrationRepository binRegistrationRepository;
 
-    private final BinRegistrationQueryRepository binRegistrationQueryRepository;
+    private final AdminBinRegistrationQueryRepository adminBinRegistrationQueryRepository;
 
     private final NotificationService notificationService;
 
@@ -58,7 +58,7 @@ public class AdminBinRegistrationService {
 
     @Transactional(readOnly = true)
     public List<BinRegistrationDetail> getBinRegistrationDetails(RegistrationFilter filter) {
-        List<BinRegistration> binRegistrations = binRegistrationQueryRepository.findAll(filter);
+        List<BinRegistration> binRegistrations = adminBinRegistrationQueryRepository.findAll(filter);
 
         return binRegistrations.stream()
                 .map(BinRegistrationDetail::from)
