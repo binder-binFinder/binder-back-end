@@ -20,27 +20,27 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/admin/bins")
+@RequestMapping("/admin/bins/registrations")
 @Tag(name = "관리자용 쓰레기 등록 심사 관리")
 public class AdminBinRegistrationController {
 
     private final AdminBinRegistrationService adminBinRegistrationService;
 
     @Operation(summary = "쓰레기통 등록 승인")
-    @PostMapping("/registrations/{id}/approve")
+    @PostMapping("/{id}/approve")
     public void approveBinRegistration(@PathVariable Long id) {
 
         adminBinRegistrationService.approveRegistration(id);
     }
 
     @Operation(summary = "쓰레기통 등록 거절")
-    @PostMapping("/registrations/{id}/reject")
+    @PostMapping("/{id}/reject")
     public void rejectBinRegistration(@PathVariable Long id, @Valid @RequestBody RejectBinRegistrationRequest request) {
         adminBinRegistrationService.rejectRegistration(id, request.getRejectReason());
     }
 
     @Operation(summary = "쓰레기통 등록 심사 목록")
-    @GetMapping("/registrations")
+    @GetMapping
     public BinRegistrationListResponse getBinRegistrations(
             @RequestParam(defaultValue = "ENTIRE") RegistrationFilter filter) {
         List<BinRegistrationDetail> binRegistrationDetails = adminBinRegistrationService.getBinRegistrationDetails(
