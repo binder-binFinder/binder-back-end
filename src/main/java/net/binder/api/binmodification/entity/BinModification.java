@@ -57,4 +57,8 @@ public class BinModification extends BaseEntity {
         this.longitude = longitude;
         this.status = status;
     }
+
+    public boolean isPending() {
+        return this.status == BinModificationStatus.PENDING;
+    }
 }
