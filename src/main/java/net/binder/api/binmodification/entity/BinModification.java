@@ -65,4 +65,9 @@ public class BinModification extends BaseEntity {
     public void approve() {
         this.status = BinModificationStatus.APPROVED;
     }
+
+    public void reject() {
+        this.status = BinModificationStatus.REJECTED;
+        bin.softDelete();
+    }
 }

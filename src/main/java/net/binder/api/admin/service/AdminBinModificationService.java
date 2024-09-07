@@ -29,18 +29,6 @@ public class AdminBinModificationService {
     private final BinModificationRepository binModificationRepository;
     private final MemberService memberService;
 
-//
-//    public void rejectRegistration(Long id, String rejectReason) {
-//        BinRegistration binRegistration = findRegistrationOrThrow(id);
-//
-//        validateRegistrationStatus(binRegistration);
-//
-//        binRegistration.reject();
-//
-//        notificationService.sendNotification(binRegistration.getMember(), binRegistration.getBin(),
-//                BIN_REGISTRATION_REJECTED, rejectReason);
-//    }
-
     @Transactional(readOnly = true)
     public List<BinModificationDetail> getBinModificationDetails(ModificationFilter filter) {
         List<BinModification> binModifications = adminBinModificationQueryRepository.findAll(filter);
@@ -66,6 +54,18 @@ public class AdminBinModificationService {
 
         notificationService.sendNotification(admin, binModification.getMember(), binModification.getBin(),
                 NotificationType.BIN_MODIFICATION_APPROVED, null);
+    }
+
+    public void rejectModification(String email, Long id, String rejectReason) {
+        Member admin = memberService.findByEmail(email);
+        BinModification binModification = findModificationOrThrow(id);
+
+        validateModificationStatus(binModification);
+
+        binModification.reject();
+
+        notificationService.sendNotification(admin, binModification.getMember(), binModification.getBin(),
+                NotificationType.BIN_MODIFICATION_REJECTED, rejectReason);
     }
 
     private BinModification findModificationOrThrow(Long id) {
