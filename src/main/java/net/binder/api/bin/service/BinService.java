@@ -89,6 +89,7 @@ public class BinService {
 
         validateBinOwner(bin, member);
         validateBinStatus(bin);
+        validatePendingModification(bin);
 
         BinType type = BinType.getType(binUpdateRequest.getType());
         BinModification binModification = getBinModification(binUpdateRequest, member, bin, type);
@@ -150,5 +151,11 @@ public class BinService {
                 .longitude(binUpdateRequest.getLongitude())
                 .status(BinModificationStatus.PENDING)
                 .build();
+    }
+
+    private void validatePendingModification(Bin bin) {
+        if (binModificationRepository.existsByBinIdAndStatus(bin.getId(), BinModificationStatus.PENDING)) {
+            throw new BadRequestException("아직 처리되지 않는 수정 요청 건이 존재합니다.");
+        }
     }
 }

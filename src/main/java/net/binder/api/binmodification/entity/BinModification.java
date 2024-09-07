@@ -57,4 +57,17 @@ public class BinModification extends BaseEntity {
         this.longitude = longitude;
         this.status = status;
     }
+
+    public boolean isPending() {
+        return this.status == BinModificationStatus.PENDING;
+    }
+
+    public void approve() {
+        this.status = BinModificationStatus.APPROVED;
+    }
+
+    public void reject() {
+        this.status = BinModificationStatus.REJECTED;
+        bin.softDelete();
+    }
 }

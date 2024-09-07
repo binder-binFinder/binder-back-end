@@ -20,8 +20,12 @@ import net.binder.api.member.entity.Member;
 public class Notification extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
+    @JoinColumn(name = "sender_id")
+    private Member sender;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "receiver_id")
+    private Member receiver;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bin_id")
@@ -35,8 +39,9 @@ public class Notification extends BaseEntity {
     private String additionalInfo;
 
     @Builder
-    public Notification(Member member, Bin bin, NotificationType type, String additionalInfo) {
-        this.member = member;
+    public Notification(Member sender, Member receiver, Bin bin, NotificationType type, String additionalInfo) {
+        this.sender = sender;
+        this.receiver = receiver;
         this.bin = bin;
         this.type = type;
         this.isRead = false;

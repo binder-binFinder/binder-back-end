@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class BinRegistrationQueryRepository {
+public class AdminBinRegistrationQueryRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
 
@@ -23,12 +23,14 @@ public class BinRegistrationQueryRepository {
         BooleanBuilder booleanBuilder = getBooleanBuilder(filter);
 
         return jpaQueryFactory.selectFrom(binRegistration)
+                .join(binRegistration.bin).fetchJoin()
+                .join(binRegistration.member).fetchJoin()
                 .where(booleanBuilder)
                 .orderBy(binRegistration.createdAt.desc())
                 .fetch();
     }
 
-    private static BooleanBuilder getBooleanBuilder(RegistrationFilter filter) {
+    private BooleanBuilder getBooleanBuilder(RegistrationFilter filter) {
         BooleanBuilder booleanBuilder = new BooleanBuilder();
         if (filter == ENTIRE) {
             return booleanBuilder;
