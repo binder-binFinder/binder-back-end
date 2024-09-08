@@ -24,7 +24,7 @@ class KakaoMapServiceTest {
     @Test
     void test1(){
         PublicBinData publicBinData = new PublicBinData("경복궁 4번출구", "종로구 사직로 125", BinType.GENERAL, null );
-        ProcessedBinData processedBinData = kakaoMapService.getPoint(publicBinData).get();
+        ProcessedBinData processedBinData = kakaoMapService.getPoint(publicBinData);
 
         assertThat(processedBinData.getTitle()).isEqualTo("경복궁 4번출구");
         assertThat(processedBinData.getAddress()).isEqualTo("종로구 사직로 125");

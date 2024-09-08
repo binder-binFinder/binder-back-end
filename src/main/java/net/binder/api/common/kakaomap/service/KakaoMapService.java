@@ -29,12 +29,10 @@ public class KakaoMapService {
     public List<ProcessedBinData> getPoints(List<PublicBinData> list) {
         return list.parallelStream()
                 .map(this::getPoint)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
                 .toList();
     }
 
-    public Optional<ProcessedBinData> getPoint(PublicBinData initialBinData) {
+    public ProcessedBinData getPoint(PublicBinData initialBinData) {
         String body = fetchDataFromApi(initialBinData);
         ProcessedBinData initData = null;
         return parseResponse(initialBinData, body, initData);
@@ -49,7 +47,10 @@ public class KakaoMapService {
         return body;
     }
 
-    private Optional<ProcessedBinData> parseResponse(PublicBinData initialBinData, String body, ProcessedBinData initData) {
+    private ProcessedBinData parseResponse(PublicBinData initialBinData, String body, ProcessedBinData initData) {
+
+        ProcessedBinData processedBinData = null;
+
         try {
             JsonNode rootNode = objectMapper.readTree(body);
             JsonNode documentsNode = rootNode.path("documents");
@@ -57,10 +58,11 @@ public class KakaoMapService {
                 JsonNode firstDocument = documentsNode.get(0);
                 double x = Double.parseDouble(firstDocument.path("x").asText());
                 double y = Double.parseDouble(firstDocument.path("y").asText());
-                return Optional.of(ProcessedBinData.from(initialBinData, x, y));
+                processedBinData = ProcessedBinData.from(initialBinData, x, y);
             }
         } catch (IOException | NumberFormatException e) {
         }
-        return Optional.empty();
+
+        return processedBinData;
     }
 }
