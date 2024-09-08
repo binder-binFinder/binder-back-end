@@ -19,7 +19,7 @@ public class BinDataSetupService {
 
     public void saveInitialDate(String path){
         List<PublicBinData> initialData = ExcelDataExtractor.createInitialData(path);
-        List<ProcessedBinData> point = kakaoMapService.getPoints(initialData);
-        binBatchInsertRepository.batchInsertInitialBins(point);
+        List<ProcessedBinData> processData = kakaoMapService.getPoints(initialData);
+        binBatchInsertRepository.batchInsertInitialBins(processData);
     }
 }

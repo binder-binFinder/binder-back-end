@@ -11,7 +11,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
-@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class BinBatchInsertRepository {
