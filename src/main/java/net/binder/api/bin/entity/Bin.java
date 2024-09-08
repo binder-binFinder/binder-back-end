@@ -26,7 +26,7 @@ import org.locationtech.jts.geom.Point;
         uniqueConstraints = {
                 @UniqueConstraint(
                         name = "sameBin",
-                        columnNames = {"address", "type"}
+                        columnNames = {"address", "type", "title"}
                 )
         }
 )
