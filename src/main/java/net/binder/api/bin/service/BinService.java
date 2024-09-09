@@ -6,7 +6,6 @@ import net.binder.api.bin.dto.BinDetailResponse;
 import net.binder.api.bin.dto.BinUpdateRequest;
 import net.binder.api.bin.entity.Bin;
 import net.binder.api.bin.entity.BinDetailProjection;
-import net.binder.api.bin.entity.BinType;
 import net.binder.api.bin.repository.BinRepository;
 import net.binder.api.binmodification.entity.BinModification;
 import net.binder.api.binmodification.entity.BinModificationStatus;
@@ -41,12 +40,11 @@ public class BinService {
 
     public void requestBinRegistration(BinCreateRequest binCreateRequest, String email) {
         Member member = memberService.findByEmail(email);
-        BinType type = BinType.getType(binCreateRequest.getType());
 
         Point point = getPoint(binCreateRequest.getLatitude(), binCreateRequest.getLongitude());
         BinRegistration binRegistration = getBinRegistration(member);
 
-        Bin bin = getBin(binCreateRequest, type, point);
+        Bin bin = getBin(binCreateRequest, point);
         bin.setBinRegistration(binRegistration);
 
         try {
@@ -91,17 +89,16 @@ public class BinService {
         validateBinStatus(bin);
         validatePendingModification(bin);
 
-        BinType type = BinType.getType(binUpdateRequest.getType());
-        BinModification binModification = getBinModification(binUpdateRequest, member, bin, type);
+        BinModification binModification = getBinModification(binUpdateRequest, member, bin);
 
         binModificationRepository.save(binModification);
     }
 
-    private Bin getBin(BinCreateRequest binCreateRequest, BinType type, Point point) {
+    private Bin getBin(BinCreateRequest binCreateRequest, Point point) {
         return Bin.builder()
                 .title(binCreateRequest.getTitle())
                 .address(binCreateRequest.getAddress())
-                .type(type)
+                .type(binCreateRequest.getType())
                 .imageUrl(binCreateRequest.getImageUrl())
                 .likeCount(0L)
                 .dislikeCount(0L)
@@ -138,14 +135,13 @@ public class BinService {
         }
     }
 
-    private BinModification getBinModification(BinUpdateRequest binUpdateRequest, Member member, Bin bin,
-                                               BinType type) {
+    private BinModification getBinModification(BinUpdateRequest binUpdateRequest, Member member, Bin bin) {
         return BinModification.builder()
                 .member(member)
                 .bin(bin)
                 .title(binUpdateRequest.getTitle())
                 .address(binUpdateRequest.getAddress())
-                .type(type)
+                .type(binUpdateRequest.getType())
                 .imageUrl(bin.getImageUrl())
                 .latitude(binUpdateRequest.getLatitude())
                 .longitude(binUpdateRequest.getLongitude())
