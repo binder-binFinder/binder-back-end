@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import net.binder.api.bin.entity.BinType;
 
 @Getter
 @RequiredArgsConstructor
@@ -15,8 +16,8 @@ public class BinCreateRequest {
     @NotBlank
     private final String address;
 
-    @NotBlank
-    private final String type;
+    @NotNull
+    private final BinType type;
 
     @NotBlank
     private final String imageUrl;
