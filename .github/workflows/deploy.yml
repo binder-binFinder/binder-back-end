@@ -19,7 +19,11 @@ jobs:
           java-version: 17
 
       - name: application.properties 만들기
-        run: echo "${{ secrets.APPLICATION_PROPERTIES }}" > ./src/main/resources/application.properties
+        run: |
+          mkdir -p ./src/main/resources
+          echo "${{ secrets.APPLICATION_PROPERTIES }}" > ./src/main/resources/application.properties
+          mkdir -p ./src/test/resources
+          echo "${{ secrets.TEST_APPLICATION_PROPERTIES }}" > ./src/test/resources/application.properties
 
       - name: 테스트 및 빌드하기
         run: ./gradlew clean build
@@ -49,5 +53,5 @@ jobs:
             mv /home/ubuntu/binder-server/tobe/project.jar /home/ubuntu/binder-server/current/project.jar
             cd /home/ubuntu/binder-server/current
             sudo fuser -k -n tcp 80 || true
-            nohup java -jar project.jar > ./output.log 2>&1 & 
+            sudo nohup java -jar project.jar > ./output.log 2>&1 & 
             rm -rf /home/ubuntu/binder-server/tobe
