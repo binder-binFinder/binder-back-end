@@ -28,7 +28,7 @@ public class BinRegistrationDetail {
 
     private final BinRegistrationStatus status;
 
-    private final String image_url;
+    private final String imageUrl;
 
     private final LocalDateTime createdAt;
 
@@ -44,7 +44,7 @@ public class BinRegistrationDetail {
                 .nickname(binRegistration.getMember().getNickname())
                 .type(bin.getType())
                 .status(binRegistration.getStatus())
-                .image_url(bin.getImageUrl())
+                .imageUrl(bin.getImageUrl())
                 .createdAt(binRegistration.getCreatedAt())
                 .build();
     }
