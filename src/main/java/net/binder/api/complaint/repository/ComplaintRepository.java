@@ -1,9 +1,12 @@
 package net.binder.api.complaint.repository;
 
+import java.util.Optional;
 import net.binder.api.complaint.entity.Complaint;
-import net.binder.api.complaint.entity.ComplaintType;
+import net.binder.api.complaint.entity.ComplaintStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ComplaintRepository extends JpaRepository<Complaint, Long> {
-    boolean existsByMemberIdAndBinIdAndType(Long memberId, Long binId, ComplaintType type);
+
+    Optional<Complaint> findByBinIdAndStatus(Long binId, ComplaintStatus complaintStatus);
+
 }
