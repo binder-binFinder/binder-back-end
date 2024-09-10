@@ -28,4 +28,10 @@ public class Complaint extends BaseEntityWithSoftDelete {
 
     @Enumerated(EnumType.STRING)
     private ComplaintType type;
+
+    public Complaint(Member member, Bin bin, ComplaintType type) {
+        this.member = member;
+        this.bin = bin;
+        this.type = type;
+    }
 }

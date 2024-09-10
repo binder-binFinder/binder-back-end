@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.binder.api.common.annotation.CurrentUser;
 import net.binder.api.complaint.dto.CreateComplaintRequest;
+import net.binder.api.complaint.service.ComplaintService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,8 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/complaints")
 public class ComplaintController {
 
+    private final ComplaintService complaintService;
+
     @Operation(summary = "쓰레기통 신고 작성")
     @PostMapping
     public void createComplaint(@CurrentUser String email, @Valid @RequestBody CreateComplaintRequest request) {
+        complaintService.createComplaint(email, request.getBinId(), request.getComplaintType());
     }
 }
