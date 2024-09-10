@@ -23,10 +23,10 @@ public class ProcessedBinData {
 
     private final Double latitude;
 
-    public static ProcessedBinData from(PublicBinData data, Double longitude, Double latitude) {
+    public static ProcessedBinData from(PublicBinData data, Double longitude, Double latitude, String address) {
         return ProcessedBinData.builder()
                 .title(data.getTitle())
-                .address(data.getAddress())
+                .address(address)
                 .type(data.getType())
                 .imageUrl(null)
                 .longitude(longitude)

@@ -3,16 +3,18 @@ package net.binder.api.common.kakaomap.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import net.binder.api.bin.entity.BinType;
 import net.binder.api.common.binsetup.dto.PublicBinData;
 import net.binder.api.common.kakaomap.dto.ProcessedBinData;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 @Service
@@ -58,11 +60,27 @@ public class KakaoMapService {
                 JsonNode firstDocument = documentsNode.get(0);
                 double x = Double.parseDouble(firstDocument.path("x").asText());
                 double y = Double.parseDouble(firstDocument.path("y").asText());
-                processedBinData = ProcessedBinData.from(initialBinData, x, y);
+                String address = getAddress(initialBinData, firstDocument);
+                processedBinData = ProcessedBinData.from(initialBinData, x, y, address);
             }
         } catch (IOException | NumberFormatException e) {
         }
 
         return processedBinData;
+    }
+
+    private static String getAddress(PublicBinData initialBinData, JsonNode firstDocument) {
+        String roadAddress = firstDocument.path("road_address").path("address_name").asText();
+        String address=  "";
+        if(!roadAddress.isEmpty()){
+            String[] split = roadAddress.split(" ");
+
+            for(int i =1; i<split.length; i++){
+                address +=split[i]+" ";
+            }
+        } else{
+            address = initialBinData.getAddress();
+        }
+        return address;
     }
 }
