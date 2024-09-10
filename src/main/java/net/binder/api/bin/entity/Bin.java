@@ -2,13 +2,8 @@ package net.binder.api.bin.entity;
 
 import static net.binder.api.binregistration.entity.BinRegistrationStatus.PENDING;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -28,7 +23,10 @@ import org.locationtech.jts.geom.Point;
                         name = "sameBin",
                         columnNames = {"address", "type", "title"}
                 )
-        }
+        },
+        indexes = {
+        @Index(name = "idx_bin_point", columnList = "point")
+}
 )
 public class Bin extends BaseEntityWithSoftDelete {
 
@@ -37,6 +35,7 @@ public class Bin extends BaseEntityWithSoftDelete {
     @Enumerated(EnumType.STRING)
     private BinType type;
 
+    @Column(columnDefinition = "POINT SRID 4326", nullable = false)
     private Point point;
 
     private String address;
