@@ -66,9 +66,8 @@ public class BinDetailResponse extends BaseResponse {
     }
 
     public static BinDetailResponse from(BinDetailProjection bin) {
-
-        BinInfoForMember binInfoForMember = new BinInfoForMember(bin.getIsOwner() == 1, bin.getIsLiked() == 1,
-                bin.getIsDisliked() == 1, bin.getIsBookmarked() == 1);
+        BinInfoForMember binInfoForMember = new BinInfoForMember(bin.getIsOwner(), bin.getIsLiked(),
+                bin.getIsDisliked(), bin.getIsBookmarked());
 
         return BinDetailResponse.builder()
                 .id(bin.getId())

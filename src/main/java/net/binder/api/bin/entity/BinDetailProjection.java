@@ -28,11 +28,11 @@ public interface BinDetailProjection {
 
     String getImageUrl();
 
-    Integer getIsOwner();
+    Boolean getIsOwner();
 
-    Integer getIsLiked();
+    Boolean getIsLiked();
 
-    Integer getIsDisliked();
+    Boolean getIsDisliked();
 
-    Integer getIsBookmarked();
+    Boolean getIsBookmarked();
 }
