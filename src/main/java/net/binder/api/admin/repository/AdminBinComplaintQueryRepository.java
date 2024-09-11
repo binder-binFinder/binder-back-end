@@ -13,6 +13,8 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import net.binder.api.admin.dto.BinComplaintDetail;
 import net.binder.api.admin.dto.ComplaintFilter;
+import net.binder.api.admin.dto.TypeCount;
+import net.binder.api.complaint.entity.Complaint;
 import net.binder.api.complaint.entity.ComplaintStatus;
 import org.springframework.stereotype.Repository;
 
@@ -43,6 +45,17 @@ public class AdminBinComplaintQueryRepository {
                 .where(booleanBuilder)
                 .fetch();
 
+    }
+
+    public List<TypeCount> getTypeCounts(Complaint complaint) {
+        return jpaQueryFactory
+                .select(Projections.constructor(TypeCount.class,
+                        complaintInfo.type,
+                        complaintInfo.type.count()))
+                .from(complaintInfo)
+                .where(complaintInfo.complaint.eq(complaint))
+                .groupBy(complaintInfo.type)
+                .fetch();
     }
 
     private JPQLQuery<LocalDateTime> selectMaxCreatedAt() {

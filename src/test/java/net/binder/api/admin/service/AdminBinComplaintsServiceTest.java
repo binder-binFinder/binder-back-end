@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import net.binder.api.admin.dto.BinComplaintDetail;
 import net.binder.api.admin.dto.ComplaintFilter;
+import net.binder.api.admin.dto.TypeCount;
 import net.binder.api.bin.entity.Bin;
 import net.binder.api.bin.entity.BinType;
 import net.binder.api.bin.repository.BinRepository;
@@ -46,12 +47,14 @@ class AdminBinComplaintsServiceTest {
 
     private Bin bin;
 
+    private Complaint complaint1;
+
     @BeforeEach
     void setUp() {
         bin = new Bin("title", BinType.CIGAR, PointUtil.getPoint(10d, 10d), "address", 0L, 0L, 0L, null, null);
         binRepository.save(bin);
 
-        Complaint complaint1 = new Complaint(bin, ComplaintStatus.PENDING, 3L);
+        complaint1 = new Complaint(bin, ComplaintStatus.PENDING, 3L);
         Complaint complaint2 = new Complaint(bin, ComplaintStatus.REJECTED, 3L);
         Complaint complaint3 = new Complaint(bin, ComplaintStatus.APPROVED, 3L);
         complaintRepository.saveAll(List.of(complaint1, complaint2, complaint3));
@@ -134,5 +137,23 @@ class AdminBinComplaintsServiceTest {
 
         //then
         assertThat(complaintPendingCount).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("신고 id에 따른 신고 타입별 카운트를 확인할 수 있다.")
+    void getBinComplaintCountsPerType() {
+
+        ComplaintInfo added1 = new ComplaintInfo(complaint1, null, ComplaintType.IS_PRIVATE);
+        ComplaintInfo added2 = new ComplaintInfo(complaint1, null, ComplaintType.IS_PRIVATE);
+        ComplaintInfo added3 = new ComplaintInfo(complaint1, null, ComplaintType.INVALID_NAME);
+        complaintInfoRepository.saveAll(List.of(added1, added2, added3));
+
+        List<TypeCount> typeCounts = adminBinComplaintsService.getBinComplaintCountsPerType(complaint1.getId());
+
+        assertThat(typeCounts).extracting(TypeCount::getType)
+                .containsExactly(ComplaintType.IS_PRIVATE, ComplaintType.INVALID_NAME, ComplaintType.INVALID_LOCATION);
+
+        assertThat(typeCounts).extracting(TypeCount::getCount)
+                .containsExactly(3L, 2L, 1L);
     }
 }
