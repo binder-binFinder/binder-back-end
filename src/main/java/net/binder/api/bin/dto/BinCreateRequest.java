@@ -19,7 +19,6 @@ public class BinCreateRequest {
     @NotNull
     private final BinType type;
 
-    @NotBlank
     private final String imageUrl;
 
     @NotNull
