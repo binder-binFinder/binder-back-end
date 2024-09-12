@@ -7,6 +7,7 @@ import java.util.List;
 import net.binder.api.bin.entity.Bin;
 import net.binder.api.bin.entity.BinType;
 import net.binder.api.bin.repository.BinRepository;
+import net.binder.api.bin.util.PointUtil;
 import net.binder.api.binregistration.entity.BinRegistration;
 import net.binder.api.binregistration.entity.BinRegistrationStatus;
 import net.binder.api.binregistration.repository.BinRegistrationRepository;
@@ -19,6 +20,7 @@ import net.binder.api.member.repository.MemberRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
@@ -187,9 +189,9 @@ class MemberServiceTest {
     void findTimeLines() {
         // Given
 
-        Bin bin1 = getBin("Bin1", BinType.GENERAL, "Address1", 5L, "image1");
-        Bin bin2 = getBin("Bin2", BinType.RECYCLE, "Address2", 10L, "image2");
-        Bin deletedBin = getBin("Bin3", BinType.RECYCLE, "Address3", 15L, "image3");
+        Bin bin1 = getBin("Bin1", BinType.GENERAL, "Address1", 5L, "image1", 127.1, 37.4);
+        Bin bin2 = getBin("Bin2", BinType.RECYCLE, "Address2", 10L, "image2", 127.2, 37.5);
+        Bin deletedBin = getBin("Bin3", BinType.RECYCLE, "Address3", 15L, "image3", 127.3, 37.6);
         deletedBin.softDelete();
         binRepository.saveAll(List.of(bin1, bin2, deletedBin));
 
@@ -207,9 +209,10 @@ class MemberServiceTest {
         assertThat(result).extracting("bookmarkCount").containsExactly(15L, 10L, 5L);
     }
 
-    private Bin getBin(String title, BinType type, String address, Long bookmarkCount, String imageUrl) {
+    private Bin getBin(String title, BinType type, String address, Long bookmarkCount, String imageUrl, Double longitude, Double latitude) {
         return Bin.builder()
                 .title(title)
+                .point(PointUtil.getPoint(longitude, latitude))
                 .type(type)
                 .address(address)
                 .bookmarkCount(bookmarkCount)

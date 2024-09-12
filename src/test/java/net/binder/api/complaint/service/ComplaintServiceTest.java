@@ -8,6 +8,7 @@ import java.util.List;
 import net.binder.api.bin.entity.Bin;
 import net.binder.api.bin.entity.BinType;
 import net.binder.api.bin.repository.BinRepository;
+import net.binder.api.bin.util.PointUtil;
 import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.complaint.entity.Complaint;
 import net.binder.api.complaint.entity.ComplaintInfo;
@@ -53,7 +54,7 @@ class ComplaintServiceTest {
         member = new Member(email, "nick", Role.ROLE_USER, null);
         memberRepository.save(member);
 
-        bin = new Bin("title", BinType.CIGAR, null, "address", 0L, 0L, 0L, null, null);
+        bin = new Bin("title", BinType.CIGAR, PointUtil.getPoint(127.2, 37.5), "address", 0L, 0L, 0L, null, null);
         binRepository.save(bin);
     }
 
