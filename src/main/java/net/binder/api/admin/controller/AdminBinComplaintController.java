@@ -43,14 +43,14 @@ public class AdminBinComplaintController {
         return new BinComplaintCountsPerTypeResponse(typeCounts);
     }
 
-    @Operation
+    @Operation(summary = "쓰레기통 신고 승인")
     @PostMapping("/{id}/approve")
     public void approveBinComplaint(@CurrentUser String email, @PathVariable Long id,
                                     ApproveBinComplaintRequest request) {
         adminBinComplaintsService.approve(email, id, request.getApproveReason());
     }
 
-    @Operation
+    @Operation(summary = "쓰레기통 신고 거절")
     @PostMapping("/{id}/reject")
     public void rejectBinComplaint(@CurrentUser String email, @PathVariable Long id,
                                    RejectBinComplaintRequest request) {
