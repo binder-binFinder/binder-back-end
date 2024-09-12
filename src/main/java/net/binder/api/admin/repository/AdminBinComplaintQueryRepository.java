@@ -16,6 +16,7 @@ import net.binder.api.admin.dto.ComplaintFilter;
 import net.binder.api.admin.dto.TypeCount;
 import net.binder.api.complaint.entity.Complaint;
 import net.binder.api.complaint.entity.ComplaintStatus;
+import net.binder.api.member.entity.Member;
 import org.springframework.stereotype.Repository;
 
 @RequiredArgsConstructor
@@ -55,6 +56,13 @@ public class AdminBinComplaintQueryRepository {
                 .from(complaintInfo)
                 .where(complaintInfo.complaint.eq(complaint))
                 .groupBy(complaintInfo.type)
+                .fetch();
+    }
+
+    public List<Member> findMembers(Complaint complaint) {
+        return jpaQueryFactory.select(complaintInfo.member)
+                .from(complaintInfo)
+                .where(complaintInfo.complaint.eq(complaint))
                 .fetch();
     }
 

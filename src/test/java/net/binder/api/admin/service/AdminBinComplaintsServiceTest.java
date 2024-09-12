@@ -16,6 +16,12 @@ import net.binder.api.complaint.entity.ComplaintStatus;
 import net.binder.api.complaint.entity.ComplaintType;
 import net.binder.api.complaint.repository.ComplaintInfoRepository;
 import net.binder.api.complaint.repository.ComplaintRepository;
+import net.binder.api.member.entity.Member;
+import net.binder.api.member.entity.Role;
+import net.binder.api.member.repository.MemberRepository;
+import net.binder.api.notification.entity.Notification;
+import net.binder.api.notification.entity.NotificationType;
+import net.binder.api.notification.repository.NotificationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -38,6 +44,12 @@ class AdminBinComplaintsServiceTest {
 
     @Autowired
     BinRepository binRepository;
+
+    @Autowired
+    private MemberRepository memberRepository;
+
+    @Autowired
+    private NotificationRepository notificationRepository;
 
     private ComplaintInfo latest1;
 
@@ -155,5 +167,45 @@ class AdminBinComplaintsServiceTest {
 
         assertThat(typeCounts).extracting(TypeCount::getCount)
                 .containsExactly(3L, 2L, 1L);
+    }
+
+    @Test
+    @DisplayName("신고가 승인되면 쓰레기통이 softDelete되고 status가 APPROVED로 변경되며, 신고를 작성한 모든 사람들에게 알림이 전송된다.")
+    void approve() {
+        //given
+        String adminEmail = "admin@example.com";
+        String user1Email = "user1@example.com";
+        String user2Email = "user2@example.com";
+        String user3Email = "user3@example.com";
+
+        Member admin = new Member(adminEmail, "admin", Role.ROLE_ADMIN, null);
+        Member user1 = new Member(user1Email, "user1", Role.ROLE_USER, null);
+        Member user2 = new Member(user2Email, "user2", Role.ROLE_USER, null);
+        Member user3 = new Member(user3Email, "user3", Role.ROLE_USER, null);
+
+        memberRepository.saveAll(List.of(admin, user1, user2, user3));
+
+        Complaint complaint = new Complaint(bin, ComplaintStatus.PENDING, 3L);
+        complaintRepository.save(complaint);
+
+        ComplaintInfo complaintInfo1 = new ComplaintInfo(complaint, user1, ComplaintType.IS_PRIVATE);
+        ComplaintInfo complaintInfo2 = new ComplaintInfo(complaint, user2, ComplaintType.INVALID_NAME);
+        ComplaintInfo complaintInfo3 = new ComplaintInfo(complaint, user3, ComplaintType.INVALID_NAME);
+
+        complaintInfoRepository.saveAll(List.of(complaintInfo1, complaintInfo2, complaintInfo3));
+
+        //when
+        adminBinComplaintsService.approve(adminEmail, complaint.getId(), "이름이 잘못됐습니다.");
+
+        //then
+        assertThat(complaint.getBin().getDeletedAt()).isNotNull();
+        assertThat(complaint.getStatus()).isEqualTo(ComplaintStatus.APPROVED);
+
+        List<Notification> notifications = notificationRepository.findAll();
+        assertThat(notifications).extracting(Notification::getBin).allMatch(bin -> bin.equals(this.bin));
+        assertThat(notifications).extracting(Notification::getType)
+                .allMatch(type -> type == NotificationType.BIN_COMPLAINT_APPROVED);
+        assertThat(notifications).extracting(Notification::getSender).allMatch(member -> member.equals(admin));
+        assertThat(notifications).extracting(Notification::getReceiver).containsExactly(user1, user2, user3);
     }
 }
