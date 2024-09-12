@@ -27,7 +27,7 @@ class KakaoMapServiceTest {
         ProcessedBinData processedBinData = kakaoMapService.getPoint(publicBinData);
 
         assertThat(processedBinData.getTitle()).isEqualTo("경복궁 4번출구");
-        assertThat(processedBinData.getAddress()).isEqualTo("종로구 사직로 125");
+        assertThat(processedBinData.getAddress()).isEqualTo("서울 종로구 사직로 125");
         assertThat(processedBinData.getLongitude()).isCloseTo(126.972894955703, within(0.000000000001));
         assertThat(processedBinData.getLatitude()).isCloseTo(37.5761344458967, within(0.0000000000001));
         assertThat(processedBinData.getImageUrl()).isNull();
