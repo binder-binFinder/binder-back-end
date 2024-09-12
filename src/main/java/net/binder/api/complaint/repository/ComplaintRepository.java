@@ -9,4 +9,5 @@ public interface ComplaintRepository extends JpaRepository<Complaint, Long> {
 
     Optional<Complaint> findByBinIdAndStatus(Long binId, ComplaintStatus complaintStatus);
 
+    Long countByCountAndStatus(long count, ComplaintStatus status);
 }

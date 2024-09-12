@@ -19,7 +19,6 @@ public class BinUpdateRequest {
     @NotNull
     private final BinType type;
 
-    @NotBlank
     private final String imageUrl;
 
     @NotNull

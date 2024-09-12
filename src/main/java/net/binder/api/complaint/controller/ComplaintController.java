@@ -1,6 +1,7 @@
 package net.binder.api.complaint.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.binder.api.common.annotation.CurrentUser;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/complaints")
+@Tag(name = "쓰레기통 신고 관리")
 public class ComplaintController {
 
     private final ComplaintService complaintService;

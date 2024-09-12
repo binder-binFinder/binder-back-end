@@ -43,4 +43,8 @@ public class Complaint extends BaseEntity {
     public void reject() {
         this.status = ComplaintStatus.REJECTED;
     }
+
+    public boolean isPending() {
+        return this.status == ComplaintStatus.PENDING;
+    }
 }

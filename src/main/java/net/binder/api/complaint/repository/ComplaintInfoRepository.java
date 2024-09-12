@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ComplaintInfoRepository extends JpaRepository<ComplaintInfo, Long> {
 
-    boolean existsByMemberIdAndType(Long memberId, ComplaintType type);
+    boolean existsByComplaintIdAndMemberIdAndType(Long complaintId, Long memberId, ComplaintType type);
 
     List<ComplaintInfo> findAllByComplaintId(Long complaintId);
 }

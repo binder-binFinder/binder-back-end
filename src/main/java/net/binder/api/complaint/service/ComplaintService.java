@@ -35,7 +35,7 @@ public class ComplaintService {
 
         Complaint complaint = getComplaint(binId, bin);
 
-        validateDuplicateComplaint(type, member);
+        validateDuplicateComplaint(complaint.getId(), member, type);
 
         ComplaintInfo complaintInfo = new ComplaintInfo(complaint, member, type);
         complaintInfoRepository.save(complaintInfo);
@@ -53,8 +53,8 @@ public class ComplaintService {
                 });
     }
 
-    private void validateDuplicateComplaint(ComplaintType type, Member member) {
-        if (complaintInfoRepository.existsByMemberIdAndType(member.getId(), type)) {
+    private void validateDuplicateComplaint(Long complaintId, Member member, ComplaintType type) {
+        if (complaintInfoRepository.existsByComplaintIdAndMemberIdAndType(complaintId, member.getId(), type)) {
             throw new BadRequestException("동일한 신고 내역이 존재합니다.");
         }
     }
