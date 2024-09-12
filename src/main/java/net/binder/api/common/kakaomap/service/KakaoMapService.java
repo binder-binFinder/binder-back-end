@@ -12,7 +12,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -34,8 +33,7 @@ public class KakaoMapService {
 
     public ProcessedBinData getPoint(PublicBinData initialBinData) {
         String body = fetchDataFromApi(initialBinData);
-        ProcessedBinData initData = null;
-        return parseResponse(initialBinData, body, initData);
+        return parseResponse(initialBinData, body);
     }
 
     private String fetchDataFromApi(PublicBinData initialBinData) {
@@ -43,26 +41,32 @@ public class KakaoMapService {
                 .get(SEARCH_URL + QUERY_PARAM + initialBinData.getAddress())
                 .header("Authorization", KAKAO_MAP_KEY)
                 .build();
-        String body = restTemplate.exchange(req, String.class).getBody();
-        return body;
+        return restTemplate.exchange(req, String.class).getBody();
     }
 
-    private ProcessedBinData parseResponse(PublicBinData initialBinData, String body, ProcessedBinData initData) {
-
+    private ProcessedBinData parseResponse(PublicBinData initialBinData, String body) {
         ProcessedBinData processedBinData = null;
-
         try {
             JsonNode rootNode = objectMapper.readTree(body);
             JsonNode documentsNode = rootNode.path("documents");
             if (documentsNode.isArray() && !documentsNode.isEmpty()) {
                 JsonNode firstDocument = documentsNode.get(0);
-                double x = Double.parseDouble(firstDocument.path("x").asText());
-                double y = Double.parseDouble(firstDocument.path("y").asText());
-                processedBinData = ProcessedBinData.from(initialBinData, x, y);
+                double x = Double.parseDouble(firstDocument.path("road_address").path("x").asText());
+                double y = Double.parseDouble(firstDocument.path("road_address").path("y").asText());
+                String address = getAddress(initialBinData, firstDocument);
+                processedBinData = ProcessedBinData.from(initialBinData, x, y, address);
             }
         } catch (IOException | NumberFormatException e) {
         }
-
         return processedBinData;
+    }
+
+    private static String getAddress(PublicBinData initialBinData, JsonNode firstDocument) {
+        String address = firstDocument.path("road_address").path("address_name").asText();
+        if (address.isEmpty()) {
+            address = initialBinData.getAddress();
+        }
+
+        return address;
     }
 }

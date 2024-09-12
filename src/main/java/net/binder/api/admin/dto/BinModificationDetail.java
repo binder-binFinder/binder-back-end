@@ -31,7 +31,7 @@ public class BinModificationDetail {
 
     private final BinModificationStatus status;
 
-    private final String image_url;
+    private final String imageUrl;
 
     private final LocalDateTime createdAt;
 
@@ -47,7 +47,7 @@ public class BinModificationDetail {
                 .nickname(binModification.getMember().getNickname())
                 .type(binModification.getType())
                 .status(binModification.getStatus())
-                .image_url(binModification.getImageUrl())
+                .imageUrl(binModification.getImageUrl())
                 .createdAt(binModification.getCreatedAt())
                 .build();
     }

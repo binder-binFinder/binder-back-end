@@ -38,6 +38,8 @@ public class ExcelDataExtractor {
         String district = row.getCell(DISTRICT_COLUMN).getStringCellValue();
         String roadNameAddress = row.getCell(ROAD_ADDRESS_COLUMN).getStringCellValue();
         String detailedAddress = row.getCell(DETAILED_LOCATION_COLUMN).getStringCellValue();
+
+        detailedAddress = removeEndSpace(detailedAddress);
         String type = row.getCell(BIN_TYPE_COLUMN).getStringCellValue();
 
         return PublicBinData.builder()
@@ -52,4 +54,7 @@ public class ExcelDataExtractor {
         return "일반쓰레기".equals(type) ? BinType.GENERAL : BinType.RECYCLE;
     }
 
+    public static String removeEndSpace(String text){
+        return text.endsWith(" ")? text.substring(0, text.length() - 1) : text;
+    }
 }

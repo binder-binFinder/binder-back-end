@@ -32,7 +32,7 @@ public class BinBatchInsertRepository {
                 }
                 ps.setString(1, processedBinData.getTitle());
                 ps.setString(2, processedBinData.getType().name());
-                ps.setString(3, String.format("POINT(%.15f %.15f)", processedBinData.getLatitude(), processedBinData.getLongitude()));
+                ps.setString(3, String.format("POINT(%.12f %.13f)", processedBinData.getLatitude(), processedBinData.getLongitude()));
                 ps.setString(4, processedBinData.getAddress());
                 ps.setLong(5, 0L);
                 ps.setLong(6, 0L);
