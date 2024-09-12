@@ -9,6 +9,7 @@ import net.binder.api.admin.dto.BinComplaintCountsPerTypeResponse;
 import net.binder.api.admin.dto.BinComplaintDetail;
 import net.binder.api.admin.dto.BinComplaintListResponse;
 import net.binder.api.admin.dto.ComplaintFilter;
+import net.binder.api.admin.dto.RejectBinComplaintRequest;
 import net.binder.api.admin.dto.TypeCount;
 import net.binder.api.admin.service.AdminBinComplaintsService;
 import net.binder.api.common.annotation.CurrentUser;
@@ -47,5 +48,12 @@ public class AdminBinComplaintController {
     public void approveBinComplaint(@CurrentUser String email, @PathVariable Long id,
                                     ApproveBinComplaintRequest request) {
         adminBinComplaintsService.approve(email, id, request.getApproveReason());
+    }
+
+    @Operation
+    @PostMapping("/{id}/reject")
+    public void rejectBinComplaint(@CurrentUser String email, @PathVariable Long id,
+                                   RejectBinComplaintRequest request) {
+        adminBinComplaintsService.reject(email, id, request.getRejectReason());
     }
 }
