@@ -2,16 +2,27 @@ package net.binder.api.bin.repository;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.lang.Arrays;
+import jakarta.persistence.EntityManager;
 import net.binder.api.bin.entity.Bin;
+import net.binder.api.bin.entity.BinType;
 import net.binder.api.common.binsetup.dto.PublicBinData;
+import net.binder.api.common.binsetup.repository.BinBatchInsertRepository;
+import net.binder.api.common.binsetup.util.ExcelDataExtractor;
 import net.binder.api.common.kakaomap.dto.ProcessedBinData;
 import net.binder.api.common.kakaomap.service.KakaoMapService;
+import net.binder.api.member.entity.Member;
+import net.binder.api.member.entity.Role;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.RequestEntity;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
@@ -20,6 +31,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 
+@Transactional
 @SpringBootTest
 class BinRepositoryTest {
 
@@ -40,6 +52,29 @@ class BinRepositoryTest {
 
     @Autowired
     private KakaoMapService kakaoMapService;
+
+    @Autowired
+    private BinBatchInsertRepository binBatchInsertRepository;
+
+    @Autowired
+    private EntityManager entityManager;
+
+    @BeforeEach
+    void setUp() {
+        List<PublicBinData> list = List.of(
+                new PublicBinData("양재동 221-3", "양재동 221-3 건물 앞 녹지사이 보도", BinType.CIGAR, null),
+                new PublicBinData("양재동 80", "서울 서초구 강남대로 148", BinType.CIGAR, null),
+                new PublicBinData("연세로 42 일삼약국", "서울 서대문구 연세로 39", BinType.GENERAL, null),
+                new PublicBinData("연세로 36", "서울 서대문구 연세로 36", BinType.GENERAL, null),
+                new PublicBinData("연세로 39", "서울 서대문구 연세로 39", BinType.RECYCLE, null),
+                new PublicBinData("연세로 28-1", "서울 서대문구 연세로 28-1", BinType.GENERAL, null),
+                new PublicBinData("신촌역로14", "서울 서대문구 신촌역로 14", BinType.RECYCLE, null),
+                new PublicBinData("신촌역로14", "서울 서대문구 신촌역로 14", BinType.GENERAL, null)
+        );
+        List<ProcessedBinData> bins = kakaoMapService.getPoints(list);
+        binBatchInsertRepository.batchInsertInitialBins(bins);
+        entityManager.flush();
+    }
 
     @Test
     @DisplayName("DB에 쓰레기통이 저장될 때 제목과 주소 마지막에 있는 공백을 제거할 수 있다.")
@@ -102,6 +137,8 @@ class BinRepositoryTest {
     }
 
     private void checkCoordinate(Bin bin, ProcessedBinData processedBinData) {
+
+        System.out.println(bin.getPoint().getX()+","+bin.getPoint().getY());
         assertThat(bin.getPoint().getX()).isCloseTo(processedBinData.getLongitude(), within(0.00000000001));
         assertThat(bin.getPoint().getY()).isCloseTo(processedBinData.getLatitude(), within(0.000000000001));
     }
