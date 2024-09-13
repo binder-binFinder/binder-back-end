@@ -26,4 +26,7 @@ public class BinUpdateRequest {
 
     @NotNull
     private final Double longitude;
+
+    @NotBlank
+    private final String modificationReason;
 }

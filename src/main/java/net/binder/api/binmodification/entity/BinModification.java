@@ -44,9 +44,11 @@ public class BinModification extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private BinModificationStatus status;
 
+    private String modificationReason;
+
     @Builder
     public BinModification(Member member, Bin bin, String title, String address, BinType type, String imageUrl,
-                           double latitude, double longitude, BinModificationStatus status) {
+                           double latitude, double longitude, BinModificationStatus status, String modificationReason) {
         this.member = member;
         this.bin = bin;
         this.title = title;
@@ -56,6 +58,7 @@ public class BinModification extends BaseEntity {
         this.latitude = latitude;
         this.longitude = longitude;
         this.status = status;
+        this.modificationReason = modificationReason;
     }
 
     public boolean isPending() {
