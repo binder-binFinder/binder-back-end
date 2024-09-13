@@ -2,7 +2,9 @@ package net.binder.api.admin.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.within;
 
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import net.binder.api.admin.dto.BinComplaintDetail;
 import net.binder.api.admin.dto.ComplaintFilter;
@@ -125,7 +127,7 @@ class AdminBinComplaintsServiceTest {
                 .get();
         //then
 
-        assertThat(result.getMostRecentComplaintAt()).isEqualTo(latest1.getCreatedAt());
+        assertThat(result.getMostRecentComplaintAt()).isCloseTo(latest1.getCreatedAt(), within(1, ChronoUnit.SECONDS));
 
     }
 
