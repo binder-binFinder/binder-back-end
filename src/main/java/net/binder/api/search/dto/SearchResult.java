@@ -17,14 +17,6 @@ public class SearchResult {
 
     private final String address;
 
-    private final Long bookmarkCount;
-
-    private final Long dislikeCount;
-
-    private final Long likeCount;
-
-    private final String imageUrl;//뺴도됨
-
     private final String title;
 
     private final BinType type;
