@@ -63,14 +63,18 @@ class AdminBinComplaintsServiceTest {
 
     private Complaint complaint1;
 
+    private Complaint complaint2;
+
+    private Complaint complaint3;
+
     @BeforeEach
     void setUp() {
         bin = new Bin("title", BinType.CIGAR, PointUtil.getPoint(10d, 10d), "address", 0L, 0L, 0L, null, null);
         binRepository.save(bin);
 
         complaint1 = new Complaint(bin, ComplaintStatus.PENDING, 3L);
-        Complaint complaint2 = new Complaint(bin, ComplaintStatus.REJECTED, 3L);
-        Complaint complaint3 = new Complaint(bin, ComplaintStatus.APPROVED, 3L);
+        complaint2 = new Complaint(bin, ComplaintStatus.REJECTED, 3L);
+        complaint3 = new Complaint(bin, ComplaintStatus.APPROVED, 3L);
         complaintRepository.saveAll(List.of(complaint1, complaint2, complaint3));
 
         ComplaintInfo complaintInfo1 = new ComplaintInfo(complaint1, null, ComplaintType.IS_PRIVATE);
@@ -90,7 +94,7 @@ class AdminBinComplaintsServiceTest {
     }
 
     @Test
-    @DisplayName("신고 내역 조회시 카운트가 3개 이상인 신고 내역만 표시되고 각 신고 상세 내역은 가장 최근 신고 날짜를 저장한다.")
+    @DisplayName("신고 내역 조회시 카운트가 3개 이상인 신고 내역만 표시된다.")
     void getBinComplaintDetails() {
         //given
         Complaint complaint4 = new Complaint(bin, ComplaintStatus.PENDING, 2L);
@@ -105,8 +109,24 @@ class AdminBinComplaintsServiceTest {
                 ComplaintFilter.ENTIRE);
 
         //then
-        assertThat(binComplaintDetails).extracting(BinComplaintDetail::getMostRecentComplaintAt)
-                .containsExactly(latest1.getCreatedAt(), latest2.getCreatedAt(), latest3.getCreatedAt());
+        assertThat(binComplaintDetails).extracting(BinComplaintDetail::getComplaintId)
+                .containsExactly(complaint3.getId(), complaint2.getId(), complaint1.getId());
+    }
+
+
+    @Test
+    @DisplayName("심사 목록을 조회하면 각각 신고에는 가장 최근의 신고 날짜가 반영된다.")
+    void getBinComplaintDetails_has_latestCreatedAt() {
+        //when
+        List<BinComplaintDetail> binComplaintDetails = adminBinComplaintsService.getBinComplaintDetails(
+                ComplaintFilter.ENTIRE);
+        BinComplaintDetail result = binComplaintDetails.stream()
+                .filter(binComplaintDetail -> binComplaintDetail.getComplaintId().equals(complaint1.getId())).findAny()
+                .get();
+        //then
+
+        assertThat(result.getMostRecentComplaintAt()).isEqualTo(latest1.getCreatedAt());
+
     }
 
     @Test
@@ -115,11 +135,12 @@ class AdminBinComplaintsServiceTest {
 
         //when
         List<BinComplaintDetail> binComplaintDetails = adminBinComplaintsService.getBinComplaintDetails(
-                ComplaintFilter.FINISHED);
+                ComplaintFilter.PENDING);
 
         //then
-        assertThat(binComplaintDetails).extracting(BinComplaintDetail::getMostRecentComplaintAt)
-                .containsExactly(latest2.getCreatedAt(), latest3.getCreatedAt());
+        assertThat(binComplaintDetails).extracting(BinComplaintDetail::getComplaintId)
+                .containsExactly(complaint1.getId());
+
     }
 
     @Test
@@ -128,11 +149,11 @@ class AdminBinComplaintsServiceTest {
 
         //when
         List<BinComplaintDetail> binComplaintDetails = adminBinComplaintsService.getBinComplaintDetails(
-                ComplaintFilter.PENDING);
+                ComplaintFilter.FINISHED);
 
         //then
-        assertThat(binComplaintDetails).extracting(BinComplaintDetail::getMostRecentComplaintAt)
-                .containsExactly(latest1.getCreatedAt());
+        assertThat(binComplaintDetails).extracting(BinComplaintDetail::getComplaintId)
+                .containsExactly(complaint3.getId(), complaint2.getId());
     }
 
     @Test
@@ -310,4 +331,5 @@ class AdminBinComplaintsServiceTest {
         assertThatThrownBy(() -> adminBinComplaintsService.approve(adminEmail, complaint.getId(), "신고가 적절하지 않습니다."))
                 .isInstanceOf(BadRequestException.class);
     }
+
 }

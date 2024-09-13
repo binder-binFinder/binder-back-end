@@ -24,7 +24,7 @@ public class AdminBinModificationQueryRepository {
         return jpaQueryFactory.selectFrom(binModification)
                 .join(binModification.member).fetchJoin()
                 .where(booleanBuilder)
-                .orderBy(binModification.createdAt.desc())
+                .orderBy(binModification.id.desc())
                 .fetch();
     }
 
