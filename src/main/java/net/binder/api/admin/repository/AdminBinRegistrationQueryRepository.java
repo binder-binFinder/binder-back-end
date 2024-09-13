@@ -26,7 +26,7 @@ public class AdminBinRegistrationQueryRepository {
                 .join(binRegistration.bin).fetchJoin()
                 .join(binRegistration.member).fetchJoin()
                 .where(booleanBuilder)
-                .orderBy(binRegistration.createdAt.desc())
+                .orderBy(binRegistration.id.desc())
                 .fetch();
     }
 

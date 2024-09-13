@@ -13,7 +13,7 @@ public interface BinRegistrationRepository extends JpaRepository<BinRegistration
             SELECT br FROM BinRegistration br
             JOIN FETCH br.bin
             WHERE br.member = :member
-            ORDER BY br.bin.createdAt DESC
+            ORDER BY br.bin.id DESC
             """)
     List<BinRegistration> findAllByMember(Member member);
 
