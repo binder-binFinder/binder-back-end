@@ -5,11 +5,13 @@ import net.binder.api.search.dto.SearchDto;
 import net.binder.api.search.dto.SearchResult;
 import net.binder.api.search.repository.SearchQueryRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class SearchService {
 
     private static final int DEFAULT_RADIUS = 200;
