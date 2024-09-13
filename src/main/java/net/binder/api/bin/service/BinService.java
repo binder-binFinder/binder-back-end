@@ -146,6 +146,7 @@ public class BinService {
                 .latitude(binUpdateRequest.getLatitude())
                 .longitude(binUpdateRequest.getLongitude())
                 .status(BinModificationStatus.PENDING)
+                .modificationReason(binUpdateRequest.getModificationReason())
                 .build();
     }
 
