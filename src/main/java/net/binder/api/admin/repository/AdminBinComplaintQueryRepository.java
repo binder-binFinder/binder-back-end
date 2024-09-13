@@ -44,6 +44,7 @@ public class AdminBinComplaintQueryRepository {
                 .join(complaintInfo).on(complaintInfo.complaint.eq(complaint)
                         .and(complaintInfo.createdAt.eq(selectMaxCreatedAt())))
                 .where(booleanBuilder)
+                .orderBy(complaintInfo.id.desc())
                 .fetch();
 
     }
