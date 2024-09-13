@@ -5,8 +5,10 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import net.binder.api.bin.entity.BinType;
 import net.binder.api.search.dto.SearchDto;
 import net.binder.api.search.dto.SearchResult;
+import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -35,10 +37,6 @@ public class SearchQueryRepository {
                 .select(Projections.constructor(SearchResult.class,
                         bin.id,
                         bin.address,
-                        bin.bookmarkCount,
-                        bin.dislikeCount,
-                        bin.likeCount,
-                        bin.imageUrl,
                         bin.title,
                         bin.type,
                         bin.point,
