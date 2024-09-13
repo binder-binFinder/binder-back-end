@@ -17,4 +17,7 @@ public class SearchDto {
     @NotNull
     private final Double longitude;
 
+    @NotNull
+    private final Integer radius;
+
 }

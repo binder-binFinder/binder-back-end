@@ -21,7 +21,9 @@ public class SearchResult {
 
     private final BinType type;
 
-    private final Point point;
+    private final Double longitude;
+
+    private final Double latitude;
 
     private final Boolean isBookMarked;
 

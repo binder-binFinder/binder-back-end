@@ -1,6 +1,8 @@
 package net.binder.api.search.service;
 
 import lombok.RequiredArgsConstructor;
+import net.binder.api.member.entity.Member;
+import net.binder.api.member.service.MemberService;
 import net.binder.api.search.dto.SearchDto;
 import net.binder.api.search.dto.SearchResult;
 import net.binder.api.search.repository.SearchQueryRepository;
@@ -14,11 +16,15 @@ import java.util.List;
 @Transactional
 public class SearchService {
 
-    private static final int DEFAULT_RADIUS = 200;
     private final SearchQueryRepository searchQueryRepository;
+    private final MemberService memberService;
 
-    public List<SearchResult> search(SearchDto searchDto, Long memberId){
-        return searchQueryRepository.findBins(searchDto, DEFAULT_RADIUS, memberId);
+    public List<SearchResult> search(SearchDto searchDto, String email) {
+        if (email == null) {
+            return searchQueryRepository.findBins(searchDto, null);
+        }
+        Member member = memberService.findByEmail(email);
+        return searchQueryRepository.findBins(searchDto, member.getId());
 
     }
 }
