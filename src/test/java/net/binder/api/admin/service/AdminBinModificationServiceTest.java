@@ -64,7 +64,7 @@ class AdminBinModificationServiceTest {
         binRepository.save(bin);
 
         binModification = new BinModification(user, bin, "title", "adress", BinType.BEVERAGE, null, 0, 10,
-                BinModificationStatus.PENDING);
+                BinModificationStatus.PENDING, "reason1");
         binModificationRepository.save(binModification);
     }
 
@@ -104,14 +104,15 @@ class AdminBinModificationServiceTest {
     }
 
     @Test
-    @DisplayName("등록 요청 전체를 최근순으로 조회할 수 있다.")
+    @DisplayName("수정 요청 전체를 최근순으로 조회할 수 있다.")
     void getBinModificationDetails_ENTIRE() {
         //given
-        Bin bin2 = new Bin("title2", BinType.RECYCLE, PointUtil.getPoint(127.2, 37.5), "address2", 0L, 0L, 0L, null, null);
+        Bin bin2 = new Bin("title2", BinType.RECYCLE, PointUtil.getPoint(127.2, 37.5), "address2", 0L, 0L, 0L, null,
+                null);
         binRepository.save(bin2);
 
         BinModification binModification2 = new BinModification(user, bin2, "title1", "address", BinType.RECYCLE, null,
-                20, 10, BinModificationStatus.APPROVED);
+                20, 10, BinModificationStatus.APPROVED, "reason2");
         binModificationRepository.save(binModification2);
 
         //when
@@ -122,24 +123,28 @@ class AdminBinModificationServiceTest {
         assertThat(binModificationDetails.size()).isEqualTo(2);
         assertThat(binModificationDetails).extracting("ModificationId")
                 .containsExactly(binModification2.getId(), binModification.getId());
+        assertThat(binModificationDetails).extracting(BinModificationDetail::getModificationReason)
+                .containsExactly("reason2", "reason1");
     }
 
     @Test
     @DisplayName("처리되지 않은 수정 요청을 최근순으로 조회할 수 있다.")
     void getBinModificationDetails_PENDING() {
         //given
-        Bin bin2 = new Bin("title2", BinType.RECYCLE, PointUtil.getPoint(127.2, 37.5), "address2", 0L, 0L, 0L, null, null);
+        Bin bin2 = new Bin("title2", BinType.RECYCLE, PointUtil.getPoint(127.2, 37.5), "address2", 0L, 0L, 0L, null,
+                null);
         binRepository.save(bin2);
 
         BinModification binModification2 = new BinModification(user, bin2, "title1", "address", BinType.RECYCLE, null,
-                20, 10, BinModificationStatus.APPROVED);
+                20, 10, BinModificationStatus.APPROVED, null);
         binModificationRepository.save(binModification2);
 
-        Bin bin3 = new Bin("title3", BinType.RECYCLE, PointUtil.getPoint(127.2, 37.5), "address3", 0L, 0L, 0L, null, null);
+        Bin bin3 = new Bin("title3", BinType.RECYCLE, PointUtil.getPoint(127.2, 37.5), "address3", 0L, 0L, 0L, null,
+                null);
         binRepository.save(bin3);
 
         BinModification binModification3 = new BinModification(user, bin2, "title1", "address", BinType.RECYCLE, null,
-                20, 10, BinModificationStatus.PENDING);
+                20, 10, BinModificationStatus.PENDING, null);
         binModificationRepository.save(binModification3);
 
         //when
@@ -156,18 +161,20 @@ class AdminBinModificationServiceTest {
     @DisplayName("처리완료된 수정 요청을 최근순으로 조회할 수 있다.")
     void getBinModificationDetails_FINISHED() {
         //given
-        Bin bin2 = new Bin("title2", BinType.RECYCLE, PointUtil.getPoint(127.2, 37.5), "address2", 0L, 0L, 0L, null, null);
+        Bin bin2 = new Bin("title2", BinType.RECYCLE, PointUtil.getPoint(127.2, 37.5), "address2", 0L, 0L, 0L, null,
+                null);
         binRepository.save(bin2);
 
         BinModification binModification2 = new BinModification(user, bin2, "title1", "address", BinType.RECYCLE, null,
-                20, 10, BinModificationStatus.APPROVED);
+                20, 10, BinModificationStatus.APPROVED, null);
         binModificationRepository.save(binModification2);
 
-        Bin bin3 = new Bin("title3", BinType.RECYCLE, PointUtil.getPoint(127.2, 37.5), "address3", 0L, 0L, 0L, null, null);
+        Bin bin3 = new Bin("title3", BinType.RECYCLE, PointUtil.getPoint(127.2, 37.5), "address3", 0L, 0L, 0L, null,
+                null);
         binRepository.save(bin3);
 
         BinModification binModification3 = new BinModification(user, bin2, "title1", "address", BinType.RECYCLE, null,
-                20, 10, BinModificationStatus.REJECTED);
+                20, 10, BinModificationStatus.REJECTED, null);
         binModificationRepository.save(binModification3);
 
         //when

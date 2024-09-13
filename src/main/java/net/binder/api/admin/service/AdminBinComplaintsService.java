@@ -39,7 +39,8 @@ public class AdminBinComplaintsService {
 
     @Transactional(readOnly = true)
     public Long getComplaintPendingCount() {
-        return complaintRepository.countByCountAndStatus(MIN_EXPOSED_COMPLAINT_COUNT, ComplaintStatus.PENDING);
+        return complaintRepository.countByCountGreaterThanEqualAndStatus(MIN_EXPOSED_COMPLAINT_COUNT,
+                ComplaintStatus.PENDING);
     }
 
     @Transactional(readOnly = true)

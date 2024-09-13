@@ -35,6 +35,8 @@ public class BinModificationDetail {
 
     private final LocalDateTime createdAt;
 
+    private final String modificationReason;
+
 
     public static BinModificationDetail from(BinModification binModification) {
         return BinModificationDetail.builder()
@@ -49,6 +51,7 @@ public class BinModificationDetail {
                 .status(binModification.getStatus())
                 .imageUrl(binModification.getImageUrl())
                 .createdAt(binModification.getCreatedAt())
+                .modificationReason(binModification.getModificationReason())
                 .build();
     }
 }
