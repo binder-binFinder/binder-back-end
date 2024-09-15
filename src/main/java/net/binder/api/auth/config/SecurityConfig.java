@@ -63,6 +63,7 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**", "/v3/**").permitAll() // 스웨거
                         .requestMatchers("/error").permitAll()
                         .requestMatchers(HttpMethod.GET, "/bins/**").permitAll() // 쓰레기통 검색 및 상세 조회
+                        .requestMatchers(HttpMethod.GET, "/search/bins/**").permitAll() // 쓰레기통 검색
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .exceptionHandling(exceptionHandling -> exceptionHandling
