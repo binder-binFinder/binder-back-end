@@ -9,6 +9,7 @@ import net.binder.api.notification.dto.NotificationDetail;
 import net.binder.api.notification.dto.NotificationListResponse;
 import net.binder.api.notification.service.NotificationService;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,4 +31,11 @@ public class NotificationController {
 
         return new NotificationListResponse(notificationDetails, unreadCount);
     }
+
+    @Operation(summary = "모든 알림 읽음 처리")
+    @PostMapping("/read-all")
+    public void readAllNotifications(@CurrentUser String email) {
+        notificationService.readAllNotifications(email);
+    }
+
 }

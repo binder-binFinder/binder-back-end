@@ -136,4 +136,25 @@ class NotificationServiceTest {
         assertThat(details1.size()).isEqualTo(20);
         assertThat(details2.size()).isEqualTo(10);
     }
+
+    @Test
+    @DisplayName("특정 멤버의 읽지 않은 알림을 모두 읽음처리 할 수 있다.")
+    void readAllNotifications() {
+        //given
+        Notification notification1 = new Notification(sender, receiver, bin, NotificationType.BIN_COMPLAINT_REJECTED,
+                "info");
+        Notification notification2 = new Notification(sender, receiver, bin, NotificationType.BIN_COMPLAINT_APPROVED,
+                "info");
+        Notification notification3 = new Notification(sender, receiver, bin, NotificationType.BIN_MODIFICATION_APPROVED,
+                "info");
+
+        notification3.markAsRead();
+        notificationRepository.saveAll(List.of(notification1, notification2, notification3));
+
+        //when
+        Integer count = notificationService.readAllNotifications(receiver.getEmail());
+
+        //then
+        assertThat(count).isEqualTo(2);
+    }
 }

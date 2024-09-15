@@ -65,6 +65,11 @@ public class NotificationService {
         return notificationRepository.countByReceiverIdAndIsRead(member.getId(), false);
     }
 
+    public Integer readAllNotifications(String email) {
+        Member member = memberService.findByEmail(email);
+        return notificationRepository.updateUnreadToRead(member.getId());
+    }
+
     private List<Notification> getNotifications(Member sender, List<Member> receivers, Bin bin,
                                                 NotificationType type, String additionalInfo) {
         List<Notification> notifications = new ArrayList<>();
