@@ -11,13 +11,10 @@ public class SearchDto {
 
     private final BinType type;
 
-    @NotNull
     private final Double latitude;
 
-    @NotNull
     private final Double longitude;
 
-    @NotNull
     private final Integer radius;
 
 }
