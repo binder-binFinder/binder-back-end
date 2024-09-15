@@ -1773,4 +1773,13 @@ class SearchServiceTest {
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage("잘못된 좌표입니다.");
     }
+
+    @DisplayName("반경을 음수로 넣으면 결과가 반환되지 않는다.")
+    @Test
+    void test_with_wrong_radius() {
+        assertThatThrownBy(() ->
+                searchService.search(BinType.CIGAR, 127.027722755059, 37.495544565616, -23, "dusgh7031@gmail.com"))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("잘못된 반경 설정입니다.");
+    }
 }
