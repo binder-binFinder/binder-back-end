@@ -7,8 +7,11 @@ import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -19,9 +22,9 @@ public class BinBatchInsertRepository {
 
     public void batchInsertInitialBins(List<ProcessedBinData> dataList){
         String sql = """ 
-             INSERT INTO bin (title, type, point, address, like_count, dislike_count, bookmark_count, image_url)
-             VALUES (?, ?, ST_GeomFromText(?, 4326), ?, ?, ?, ?, ?)
-            """;
+                INSERT IGNORE INTO bin (title, type, point, address, like_count, dislike_count, bookmark_count, image_url, created_at)\s
+                  VALUES (?, ?, ST_GeomFromText(?, 4326), ?, ?, ?, ?, ?, ?)
+                  """;
         
         jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
             @Override
@@ -38,6 +41,7 @@ public class BinBatchInsertRepository {
                 ps.setLong(6, 0L);
                 ps.setLong(7, 0L);
                 ps.setString(8, null);
+                ps.setTimestamp(9, Timestamp.valueOf(LocalDateTime.now()));
             }
 
             @Override
