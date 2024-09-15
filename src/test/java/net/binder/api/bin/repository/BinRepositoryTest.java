@@ -2,17 +2,13 @@ package net.binder.api.bin.repository;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.lang.Arrays;
 import jakarta.persistence.EntityManager;
 import net.binder.api.bin.entity.Bin;
 import net.binder.api.bin.entity.BinType;
 import net.binder.api.common.binsetup.dto.PublicBinData;
 import net.binder.api.common.binsetup.repository.BinBatchInsertRepository;
-import net.binder.api.common.binsetup.util.ExcelDataExtractor;
 import net.binder.api.common.kakaomap.dto.ProcessedBinData;
 import net.binder.api.common.kakaomap.service.KakaoMapService;
-import net.binder.api.member.entity.Member;
-import net.binder.api.member.entity.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,8 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.RequestEntity;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
