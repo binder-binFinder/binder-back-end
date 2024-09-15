@@ -9,6 +9,7 @@ import net.binder.api.bin.util.PointUtil;
 import net.binder.api.binregistration.entity.BinRegistration;
 import net.binder.api.binregistration.entity.BinRegistrationStatus;
 import net.binder.api.binregistration.repository.BinRegistrationRepository;
+import net.binder.api.bookmark.service.BookMarkService;
 import net.binder.api.common.binsetup.dto.PublicBinData;
 import net.binder.api.common.binsetup.repository.BinBatchInsertRepository;
 import net.binder.api.common.exception.BadRequestException;
@@ -29,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 @Transactional
 @SpringBootTest
@@ -58,6 +58,9 @@ class SearchServiceTest {
 
     @Autowired
     private AdminBinRegistrationService adminBinRegistrationService;
+
+    @Autowired
+    private BookMarkService bookMarkService;
 
     private Member testMember;
 
@@ -100,7 +103,7 @@ class SearchServiceTest {
                 "서울 강남구 강남대로 382",
                 "서울 서초구 서초대로78길 42"
         );
-        assertThat(search).extracting("title").containsExactly(
+        assertThat(search).extracting("title").contains(
                 "서초동 1327-5",
                 "우성아파트I3",
                 "던킨도너츠 앞",
@@ -240,10 +243,10 @@ class SearchServiceTest {
 
     @DisplayName("재활용 쓰레기통을 검색하면 재활용 쓰레기통을 찾을 수 있다.")
     @Test
-    void 재활용_쓰레기통_검색() {
+    void search_recycle() {
         List<SearchResult> search = searchService.search(BinType.RECYCLE, 127.027722755059, 37.4956241314633, 300, "dusgh7031@gmail.com");
 
-        assertThat(search.size()).isEqualTo(5);
+        assertThat(search.size()).isEqualTo(4);
         assertThat(search).extracting("address").containsExactly(
                 "서울 서초구 강남대로 373",
                 "서울 서초구 강남대로 365",
@@ -261,8 +264,7 @@ class SearchServiceTest {
                 BinType.RECYCLE,
                 BinType.RECYCLE,
                 BinType.RECYCLE);
-        assertThat(search).extracting("isBookMarked").containsExactly(false, false, false, false, false);
-
+        assertThat(search).extracting("isBookMarked").containsExactly(false, false, false, false);
         assertThat(search).extracting(SearchResult::getLongitude)
                 .satisfies(xList -> {
                     assertThat(xList.get(0)).isEqualTo(127.02801011993398, xTolerance);
@@ -270,7 +272,6 @@ class SearchServiceTest {
                     assertThat(xList.get(2)).isEqualTo(127.02860980273, xTolerance);
                     assertThat(xList.get(3)).isEqualTo(127.02862705831201, xTolerance);
                 });
-
         assertThat(search).extracting(SearchResult::getLatitude)
                 .satisfies(yList -> {
                     assertThat(yList.get(0)).isEqualTo(37.495982934664, yTolerance);
@@ -282,45 +283,35 @@ class SearchServiceTest {
 
     @DisplayName("일반 쓰레기통을 검색하면 주변에 있는 쓰레기통을 찾을 수 있다.")
     @Test
-    void 일반_쓰레기통_검색() {
+    void search_general() {
 
         List<SearchResult> search = searchService.search(BinType.GENERAL, 127.027722755059, 37.4956241314633, 200, "dusgh7031@gmail.com");
 
-        assertThat(search.size()).isEqualTo(4);
-
+        assertThat(search.size()).isEqualTo(2);
         assertThat(search).extracting("address").containsExactly(
                 "서울 서초구 강남대로 373",
-                "서울 서초구 강남대로 373",
-                "서울 강남구 강남대로 362",
                 "서울 강남구 강남대로 382");
         assertThat(search).extracting("title").containsExactly(
-                "우성아파트O3",
                 "우성아파트I3",
-                "강남대륭빌딩 앞",
                 "강남역2번출구 앞");
-        assertThat(search).extracting("type").containsExactly(BinType.GENERAL, BinType.GENERAL, BinType.GENERAL, BinType.GENERAL);
-        assertThat(search).extracting("isBookMarked").containsExactly(false, false, false, false);
-
+        assertThat(search).extracting("type").containsExactly(BinType.GENERAL, BinType.GENERAL);
+        assertThat(search).extracting("isBookMarked").containsExactly(false, false);
         assertThat(search).extracting(SearchResult::getLongitude)
                 .satisfies(xList -> {
                     assertThat(xList.get(0)).isEqualTo(127.02801011993398, xTolerance);
-                    assertThat(xList.get(1)).isEqualTo(127.02801011993398, xTolerance);
-                    assertThat(xList.get(2)).isEqualTo(127.029416048324, xTolerance);
-                    assertThat(xList.get(3)).isEqualTo(127.02862705831201, xTolerance);
+                    assertThat(xList.get(1)).isEqualTo(127.02862705831201, xTolerance);
                 });
 
         assertThat(search).extracting(SearchResult::getLatitude)
                 .satisfies(yList -> {
                     assertThat(yList.get(0)).isEqualTo(37.495982934664, yTolerance);
-                    assertThat(yList.get(1)).isEqualTo(37.495982934664, yTolerance);
-                    assertThat(yList.get(2)).isEqualTo(37.495305576475, yTolerance);
-                    assertThat(yList.get(3)).isEqualTo(37.49704867762, yTolerance);
+                    assertThat(yList.get(1)).isEqualTo(37.4970486776201, yTolerance);
                 });
     }
 
     @DisplayName("검색 결과의 첫번째 쓰레기통이 현재 위치에서 가장 가까운 쓰레기통이다.")
     @Test
-    void 쓰레기통_거리() {
+    void search_order_by_distance() {
         List<SearchResult> searchResult = searchService.search(null, 127.027722755059, 37.4956241314633, 200, "dusgh7031@gmail.com");
         Double distanceOfFirstBins = searchResult.get(0).getDistance();
 
@@ -333,38 +324,11 @@ class SearchServiceTest {
         }
     }
 
-    @DisplayName("비로그인 이용자도 쓰레기통 검색을 할 수 있다.")
-    @Test
-    void 비로그인_쓰레기통_검색() {
-
-        List<SearchResult> search = searchService.search(BinType.CIGAR, 127.027722755059, 37.4956241314633, 200, null);
-
-        assertThat(search.size()).isEqualTo(2);
-        assertThat(search).extracting("address").containsExactly("서울 서초구 서초대로78길 24", "서울 서초구 서초대로78길 42");
-        assertThat(search).extracting("title").containsExactly("서초동 1327-5", "서초동 1330-18");
-        assertThat(search).extracting("type").containsExactly(BinType.CIGAR, BinType.CIGAR);
-        assertThat(search).extracting("isBookMarked").containsExactly(false, false);
-
-        assertThat(search).extracting(SearchResult::getLongitude)
-                .satisfies(xList -> {
-                    assertThat(xList.get(0)).isEqualTo(127.027752353367, xTolerance);
-                    assertThat(xList.get(1)).isEqualTo(127.028224355185, xTolerance);
-                });
-
-        assertThat(search).extracting(SearchResult::getLatitude)
-                .satisfies(yList -> {
-                    assertThat(yList.get(0)).isEqualTo(37.495544565616, yTolerance);
-                    assertThat(yList.get(1)).isEqualTo(37.49402562647, yTolerance);
-                });
-    }
-
     @DisplayName("DB에 저장되지 않은 위도, 경도로 조회하면 검색결과가 나오지 않는다.")
     @Test
-    void DB_데이터_좌표_기준_검색() {
-
+    void search_no_result() {
         //일본의 경도, 위도 좌표 예시
         List<SearchResult> searchResult = searchService.search(null, 124.11, 35.1, 200, "dusgh7031@gmail.com");
-
         assertThat(searchResult.size()).isEqualTo(0);
     }
 
@@ -373,9 +337,138 @@ class SearchServiceTest {
        타입별로 검색이 제대로 작동하는지 확인하기 위해서 타입별 테스트 진행
      */
 
+    @DisplayName("승인된 쓰레기통은 검색 결과에 포함된다.")
+    @Test
+    void search_result_with_approve() {
+
+        Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
+        Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
+        memberRepository.saveAll(List.of(admin, user));
+
+        Bin bin = new Bin("쓰레기통12", BinType.GENERAL, PointUtil.getPoint(127.029123181305, 37.497969565176), "address", 0L, 0L, 0L, null, null);
+        binRepository.save(bin);
+
+        BinRegistration binRegistration = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration);
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration.getId());
+
+        List<SearchResult> search = searchService.search(null, 127.027722755059, 37.4956241314633, 300, "dusgh7031@gmail.com");
+        assertThat(search.size()).isEqualTo(9);
+        assertThat(search).extracting("address").containsExactly(
+                "서울 서초구 서초대로78길 24",
+                "서울 서초구 강남대로 373",
+                "서울 서초구 강남대로 373",
+                "서울 서초구 강남대로 365",
+                "서울 서초구 강남대로 359",
+                "서울 강남구 강남대로 382",
+                "서울 강남구 강남대로 382",
+                "서울 서초구 서초대로78길 42",
+                "address"
+        );
+        assertThat(search).extracting("title").containsExactly(
+                "서초동 1327-5",
+                "던킨도너츠 앞",
+                "우성아파트I3",
+                "도씨에빛 1 앞",
+                "티월드 앞",
+                "강남역2번출구 앞",
+                "강남역2번출구 앞",
+                "서초동 1330-18",
+                "쓰레기통12"
+        );
+        assertThat(search).extracting("type").containsExactlyInAnyOrder(
+                BinType.CIGAR,
+                BinType.RECYCLE,
+                BinType.GENERAL,
+                BinType.RECYCLE,
+                BinType.RECYCLE,
+                BinType.GENERAL,
+                BinType.RECYCLE,
+                BinType.CIGAR,
+                BinType.GENERAL
+        );
+        assertThat(search).extracting("isBookMarked").containsExactly(
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+        );
+        assertThat(search).extracting(SearchResult::getLongitude)
+                .satisfies(xList -> {
+                    assertThat(xList.get(0)).isEqualTo(127.027752353367, xTolerance);
+                    assertThat(xList.get(1)).isEqualTo(127.028010119934, xTolerance);
+                    assertThat(xList.get(2)).isEqualTo(127.028010119934, xTolerance);
+                    assertThat(xList.get(3)).isEqualTo(127.028348895147, xTolerance);
+                    assertThat(xList.get(4)).isEqualTo(127.02860980273, xTolerance);
+                    assertThat(xList.get(5)).isEqualTo(127.028627058312, xTolerance);
+                    assertThat(xList.get(6)).isEqualTo(127.028627058312, xTolerance);
+                    assertThat(xList.get(7)).isEqualTo(127.028224355185, xTolerance);
+                    assertThat(xList.get(8)).isEqualTo(127.029123181305, xTolerance);
+
+                });
+        assertThat(search).extracting(SearchResult::getLatitude)
+                .satisfies(yList -> {
+                    assertThat(yList.get(0)).isEqualTo(37.495544565616, yTolerance);
+                    assertThat(yList.get(1)).isEqualTo(37.495982934664, yTolerance);
+                    assertThat(yList.get(2)).isEqualTo(37.495982934664, yTolerance);
+                    assertThat(yList.get(3)).isEqualTo(37.495323407006, yTolerance);
+                    assertThat(yList.get(4)).isEqualTo(37.494798958122, yTolerance);
+                    assertThat(yList.get(5)).isEqualTo(37.49704867762, yTolerance);
+                    assertThat(yList.get(6)).isEqualTo(37.49704867762, yTolerance);
+                    assertThat(yList.get(7)).isEqualTo(37.49402562647, yTolerance);
+                    assertThat(yList.get(8)).isEqualTo(37.497969565176, yTolerance);
+                });
+    }
+
+    @DisplayName("승인된 쓰레기통은 검색 결과에 포함돼야 한다(일반 쓰레기)")
+    @Test
+    void search_general_bin_with_approve() {
+        Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
+        Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
+        memberRepository.saveAll(List.of(admin, user));
+
+        Bin bin = new Bin("쓰레기통12", BinType.GENERAL, PointUtil.getPoint(127.029123181305, 37.497969565176), "address", 0L, 0L, 0L, null, null);
+        binRepository.save(bin);
+
+        BinRegistration binRegistration = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration);
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration.getId());
+
+        List<SearchResult> search = searchService.search(BinType.GENERAL, 127.027722755059, 37.4956241314633, 300, "dusgh7031@gmail.com");
+
+        assertThat(search.size()).isEqualTo(3);
+        assertThat(search).extracting("address").containsExactly(
+                "서울 서초구 강남대로 373",
+                "서울 강남구 강남대로 382",
+                "address");
+        assertThat(search).extracting("title").containsExactly(
+                "우성아파트I3",
+                "강남역2번출구 앞",
+                "쓰레기통12");
+        assertThat(search).extracting("type").containsExactly(BinType.GENERAL, BinType.GENERAL, BinType.GENERAL);
+        assertThat(search).extracting("isBookMarked").containsExactly(false, false, false);
+        assertThat(search).extracting(SearchResult::getLongitude)
+                .satisfies(xList -> {
+                    assertThat(xList.get(0)).isEqualTo(127.02801011993398, xTolerance);
+                    assertThat(xList.get(1)).isEqualTo(127.02862705831201, xTolerance);
+                    assertThat(xList.get(2)).isEqualTo(127.029123181305, xTolerance);
+                });
+        assertThat(search).extracting(SearchResult::getLatitude)
+                .satisfies(yList -> {
+                    assertThat(yList.get(0)).isEqualTo(37.495982934664, yTolerance);
+                    assertThat(yList.get(1)).isEqualTo(37.4970486776201, yTolerance);
+                    assertThat(yList.get(2)).isEqualTo(37.497969565176, yTolerance);
+                });
+    }
+
     @DisplayName("승인된 쓰레기통은 검색 결과에 포함돼야 한다(담배꽁초)")
     @Test
-    void 승인된_쓰레기통_검색_담배꽁초() {
+    void search_cigar_bin_with_approve() {
         Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
@@ -416,125 +509,53 @@ class SearchServiceTest {
                 });
     }
 
-    @DisplayName("승인된 쓰레기통은 검색 결과에 포함돼야 한다(일반 쓰레기)")
-    @Test
-    void 승인된_쓰레기통_검색_일반_쓰레기() {
-        Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
-        Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
-        memberRepository.saveAll(List.of(admin, user));
-
-        Bin bin = new Bin("쓰레기통12", BinType.GENERAL, PointUtil.getPoint(127.029123181305, 37.497969565176), "address", 0L, 0L, 0L, null, null);
-        binRepository.save(bin);
-
-        BinRegistration binRegistration = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
-        binRegistrationRepository.save(binRegistration);
-        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration.getId());
-
-         List<SearchResult> search = searchService.search(BinType.GENERAL, 127.027722755059, 37.4956241314633, 300, "dusgh7031@gmail.com");
-
-        assertThat(search.size()).isEqualTo(5);
-
-        assertThat(search).extracting("address").containsExactly(
-                "서울 서초구 강남대로 373",
-                "서울 서초구 강남대로 373",
-                "서울 강남구 강남대로 362",
-                "서울 강남구 강남대로 382",
-                "address");
-        assertThat(search).extracting("title").containsExactly(
-                "우성아파트O3",
-                "우성아파트I3",
-                "강남대륭빌딩 앞",
-                "강남역2번출구 앞",
-                "쓰레기통12");
-        assertThat(search).extracting("type").containsExactly(
-                BinType.GENERAL,
-                BinType.GENERAL,
-                BinType.GENERAL,
-                BinType.GENERAL,
-                BinType.GENERAL);
-        assertThat(search).extracting("isBookMarked").containsExactly(false, false, false, false, false);
-
-        assertThat(search).extracting(SearchResult::getLongitude)
-                .satisfies(xList -> {
-                    assertThat(xList.get(0)).isEqualTo(127.02801011993398, xTolerance);
-                    assertThat(xList.get(1)).isEqualTo(127.02801011993398, xTolerance);
-                    assertThat(xList.get(2)).isEqualTo(127.029416048324, xTolerance);
-                    assertThat(xList.get(3)).isEqualTo(127.02862705831201, xTolerance);
-                    assertThat(xList.get(4)).isEqualTo(127.029123181305, xTolerance);
-                });
-
-        assertThat(search).extracting(SearchResult::getLatitude)
-                .satisfies(yList -> {
-                    assertThat(yList.get(0)).isEqualTo(37.495982934664, yTolerance);
-                    assertThat(yList.get(1)).isEqualTo(37.495982934664, yTolerance);
-                    assertThat(yList.get(2)).isEqualTo(37.495305576475, yTolerance);
-                    assertThat(yList.get(3)).isEqualTo(37.49704867762, yTolerance);
-                    assertThat(yList.get(4)).isEqualTo(37.497969565176, yTolerance);
-                });
-    }
-
     /*
        승인 대기 상황 테스트
      */
 
-    @DisplayName("심사 중인 쓰레기통은 검색 결과에서 제외돼야 한다.(타입 검색x)")
+    @DisplayName("심사 중인 쓰레기통은 검색 결과에서 제외돼야 한다.")
     @Test
-    void 승인된_쓰레기통_검색결과_전체() {
+    void search_result_without_pending() {
 
         Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin = new Bin("쓰레기통12", BinType.CIGAR, PointUtil.getPoint(127.025104317477, 37.496636817721), "address", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통12", BinType.CIGAR, PointUtil.getPoint(127.02862705831201, 37.49704867762), "address", 0L, 0L, 0L, null, null);
         binRepository.save(bin);
-
         BinRegistration binRegistration = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration);
-        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration.getId());
 
         List<SearchResult> search = searchService.search(null, 127.027722755059, 37.4956241314633, 300, "dusgh7031@gmail.com");
-
-        assertThat(search.size()).isEqualTo(12);
+        assertThat(search.size()).isEqualTo(8);
         assertThat(search).extracting("address").containsExactly(
                 "서울 서초구 서초대로78길 24",
                 "서울 서초구 강남대로 373",
                 "서울 서초구 강남대로 373",
-                "서울 서초구 강남대로 373",
                 "서울 서초구 강남대로 365",
                 "서울 서초구 강남대로 359",
-                "서울 강남구 강남대로 362",
-                "서울 강남구 강남대로 362",
                 "서울 강남구 강남대로 382",
                 "서울 강남구 강남대로 382",
-                "서울 서초구 서초대로78길 42",
-                "address"
+                "서울 서초구 서초대로78길 42"
         );
         assertThat(search).extracting("title").containsExactly(
                 "서초동 1327-5",
-                "우성아파트O3",
                 "던킨도너츠 앞",
                 "우성아파트I3",
                 "도씨에빛 1 앞",
                 "티월드 앞",
-                "강남대륭빌딩 앞",
-                "강남대륭빌딩 앞",
                 "강남역2번출구 앞",
                 "강남역2번출구 앞",
-                "서초동 1330-18",
-                "쓰레기통12"
+                "서초동 1330-18"
         );
         assertThat(search).extracting("type").containsExactlyInAnyOrder(
                 BinType.CIGAR,
-                BinType.GENERAL,
                 BinType.RECYCLE,
                 BinType.GENERAL,
                 BinType.RECYCLE,
                 BinType.RECYCLE,
-                BinType.RECYCLE,
-                BinType.GENERAL,
                 BinType.GENERAL,
                 BinType.RECYCLE,
-                BinType.CIGAR,
                 BinType.CIGAR
         );
         assertThat(search).extracting("isBookMarked").containsExactly(
@@ -545,60 +566,46 @@ class SearchServiceTest {
                 false,
                 false,
                 false,
-                false,
-                false,
-                false,
-                false,
                 false
         );
-
         assertThat(search).extracting(SearchResult::getLongitude)
                 .satisfies(xList -> {
                     assertThat(xList.get(0)).isEqualTo(127.027752353367, xTolerance);
                     assertThat(xList.get(1)).isEqualTo(127.028010119934, xTolerance);
                     assertThat(xList.get(2)).isEqualTo(127.028010119934, xTolerance);
-                    assertThat(xList.get(3)).isEqualTo(127.028010119934, xTolerance);
-                    assertThat(xList.get(4)).isEqualTo(127.028348895147, xTolerance);
-                    assertThat(xList.get(5)).isEqualTo(127.02860980273, xTolerance);
-                    assertThat(xList.get(6)).isEqualTo(127.029416048324, xTolerance);
-                    assertThat(xList.get(7)).isEqualTo(127.029416048324, xTolerance);
-                    assertThat(xList.get(8)).isEqualTo(127.028627058312, xTolerance);
-                    assertThat(xList.get(9)).isEqualTo(127.028627058312, xTolerance);
-                    assertThat(xList.get(10)).isEqualTo(127.028224355185, xTolerance);
-                    assertThat(xList.get(11)).isEqualTo(127.025104317477, xTolerance);
+                    assertThat(xList.get(3)).isEqualTo(127.028348895147, xTolerance);
+                    assertThat(xList.get(4)).isEqualTo(127.02860980273, xTolerance);
+                    assertThat(xList.get(5)).isEqualTo(127.028627058312, xTolerance);
+                    assertThat(xList.get(6)).isEqualTo(127.028627058312, xTolerance);
+                    assertThat(xList.get(7)).isEqualTo(127.028224355185, xTolerance);
                 });
-
         assertThat(search).extracting(SearchResult::getLatitude)
                 .satisfies(yList -> {
                     assertThat(yList.get(0)).isEqualTo(37.495544565616, yTolerance);
                     assertThat(yList.get(1)).isEqualTo(37.495982934664, yTolerance);
                     assertThat(yList.get(2)).isEqualTo(37.495982934664, yTolerance);
-                    assertThat(yList.get(3)).isEqualTo(37.495982934664, yTolerance);
-                    assertThat(yList.get(4)).isEqualTo(37.495323407006, yTolerance);
-                    assertThat(yList.get(5)).isEqualTo(37.494798958122, yTolerance);
-                    assertThat(yList.get(6)).isEqualTo(37.495305576475, yTolerance);
-                    assertThat(yList.get(7)).isEqualTo(37.495305576475, yTolerance);
-                    assertThat(yList.get(8)).isEqualTo(37.49704867762, yTolerance);
-                    assertThat(yList.get(9)).isEqualTo(37.49704867762, yTolerance);
-                    assertThat(yList.get(10)).isEqualTo(37.49402562647, yTolerance);
-                    assertThat(yList.get(11)).isEqualTo(37.496636817721, yTolerance);
+                    assertThat(yList.get(3)).isEqualTo(37.495323407006, yTolerance);
+                    assertThat(yList.get(4)).isEqualTo(37.494798958122, yTolerance);
+                    assertThat(yList.get(5)).isEqualTo(37.49704867762, yTolerance);
+                    assertThat(yList.get(6)).isEqualTo(37.49704867762, yTolerance);
+                    assertThat(yList.get(7)).isEqualTo(37.49402562647, yTolerance);
                 });
     }
 
     @DisplayName("심사 중인 쓰레기통은 검색 결과에서 제외돼야 한다.(담배꽁초)")
     @Test
-    void 심사_중인_쓰레기통_검색결과_타입() {
+    void search_cigar_bin_without_pending() {
         Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin = new Bin("쓰레기통 12", BinType.CIGAR, PointUtil.getPoint(127.027722755059, 37.4956241314633), "address", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통12", BinType.CIGAR, PointUtil.getPoint(127.02862705831201, 37.49704867762), "address", 0L, 0L, 0L, null, null);
         binRepository.save(bin);
 
         BinRegistration binRegistration = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration);
 
-        List<SearchResult> search = searchService.search(BinType.CIGAR, 127.027722755059, 37.4956241314633, 200, "dusgh7031@gmail.com");
+        List<SearchResult> search = searchService.search(BinType.CIGAR, 127.027722755059, 37.4956241314633, 300, "dusgh7031@gmail.com");
 
         assertThat(search.size()).isEqualTo(2);
 
@@ -626,71 +633,159 @@ class SearchServiceTest {
 
     }
 
-    @DisplayName("심사 중인 쓰레기통은 검색 결과에서 제외돼야 한다.(타입 검색x)")
+    @DisplayName("심사 중인 쓰레기통은 검색 결과에서 제외돼야 한다.(음료수)")
     @Test
-    void 심사_중인_쓰레기통_검색결과_전체() {
-
+    void search_beverage_bin_without_pending() {
         Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin1 = new Bin("쓰레기통 12", BinType.BEVERAGE, PointUtil.getPoint(127.027722755059, 37.4956241314633), "address", 0L, 0L, 0L, null, null);
-        binRepository.save(bin1);
+        Bin bin = new Bin("쓰레기통12", BinType.BEVERAGE, PointUtil.getPoint(127.027722755059, 37.4956241314633), "address", 0L, 0L, 0L, null, null);
+        binRepository.save(bin);
 
-        Bin bin2 = new Bin("쓰레기통 123", BinType.GENERAL, PointUtil.getPoint(127.027722755059, 37.4956241314633), "address", 0L, 0L, 0L, null, null);
-        binRepository.save(bin2);
-
-        Bin bin3 = new Bin("쓰레기통 1234", BinType.CIGAR, PointUtil.getPoint(127.027722755059, 37.4956241314633), "address", 0L, 0L, 0L, null, null);
-        binRepository.save(bin3);
-
-        BinRegistration binRegistration = new BinRegistration(user, bin1, BinRegistrationStatus.PENDING);
+        BinRegistration binRegistration = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration);
 
-        BinRegistration binRegistration2 = new BinRegistration(user, bin2, BinRegistrationStatus.PENDING);
-        binRegistrationRepository.save(binRegistration2);
+        List<SearchResult> search = searchService.search(BinType.BEVERAGE, 127.027722755059, 37.4956241314633, 300, "dusgh7031@gmail.com");
 
-        BinRegistration binRegistration3 = new BinRegistration(user, bin3, BinRegistrationStatus.PENDING);
-        binRegistrationRepository.save(binRegistration3);
+        assertThat(search.size()).isEqualTo(0);
+    }
 
-        List<SearchResult> search = searchService.search(null, 127.027722755059, 37.4956241314633, 200, "dusgh7031@gmail.com");
+    @DisplayName("심사 중인 쓰레기통은 검색 결과에서 제외돼야 한다.(재활용)")
+    @Test
+    void search_recycle_bin_without_pending() {
+        Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
+        Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
+        memberRepository.saveAll(List.of(admin, user));
 
-        assertThat(search.size()).isEqualTo(11);
+        Bin bin = new Bin("쓰레기통12", BinType.RECYCLE, PointUtil.getPoint(127.02801011993398, 37.495982934664), "address", 0L, 0L, 0L, null, null);
+        binRepository.save(bin);
 
+        BinRegistration binRegistration = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration);
+
+        List<SearchResult> search = searchService.search(BinType.RECYCLE, 127.027722755059, 37.4956241314633, 300, "dusgh7031@gmail.com");
+
+        assertThat(search.size()).isEqualTo(4);
+        assertThat(search).extracting("address").containsExactly(
+                "서울 서초구 강남대로 373",
+                "서울 서초구 강남대로 365",
+                "서울 서초구 강남대로 359",
+                "서울 강남구 강남대로 382"
+        );
+        assertThat(search).extracting("title").containsExactly(
+                "던킨도너츠 앞",
+                "도씨에빛 1 앞",
+                "티월드 앞",
+                "강남역2번출구 앞"
+        );
+        assertThat(search).extracting("type").containsExactly(
+                BinType.RECYCLE,
+                BinType.RECYCLE,
+                BinType.RECYCLE,
+                BinType.RECYCLE);
+        assertThat(search).extracting("isBookMarked").containsExactly(false, false, false, false);
+        assertThat(search).extracting(SearchResult::getLongitude)
+                .satisfies(xList -> {
+                    assertThat(xList.get(0)).isEqualTo(127.02801011993398, xTolerance);
+                    assertThat(xList.get(1)).isEqualTo(127.028348895147, xTolerance);
+                    assertThat(xList.get(2)).isEqualTo(127.02860980273, xTolerance);
+                    assertThat(xList.get(3)).isEqualTo(127.02862705831201, xTolerance);
+                });
+        assertThat(search).extracting(SearchResult::getLatitude)
+                .satisfies(yList -> {
+                    assertThat(yList.get(0)).isEqualTo(37.495982934664, yTolerance);
+                    assertThat(yList.get(1)).isEqualTo(37.495323407006, yTolerance);
+                    assertThat(yList.get(2)).isEqualTo(37.494798958122, yTolerance);
+                    assertThat(yList.get(3)).isEqualTo(37.49704867762, yTolerance);
+                });
+
+    }
+
+    @DisplayName("심사 중인 쓰레기통은 검색 결과에서 제외돼야 한다.(일반)")
+    @Test
+    void search_general_bin_without_pending() {
+        Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
+        Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
+        memberRepository.saveAll(List.of(admin, user));
+
+        Bin bin = new Bin("쓰레기통12", BinType.GENERAL, PointUtil.getPoint(127.02801011993398, 37.495982934664), "address", 0L, 0L, 0L, null, null);
+        binRepository.save(bin);
+
+        BinRegistration binRegistration = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration);
+
+        List<SearchResult> search = searchService.search(BinType.GENERAL, 127.027722755059, 37.4956241314633, 200, "dusgh7031@gmail.com");
+
+        assertThat(search.size()).isEqualTo(2);
+        assertThat(search).extracting("address").containsExactly(
+                "서울 서초구 강남대로 373",
+                "서울 강남구 강남대로 382");
+        assertThat(search).extracting("title").containsExactly(
+                "우성아파트I3",
+                "강남역2번출구 앞");
+        assertThat(search).extracting("type").containsExactly(BinType.GENERAL, BinType.GENERAL);
+        assertThat(search).extracting("isBookMarked").containsExactly(false, false);
+        assertThat(search).extracting(SearchResult::getLongitude)
+                .satisfies(xList -> {
+                    assertThat(xList.get(0)).isEqualTo(127.02801011993398, xTolerance);
+                    assertThat(xList.get(1)).isEqualTo(127.02862705831201, xTolerance);
+                });
+
+        assertThat(search).extracting(SearchResult::getLatitude)
+                .satisfies(yList -> {
+                    assertThat(yList.get(0)).isEqualTo(37.495982934664, yTolerance);
+                    assertThat(yList.get(1)).isEqualTo(37.4970486776201, yTolerance);
+                });
+    }
+
+    /*
+       거절된 쓰레기통
+     */
+
+    @DisplayName("승인 거절된 쓰레기통은 검색 결과에서 제외돼야 한다.")
+    @Test
+    void search_bins_without_reject() {
+
+        Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
+        Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
+        memberRepository.saveAll(List.of(admin, user));
+        Bin bin = new Bin("쓰레기통12", BinType.CIGAR, PointUtil.getPoint(127.02862705831201, 37.49704867762), "address", 0L, 0L, 0L, null, null);
+        binRepository.save(bin);
+
+        BinRegistration binRegistration = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration);
+        adminBinRegistrationService.rejectRegistration("admin@email.com", binRegistration.getId(), "거절 사유");
+
+        List<SearchResult> search = searchService.search(null, 127.027722755059, 37.4956241314633, 300, "dusgh7031@gmail.com");
+
+        assertThat(search.size()).isEqualTo(8);
         assertThat(search).extracting("address").containsExactly(
                 "서울 서초구 서초대로78길 24",
                 "서울 서초구 강남대로 373",
                 "서울 서초구 강남대로 373",
-                "서울 서초구 강남대로 373",
                 "서울 서초구 강남대로 365",
                 "서울 서초구 강남대로 359",
-                "서울 강남구 강남대로 362",
-                "서울 강남구 강남대로 362",
                 "서울 강남구 강남대로 382",
                 "서울 강남구 강남대로 382",
                 "서울 서초구 서초대로78길 42"
         );
         assertThat(search).extracting("title").containsExactly(
                 "서초동 1327-5",
-                "우성아파트O3",
                 "던킨도너츠 앞",
                 "우성아파트I3",
                 "도씨에빛 1 앞",
                 "티월드 앞",
-                "강남대륭빌딩 앞",
-                "강남대륭빌딩 앞",
                 "강남역2번출구 앞",
                 "강남역2번출구 앞",
                 "서초동 1330-18"
         );
         assertThat(search).extracting("type").containsExactlyInAnyOrder(
                 BinType.CIGAR,
-                BinType.GENERAL,
                 BinType.RECYCLE,
                 BinType.GENERAL,
                 BinType.RECYCLE,
                 BinType.RECYCLE,
-                BinType.RECYCLE,
-                BinType.GENERAL,
                 BinType.GENERAL,
                 BinType.RECYCLE,
                 BinType.CIGAR
@@ -703,63 +798,49 @@ class SearchServiceTest {
                 false,
                 false,
                 false,
-                false,
-                false,
-                false,
                 false
         );
-
         assertThat(search).extracting(SearchResult::getLongitude)
                 .satisfies(xList -> {
                     assertThat(xList.get(0)).isEqualTo(127.027752353367, xTolerance);
                     assertThat(xList.get(1)).isEqualTo(127.028010119934, xTolerance);
                     assertThat(xList.get(2)).isEqualTo(127.028010119934, xTolerance);
-                    assertThat(xList.get(3)).isEqualTo(127.028010119934, xTolerance);
-                    assertThat(xList.get(4)).isEqualTo(127.028348895147, xTolerance);
-                    assertThat(xList.get(5)).isEqualTo(127.02860980273, xTolerance);
-                    assertThat(xList.get(6)).isEqualTo(127.029416048324, xTolerance);
-                    assertThat(xList.get(7)).isEqualTo(127.029416048324, xTolerance);
-                    assertThat(xList.get(8)).isEqualTo(127.028627058312, xTolerance);
-                    assertThat(xList.get(9)).isEqualTo(127.028627058312, xTolerance);
-                    assertThat(xList.get(10)).isEqualTo(127.028224355185, xTolerance);
+                    assertThat(xList.get(3)).isEqualTo(127.028348895147, xTolerance);
+                    assertThat(xList.get(4)).isEqualTo(127.02860980273, xTolerance);
+                    assertThat(xList.get(5)).isEqualTo(127.028627058312, xTolerance);
+                    assertThat(xList.get(6)).isEqualTo(127.028627058312, xTolerance);
+                    assertThat(xList.get(7)).isEqualTo(127.028224355185, xTolerance);
                 });
-
         assertThat(search).extracting(SearchResult::getLatitude)
                 .satisfies(yList -> {
                     assertThat(yList.get(0)).isEqualTo(37.495544565616, yTolerance);
                     assertThat(yList.get(1)).isEqualTo(37.495982934664, yTolerance);
                     assertThat(yList.get(2)).isEqualTo(37.495982934664, yTolerance);
-                    assertThat(yList.get(3)).isEqualTo(37.495982934664, yTolerance);
-                    assertThat(yList.get(4)).isEqualTo(37.495323407006, yTolerance);
-                    assertThat(yList.get(5)).isEqualTo(37.494798958122, yTolerance);
-                    assertThat(yList.get(6)).isEqualTo(37.495305576475, yTolerance);
-                    assertThat(yList.get(7)).isEqualTo(37.495305576475, yTolerance);
-                    assertThat(yList.get(8)).isEqualTo(37.49704867762, yTolerance);
-                    assertThat(yList.get(9)).isEqualTo(37.49704867762, yTolerance);
-                    assertThat(yList.get(10)).isEqualTo(37.49402562647, yTolerance);
+                    assertThat(yList.get(3)).isEqualTo(37.495323407006, yTolerance);
+                    assertThat(yList.get(4)).isEqualTo(37.494798958122, yTolerance);
+                    assertThat(yList.get(5)).isEqualTo(37.49704867762, yTolerance);
+                    assertThat(yList.get(6)).isEqualTo(37.49704867762, yTolerance);
+                    assertThat(yList.get(7)).isEqualTo(37.49402562647, yTolerance);
                 });
     }
 
-
-    @DisplayName("승인을 거절한 쓰레기통은 검색 결과에서 제외돼야 한다.")
+    @DisplayName("승인을 거절한 쓰레기통은 검색 결과에서 제외돼야 한다.(담배꽁초)")
     @Test
-    void 승인_거절_쓰레기통_검색결과() {
+    void search_cigar_bins_without_reject() {
         Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin = new Bin("쓰레기통 12", BinType.CIGAR, PointUtil.getPoint(127.027722755059, 37.4956241314633), "address", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통12", BinType.CIGAR, PointUtil.getPoint(127.02862705831201, 37.49704867762), "address", 0L, 0L, 0L, null, null);
         binRepository.save(bin);
 
         BinRegistration binRegistration = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration);
         adminBinRegistrationService.rejectRegistration("admin@email.com", binRegistration.getId(), "거절 사유");
 
-        List<SearchResult> search = searchService.search(BinType.CIGAR, 127.027722755059, 37.4956241314633, 200, "dusgh7031@gmail.com");
-
+        List<SearchResult> search = searchService.search(BinType.CIGAR, 127.027722755059, 37.4956241314633, 300, "dusgh7031@gmail.com");
 
         assertThat(search.size()).isEqualTo(2);
-
         assertThat(search).extracting("address").containsExactly("서울 서초구 서초대로78길 24", "서울 서초구 서초대로78길 42");
         assertThat(search).extracting("title").containsExactly("서초동 1327-5", "서초동 1330-18");
         assertThat(search).extracting("type").containsExactly(BinType.CIGAR, BinType.CIGAR);
@@ -784,65 +865,189 @@ class SearchServiceTest {
 
     }
 
-    @DisplayName("심사 중인 쓰레기통은 검색 결과에서 제외돼야 한다.(타입 검색x)")
+    @DisplayName("거절된 쓰레기통은 검색 결과에서 제외돼야 한다.(음료수)")
     @Test
-    void 승인_거절_쓰레기통_검색결과_전체() {
-
+    void search_beverage_bin_without_reject() {
         Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin = new Bin("쓰레기통 12", BinType.CIGAR, PointUtil.getPoint(127.027722755059, 37.4956241314633), "address", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통12", BinType.BEVERAGE, PointUtil.getPoint(127.027722755059, 37.4956241314633), "address", 0L, 0L, 0L, null, null);
         binRepository.save(bin);
 
         BinRegistration binRegistration = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration);
         adminBinRegistrationService.rejectRegistration("admin@email.com", binRegistration.getId(), "거절 사유");
 
-        List<SearchResult> search = searchService.search(null, 127.027722755059, 37.4956241314633, 200, "dusgh7031@gmail.com");
+        List<SearchResult> search = searchService.search(BinType.BEVERAGE, 127.027722755059, 37.4956241314633, 300, "dusgh7031@gmail.com");
 
-        assertThat(search.size()).isEqualTo(11);
+        assertThat(search.size()).isEqualTo(0);
+    }
+
+    @DisplayName("거절된 쓰레기통은 검색 결과에서 제외돼야 한다.(재활용)")
+    @Test
+    void search_recycle_bin_without_reject() {
+        Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
+        Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
+        memberRepository.saveAll(List.of(admin, user));
+
+        Bin bin = new Bin("쓰레기통12", BinType.RECYCLE, PointUtil.getPoint(127.02801011993398, 37.495982934664), "address", 0L, 0L, 0L, null, null);
+        binRepository.save(bin);
+
+        BinRegistration binRegistration = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration);
+        adminBinRegistrationService.rejectRegistration("admin@email.com", binRegistration.getId(), "거절 사유");
+
+        List<SearchResult> search = searchService.search(BinType.RECYCLE, 127.027722755059, 37.4956241314633, 300, "dusgh7031@gmail.com");
+
+        assertThat(search.size()).isEqualTo(4);
+        assertThat(search).extracting("address").containsExactly(
+                "서울 서초구 강남대로 373",
+                "서울 서초구 강남대로 365",
+                "서울 서초구 강남대로 359",
+                "서울 강남구 강남대로 382"
+        );
+        assertThat(search).extracting("title").containsExactly(
+                "던킨도너츠 앞",
+                "도씨에빛 1 앞",
+                "티월드 앞",
+                "강남역2번출구 앞"
+        );
+        assertThat(search).extracting("type").containsExactly(
+                BinType.RECYCLE,
+                BinType.RECYCLE,
+                BinType.RECYCLE,
+                BinType.RECYCLE);
+        assertThat(search).extracting("isBookMarked").containsExactly(false, false, false, false);
+        assertThat(search).extracting(SearchResult::getLongitude)
+                .satisfies(xList -> {
+                    assertThat(xList.get(0)).isEqualTo(127.02801011993398, xTolerance);
+                    assertThat(xList.get(1)).isEqualTo(127.028348895147, xTolerance);
+                    assertThat(xList.get(2)).isEqualTo(127.02860980273, xTolerance);
+                    assertThat(xList.get(3)).isEqualTo(127.02862705831201, xTolerance);
+                });
+        assertThat(search).extracting(SearchResult::getLatitude)
+                .satisfies(yList -> {
+                    assertThat(yList.get(0)).isEqualTo(37.495982934664, yTolerance);
+                    assertThat(yList.get(1)).isEqualTo(37.495323407006, yTolerance);
+                    assertThat(yList.get(2)).isEqualTo(37.494798958122, yTolerance);
+                    assertThat(yList.get(3)).isEqualTo(37.49704867762, yTolerance);
+                });
+
+    }
+
+    @DisplayName("거절된 쓰레기통은 검색 결과에서 제외돼야 한다.(일반)")
+    @Test
+    void search_general_bin_without_reject() {
+        Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
+        Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
+        memberRepository.saveAll(List.of(admin, user));
+
+        Bin bin = new Bin("쓰레기통12", BinType.GENERAL, PointUtil.getPoint(127.02801011993398, 37.495982934664), "address", 0L, 0L, 0L, null, null);
+        binRepository.save(bin);
+
+        BinRegistration binRegistration = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration);
+        adminBinRegistrationService.rejectRegistration("admin@email.com", binRegistration.getId(), "거절 사유");
+
+        List<SearchResult> search = searchService.search(BinType.GENERAL, 127.027722755059, 37.4956241314633, 200, "dusgh7031@gmail.com");
+
+        assertThat(search.size()).isEqualTo(2);
+        assertThat(search).extracting("address").containsExactly(
+                "서울 서초구 강남대로 373",
+                "서울 강남구 강남대로 382");
+        assertThat(search).extracting("title").containsExactly(
+                "우성아파트I3",
+                "강남역2번출구 앞");
+        assertThat(search).extracting("type").containsExactly(BinType.GENERAL, BinType.GENERAL);
+        assertThat(search).extracting("isBookMarked").containsExactly(false, false);
+        assertThat(search).extracting(SearchResult::getLongitude)
+                .satisfies(xList -> {
+                    assertThat(xList.get(0)).isEqualTo(127.02801011993398, xTolerance);
+                    assertThat(xList.get(1)).isEqualTo(127.02862705831201, xTolerance);
+                });
+
+        assertThat(search).extracting(SearchResult::getLatitude)
+                .satisfies(yList -> {
+                    assertThat(yList.get(0)).isEqualTo(37.495982934664, yTolerance);
+                    assertThat(yList.get(1)).isEqualTo(37.4970486776201, yTolerance);
+                });
+    }
+
+   /*
+    비즈니스 로직 테스트
+    */
+
+    @DisplayName("반경 제한을 넘으면, 최대 반경으로 검색된다.")
+    @Test
+    void test_over_max_radius() {
+        Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
+        Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
+        memberRepository.saveAll(List.of(admin, user));
+
+        Bin bin = new Bin("쓰레기통12", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address", 0L, 0L, 0L, null, null);
+        binRepository.save(bin);
+        Bin bin2 = new Bin("쓰레기통123", BinType.BEVERAGE, PointUtil.getPoint(127.026692446306, 37.498775008377), "address2", 0L, 0L, 0L, null, null);
+        binRepository.save(bin2);
+        Bin bin3 = new Bin("500M이상1", BinType.GENERAL, PointUtil.getPoint(127.031703595662, 37.498784671997), "address3", 0L, 0L, 0L, null, null);
+        binRepository.save(bin3);
+        Bin bin4 = new Bin("500M이상2", BinType.RECYCLE, PointUtil.getPoint(127.031062762603, 37.499416177304), "address4", 0L, 0L, 0L, null, null);
+        binRepository.save(bin4);
+
+        BinRegistration binRegistration1 = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration1);
+        BinRegistration binRegistration2 = new BinRegistration(user, bin2, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration2);
+        BinRegistration binRegistration3 = new BinRegistration(user, bin3, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration3);
+        BinRegistration binRegistration4 = new BinRegistration(user, bin4, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration4);
+
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration1.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration2.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration3.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration4.getId());
+
+        List<SearchResult> search = searchService.search(null, 127.027722755059, 37.4956241314633, 1000, "dusgh7031@gmail.com");
+        assertThat(search.size()).isEqualTo(10);
         assertThat(search).extracting("address").containsExactly(
                 "서울 서초구 서초대로78길 24",
                 "서울 서초구 강남대로 373",
                 "서울 서초구 강남대로 373",
-                "서울 서초구 강남대로 373",
                 "서울 서초구 강남대로 365",
                 "서울 서초구 강남대로 359",
-                "서울 강남구 강남대로 362",
-                "서울 강남구 강남대로 362",
                 "서울 강남구 강남대로 382",
                 "서울 강남구 강남대로 382",
-                "서울 서초구 서초대로78길 42"
+                "서울 서초구 서초대로78길 42",
+                "address",
+                "address2"
+
         );
-        assertThat(search).extracting("title").containsExactly(
+        assertThat(search).extracting("title").contains(
                 "서초동 1327-5",
-                "우성아파트O3",
-                "던킨도너츠 앞",
                 "우성아파트I3",
+                "던킨도너츠 앞",
                 "도씨에빛 1 앞",
                 "티월드 앞",
-                "강남대륭빌딩 앞",
-                "강남대륭빌딩 앞",
                 "강남역2번출구 앞",
                 "강남역2번출구 앞",
-                "서초동 1330-18"
+                "서초동 1330-18",
+                "쓰레기통12",
+                "쓰레기통123"
         );
         assertThat(search).extracting("type").containsExactlyInAnyOrder(
                 BinType.CIGAR,
-                BinType.GENERAL,
                 BinType.RECYCLE,
                 BinType.GENERAL,
                 BinType.RECYCLE,
                 BinType.RECYCLE,
-                BinType.RECYCLE,
-                BinType.GENERAL,
                 BinType.GENERAL,
                 BinType.RECYCLE,
-                BinType.CIGAR
+                BinType.CIGAR,
+                BinType.CIGAR,
+                BinType.BEVERAGE
         );
         assertThat(search).extracting("isBookMarked").containsExactly(
-                false,
                 false,
                 false,
                 false,
@@ -860,14 +1065,13 @@ class SearchServiceTest {
                     assertThat(xList.get(0)).isEqualTo(127.027752353367, xTolerance);
                     assertThat(xList.get(1)).isEqualTo(127.028010119934, xTolerance);
                     assertThat(xList.get(2)).isEqualTo(127.028010119934, xTolerance);
-                    assertThat(xList.get(3)).isEqualTo(127.028010119934, xTolerance);
-                    assertThat(xList.get(4)).isEqualTo(127.028348895147, xTolerance);
-                    assertThat(xList.get(5)).isEqualTo(127.02860980273, xTolerance);
-                    assertThat(xList.get(6)).isEqualTo(127.029416048324, xTolerance);
-                    assertThat(xList.get(7)).isEqualTo(127.029416048324, xTolerance);
-                    assertThat(xList.get(8)).isEqualTo(127.028627058312, xTolerance);
-                    assertThat(xList.get(9)).isEqualTo(127.028627058312, xTolerance);
-                    assertThat(xList.get(10)).isEqualTo(127.028224355185, xTolerance);
+                    assertThat(xList.get(3)).isEqualTo(127.028348895147, xTolerance);
+                    assertThat(xList.get(4)).isEqualTo(127.02860980273, xTolerance);
+                    assertThat(xList.get(5)).isEqualTo(127.028627058312, xTolerance);
+                    assertThat(xList.get(6)).isEqualTo(127.028627058312, xTolerance);
+                    assertThat(xList.get(7)).isEqualTo(127.028224355185, xTolerance);
+                    assertThat(xList.get(8)).isEqualTo(127.028754000454, xTolerance);
+                    assertThat(xList.get(9)).isEqualTo(127.026692446306, xTolerance);
                 });
 
         assertThat(search).extracting(SearchResult::getLatitude)
@@ -875,92 +1079,34 @@ class SearchServiceTest {
                     assertThat(yList.get(0)).isEqualTo(37.495544565616, yTolerance);
                     assertThat(yList.get(1)).isEqualTo(37.495982934664, yTolerance);
                     assertThat(yList.get(2)).isEqualTo(37.495982934664, yTolerance);
-                    assertThat(yList.get(3)).isEqualTo(37.495982934664, yTolerance);
-                    assertThat(yList.get(4)).isEqualTo(37.495323407006, yTolerance);
-                    assertThat(yList.get(5)).isEqualTo(37.494798958122, yTolerance);
-                    assertThat(yList.get(6)).isEqualTo(37.495305576475, yTolerance);
-                    assertThat(yList.get(7)).isEqualTo(37.495305576475, yTolerance);
-                    assertThat(yList.get(8)).isEqualTo(37.49704867762, yTolerance);
-                    assertThat(yList.get(9)).isEqualTo(37.49704867762, yTolerance);
-                    assertThat(yList.get(10)).isEqualTo(37.49402562647, yTolerance);
+                    assertThat(yList.get(3)).isEqualTo(37.495323407006, yTolerance);
+                    assertThat(yList.get(4)).isEqualTo(37.494798958122, yTolerance);
+                    assertThat(yList.get(5)).isEqualTo(37.49704867762, yTolerance);
+                    assertThat(yList.get(6)).isEqualTo(37.49704867762, yTolerance);
+                    assertThat(yList.get(7)).isEqualTo(37.49402562647, yTolerance);
+                    assertThat(yList.get(8)).isEqualTo(37.498681360529, yTolerance);
+                    assertThat(yList.get(9)).isEqualTo(37.498775008377, yTolerance);
+                });
+
+
+        assertThat(search).extracting("distance")
+                .satisfies(distanceList -> {
+                    assertThat((Double) distanceList.get(0)).isLessThanOrEqualTo(500.0);
+                    assertThat((Double) distanceList.get(1)).isLessThanOrEqualTo(500.0);
+                    assertThat((Double) distanceList.get(2)).isLessThanOrEqualTo(500.0);
+                    assertThat((Double) distanceList.get(3)).isLessThanOrEqualTo(500.0);
+                    assertThat((Double) distanceList.get(4)).isLessThanOrEqualTo(500.0);
+                    assertThat((Double) distanceList.get(5)).isLessThanOrEqualTo(500.0);
+                    assertThat((Double) distanceList.get(6)).isLessThanOrEqualTo(500.0);
+                    assertThat((Double) distanceList.get(7)).isLessThanOrEqualTo(500.0);
+                    assertThat((Double) distanceList.get(8)).isLessThanOrEqualTo(500.0);
+                    assertThat((Double) distanceList.get(9)).isLessThanOrEqualTo(500.0);
                 });
     }
-    //반경 300에 떨어진게 200m에서 잡히지 않게
 
-
-    //비회원 로그인 좋아요 다 false
-
-
-    /*
-     입력값 테스트
-     */
-
-    @DisplayName("한국의 경도와 위도를 벗어나면 검색이 실패한다.(1) ")
+    @DisplayName("반경 제한을 넘으면, 최대 반경으로 검색된다.(타입검색)")
     @Test
-    void 잘못된_경도_위도_테스트1() {
-        assertThatThrownBy(() ->
-                searchService.search(BinType.CIGAR, 124.5555, 32.99999999999, 200, "dusgh7031@gmail.com"))
-                .isInstanceOf(BadRequestException.class)
-                .hasMessage("잘못된 좌표입니다.");
-    }
-
-    @DisplayName("한국의 경도와 위도를 벗어나면 검색이 실패한다.(2) ")
-    @Test
-    void 잘못된_경도_위도_테스트2() {
-        assertThatThrownBy(() ->
-                searchService.search(BinType.CIGAR, 123.9999999999999, 33.3332, 200, "dusgh7031@gmail.com"))
-                .isInstanceOf(BadRequestException.class)
-                .hasMessage("잘못된 좌표입니다.");
-    }
-
-    @DisplayName("한국의 경도와 위도를 벗어나면 검색이 실패한다.(3) ")
-    @Test
-    void 잘못된_경도_위도_테스트3() {
-        assertThatThrownBy(() ->
-                searchService.search(BinType.CIGAR, 0.1, 35.111, 200, "dusgh7031@gmail.com"))
-                .isInstanceOf(BadRequestException.class)
-                .hasMessage("잘못된 좌표입니다.");
-    }
-
-    @DisplayName("한국의 경도와 위도를 벗어나면 검색이 실패한다.(4) ")
-    @Test
-    void 잘못된_경도_위도_테스트4() {
-        assertThatThrownBy(() ->
-                searchService.search(BinType.CIGAR, 125.2, 0.1, 200, "dusgh7031@gmail.com"))
-                .isInstanceOf(BadRequestException.class)
-                .hasMessage("잘못된 좌표입니다.");
-    }
-
-    @DisplayName("한국의 경도와 위도를 벗어나면 검색이 실패한다.(5) ")
-    @Test
-    void 잘못된_경도_위도_테스트5() {
-        assertThatThrownBy(() ->
-                searchService.search(BinType.CIGAR, 133.002211, 34.5, 200, "dusgh7031@gmail.com"))
-                .isInstanceOf(BadRequestException.class)
-                .hasMessage("잘못된 좌표입니다.");
-    }
-
-    @DisplayName("한국의 경도와 위도를 벗어나면 검색이 실패한다.(6)")
-    @Test
-    void 잘못된_경도_위도_테스트6() {
-        assertThatThrownBy(() ->
-                searchService.search(BinType.CIGAR, 132.65, 44.000001, 200, "dusgh7031@gmail.com"))
-                .isInstanceOf(BadRequestException.class)
-                .hasMessage("잘못된 좌표입니다.");
-    }
-
-    @DisplayName("검색은 근방 500M내에 있는 것들만 조회된다.")
-    @Test
-    void 검색_거리_제한() {
-        assertThatThrownBy(() ->
-                searchService.search(BinType.CIGAR, 132.65, 44.000001, 200, "dusgh7031@gmail.com"))
-                .isInstanceOf(BadRequestException.class)
-                .hasMessage("잘못된 좌표입니다.");
-    }
-
-    @DisplayName("쓰레기통은 반경 500M내에 있는 것들만 조회된다.(타입검색)")
-    @Test
-    void 쓰레기통_조회_최대_반경_타입_검색() {
+    void test_over_max_radius_with_cigar_bins() {
         Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
@@ -969,9 +1115,9 @@ class SearchServiceTest {
         binRepository.save(bin);
         Bin bin2 = new Bin("쓰레기통123", BinType.CIGAR, PointUtil.getPoint(127.027400362129, 37.499975707358), "address2", 0L, 0L, 0L, null, null);
         binRepository.save(bin2);
-        Bin bin3 = new Bin("500M이상1", BinType.CIGAR, PointUtil.getPoint(127.02698490849698, 37.500394140109), "address3", 0L, 0L, 0L, null, null);
+        Bin bin3 = new Bin("500M이상1", BinType.CIGAR, PointUtil.getPoint(127.025700266315, 37.505196066016), "address3", 0L, 0L, 0L, null, null);
         binRepository.save(bin3);
-        Bin bin4 = new Bin("500M이상2", BinType.CIGAR, PointUtil.getPoint(127.021046142735, 37.495347098463), "address4", 0L, 0L, 0L, null, null);
+        Bin bin4 = new Bin("500M이상2", BinType.CIGAR, PointUtil.getPoint(127.025700266315, 37.505196066016), "address4", 0L, 0L, 0L, null, null);
         binRepository.save(bin4);
 
         BinRegistration binRegistration1 = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
@@ -1027,91 +1173,60 @@ class SearchServiceTest {
 
         assertThat(search).extracting("distance")
                 .satisfies(distanceList -> {
-                    assertThat((Double) distanceList.get(0)).isLessThan(500.0);
-                    assertThat((Double) distanceList.get(1)).isLessThan(500.0);
-                    assertThat((Double) distanceList.get(2)).isLessThan(500.0);
-                    assertThat((Double) distanceList.get(3)).isLessThan(500.0);
+                    assertThat((Double) distanceList.get(0)).isLessThanOrEqualTo(500.0);
+                    assertThat((Double) distanceList.get(1)).isLessThanOrEqualTo(500.0);
+                    assertThat((Double) distanceList.get(2)).isLessThanOrEqualTo(500.0);
+                    assertThat((Double) distanceList.get(3)).isLessThanOrEqualTo(500.0);
                 });
-
     }
 
-    @DisplayName("쓰레기통은 반경 500M내에 있는 것들만 조회된다.(전체검색)")
+    @DisplayName("검색 반경을 200m로 제한하면, 200m내에 있는 쓰레기통만 조회된다")
     @Test
-    void 쓰레기통_조회_최대_반경() {
+    void search_within_200m() {
         Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin = new Bin("쓰레기통12", BinType.CIGAR, PointUtil.getPoint(127.030992140879, 37.4897066749491), "address", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통12", BinType.CIGAR, PointUtil.getPoint(127.029588346617, 37.492625668276), "address", 0L, 0L, 0L, null, null);
         binRepository.save(bin);
-        Bin bin2 = new Bin("쓰레기통123", BinType.BEVERAGE, PointUtil.getPoint(127.025096790584, 37.502191973002), "address2", 0L, 0L, 0L, null, null);
-        binRepository.save(bin2);
-        Bin bin3 = new Bin("500M이상1", BinType.GENERAL, PointUtil.getPoint(127.02698490849698, 37.500394140109), "address3", 0L, 0L, 0L, null, null);
-        binRepository.save(bin3);
-        Bin bin4 = new Bin("500M이상2", BinType.RECYCLE, PointUtil.getPoint(127.021046142735, 37.495347098463), "address4", 0L, 0L, 0L, null, null);
-        binRepository.save(bin4);
-
         BinRegistration binRegistration1 = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration1);
-        BinRegistration binRegistration2 = new BinRegistration(user, bin2, BinRegistrationStatus.PENDING);
-        binRegistrationRepository.save(binRegistration2);
-        BinRegistration binRegistration3 = new BinRegistration(user, bin3, BinRegistrationStatus.PENDING);
-        binRegistrationRepository.save(binRegistration3);
-        BinRegistration binRegistration4 = new BinRegistration(user, bin4, BinRegistrationStatus.PENDING);
-        binRegistrationRepository.save(binRegistration4);
-
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration1.getId());
-        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration2.getId());
-        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration3.getId());
-        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration4.getId());
 
-        List<SearchResult> search = searchService.search(null, 127.027722755059, 37.4956241314633, 1000, "dusgh7031@gmail.com");
+        List<SearchResult> search = searchService.search(null, 127.027722755059, 37.4956241314633, 200, "dusgh7031@gmail.com");
 
-        assertThat(search.size()).isEqualTo(11);
-
+        assertThat(search.size()).isEqualTo(8);
         assertThat(search).extracting("address").containsExactly(
                 "서울 서초구 서초대로78길 24",
                 "서울 서초구 강남대로 373",
                 "서울 서초구 강남대로 373",
-                "서울 서초구 강남대로 373",
                 "서울 서초구 강남대로 365",
                 "서울 서초구 강남대로 359",
-                "서울 강남구 강남대로 362",
-                "서울 강남구 강남대로 362",
                 "서울 강남구 강남대로 382",
                 "서울 강남구 강남대로 382",
                 "서울 서초구 서초대로78길 42"
         );
-        assertThat(search).extracting("title").containsExactly(
+        assertThat(search).extracting("title").contains(
                 "서초동 1327-5",
-                "우성아파트O3",
-                "던킨도너츠 앞",
                 "우성아파트I3",
+                "던킨도너츠 앞",
                 "도씨에빛 1 앞",
                 "티월드 앞",
-                "강남대륭빌딩 앞",
-                "강남대륭빌딩 앞",
                 "강남역2번출구 앞",
                 "강남역2번출구 앞",
                 "서초동 1330-18"
         );
         assertThat(search).extracting("type").containsExactlyInAnyOrder(
                 BinType.CIGAR,
-                BinType.GENERAL,
                 BinType.RECYCLE,
                 BinType.GENERAL,
                 BinType.RECYCLE,
                 BinType.RECYCLE,
-                BinType.RECYCLE,
-                BinType.GENERAL,
                 BinType.GENERAL,
                 BinType.RECYCLE,
                 BinType.CIGAR
         );
         assertThat(search).extracting("isBookMarked").containsExactly(
-                false,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -1127,14 +1242,11 @@ class SearchServiceTest {
                     assertThat(xList.get(0)).isEqualTo(127.027752353367, xTolerance);
                     assertThat(xList.get(1)).isEqualTo(127.028010119934, xTolerance);
                     assertThat(xList.get(2)).isEqualTo(127.028010119934, xTolerance);
-                    assertThat(xList.get(3)).isEqualTo(127.028010119934, xTolerance);
-                    assertThat(xList.get(4)).isEqualTo(127.028348895147, xTolerance);
-                    assertThat(xList.get(5)).isEqualTo(127.02860980273, xTolerance);
-                    assertThat(xList.get(6)).isEqualTo(127.029416048324, xTolerance);
-                    assertThat(xList.get(7)).isEqualTo(127.029416048324, xTolerance);
-                    assertThat(xList.get(8)).isEqualTo(127.028627058312, xTolerance);
-                    assertThat(xList.get(9)).isEqualTo(127.028627058312, xTolerance);
-                    assertThat(xList.get(10)).isEqualTo(127.028224355185, xTolerance);
+                    assertThat(xList.get(3)).isEqualTo(127.028348895147, xTolerance);
+                    assertThat(xList.get(4)).isEqualTo(127.02860980273, xTolerance);
+                    assertThat(xList.get(5)).isEqualTo(127.028627058312, xTolerance);
+                    assertThat(xList.get(6)).isEqualTo(127.028627058312, xTolerance);
+                    assertThat(xList.get(7)).isEqualTo(127.028224355185, xTolerance);
                 });
 
         assertThat(search).extracting(SearchResult::getLatitude)
@@ -1142,20 +1254,29 @@ class SearchServiceTest {
                     assertThat(yList.get(0)).isEqualTo(37.495544565616, yTolerance);
                     assertThat(yList.get(1)).isEqualTo(37.495982934664, yTolerance);
                     assertThat(yList.get(2)).isEqualTo(37.495982934664, yTolerance);
-                    assertThat(yList.get(3)).isEqualTo(37.495982934664, yTolerance);
-                    assertThat(yList.get(4)).isEqualTo(37.495323407006, yTolerance);
-                    assertThat(yList.get(5)).isEqualTo(37.494798958122, yTolerance);
-                    assertThat(yList.get(6)).isEqualTo(37.495305576475, yTolerance);
-                    assertThat(yList.get(7)).isEqualTo(37.495305576475, yTolerance);
-                    assertThat(yList.get(8)).isEqualTo(37.49704867762, yTolerance);
-                    assertThat(yList.get(9)).isEqualTo(37.49704867762, yTolerance);
-                    assertThat(yList.get(10)).isEqualTo(37.49402562647, yTolerance);
+                    assertThat(yList.get(3)).isEqualTo(37.495323407006, yTolerance);
+                    assertThat(yList.get(4)).isEqualTo(37.494798958122, yTolerance);
+                    assertThat(yList.get(5)).isEqualTo(37.49704867762, yTolerance);
+                    assertThat(yList.get(6)).isEqualTo(37.49704867762, yTolerance);
+                    assertThat(yList.get(7)).isEqualTo(37.49402562647, yTolerance);
+                });
+
+        assertThat(search).extracting("distance")
+                .satisfies(distanceList -> {
+                    assertThat((Double) distanceList.get(0)).isLessThanOrEqualTo(200.0);
+                    assertThat((Double) distanceList.get(1)).isLessThanOrEqualTo(200.0);
+                    assertThat((Double) distanceList.get(2)).isLessThanOrEqualTo(200.0);
+                    assertThat((Double) distanceList.get(3)).isLessThanOrEqualTo(200.0);
+                    assertThat((Double) distanceList.get(4)).isLessThanOrEqualTo(200.0);
+                    assertThat((Double) distanceList.get(5)).isLessThanOrEqualTo(200.0);
+                    assertThat((Double) distanceList.get(6)).isLessThanOrEqualTo(200.0);
+                    assertThat((Double) distanceList.get(7)).isLessThanOrEqualTo(200.0);
                 });
     }
 
     @DisplayName("검색 반경을 200m로 제한하면, 200m내에 있는 쓰레기통만 조회된다(타입검색)")
     @Test
-    void 쓰레기통_조회_200m_반경_타입_검색() {
+    void search_bins_cigar_within_200m() {
         Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
@@ -1190,69 +1311,83 @@ class SearchServiceTest {
 
         assertThat(search).extracting("distance")
                 .satisfies(distanceList -> {
-                    assertThat((Double) distanceList.get(0)).isLessThan((Double) distanceList.get(1));
+                    assertThat((Double) distanceList.get(0)).isLessThanOrEqualTo(200.0);
+                    assertThat((Double) distanceList.get(1)).isLessThanOrEqualTo(200.0);
                 });
     }
 
-    @DisplayName("검색 반경을 200m로 제한하면, 200m내에 있는 쓰레기통만 조회된다(전체 검색)")
+    @DisplayName("검색결과는 최대 10개까지만 반환된다.")
     @Test
-    void 쓰레기통_조회_200m_반경_전체_검색() {
+    void search_size_ten() {
         Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin = new Bin("쓰레기통12", BinType.CIGAR, PointUtil.getPoint(127.029588346617, 37.492625668276), "address", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통1", BinType.CIGAR, PointUtil.getPoint(127.02649140554401, 37.493415595491), "address1", 0L, 0L, 0L, null, null);
         binRepository.save(bin);
+        Bin bin2 = new Bin("쓰레기통2", BinType.CIGAR, PointUtil.getPoint(127.029241204878, 37.493519553805), "address2", 0L, 0L, 0L, null, null);
+        binRepository.save(bin2);
+        Bin bin3 = new Bin("쓰레기통3", BinType.CIGAR, PointUtil.getPoint(127.029123181305, 37.497969565176), "address3", 0L, 0L, 0L, null, null);
+        binRepository.save(bin3);
+        Bin bin4 = new Bin("쓰레기통4", BinType.CIGAR, PointUtil.getPoint(127.029123181305, 37.497969565176), "address4", 0L, 0L, 0L, null, null);
+        binRepository.save(bin4);
 
         BinRegistration binRegistration1 = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration1);
+        BinRegistration binRegistration2 = new BinRegistration(user, bin2, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration2);
+        BinRegistration binRegistration3 = new BinRegistration(user, bin3, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration3);
+        BinRegistration binRegistration4 = new BinRegistration(user, bin4, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration4);
+
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration1.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration2.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration3.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration4.getId());
 
-        List<SearchResult> search = searchService.search(null, 127.027722755059, 37.4956241314633, 200, "dusgh7031@gmail.com");
+        List<SearchResult> search = searchService.search(null, 127.027722755059, 37.4956241314633, 500, "dusgh7031@gmail.com");
 
-        assertThat(search.size()).isEqualTo(11);
-
+        assertThat(search.size()).isEqualTo(10);
         assertThat(search).extracting("address").containsExactly(
                 "서울 서초구 서초대로78길 24",
                 "서울 서초구 강남대로 373",
                 "서울 서초구 강남대로 373",
-                "서울 서초구 강남대로 373",
                 "서울 서초구 강남대로 365",
                 "서울 서초구 강남대로 359",
-                "서울 강남구 강남대로 362",
-                "서울 강남구 강남대로 362",
                 "서울 강남구 강남대로 382",
                 "서울 강남구 강남대로 382",
-                "서울 서초구 서초대로78길 42"
+                "서울 서초구 서초대로78길 42",
+                "address1",
+                "address2"
+
         );
-        assertThat(search).extracting("title").containsExactly(
+        assertThat(search).extracting("title").contains(
                 "서초동 1327-5",
-                "우성아파트O3",
-                "던킨도너츠 앞",
                 "우성아파트I3",
+                "던킨도너츠 앞",
                 "도씨에빛 1 앞",
                 "티월드 앞",
-                "강남대륭빌딩 앞",
-                "강남대륭빌딩 앞",
                 "강남역2번출구 앞",
                 "강남역2번출구 앞",
-                "서초동 1330-18"
+                "서초동 1330-18",
+                "쓰레기통1",
+                "쓰레기통2"
         );
         assertThat(search).extracting("type").containsExactlyInAnyOrder(
                 BinType.CIGAR,
-                BinType.GENERAL,
                 BinType.RECYCLE,
                 BinType.GENERAL,
                 BinType.RECYCLE,
                 BinType.RECYCLE,
-                BinType.RECYCLE,
-                BinType.GENERAL,
                 BinType.GENERAL,
                 BinType.RECYCLE,
+                BinType.CIGAR,
+                BinType.CIGAR,
                 BinType.CIGAR
         );
+
         assertThat(search).extracting("isBookMarked").containsExactly(
-                false,
                 false,
                 false,
                 false,
@@ -1270,14 +1405,13 @@ class SearchServiceTest {
                     assertThat(xList.get(0)).isEqualTo(127.027752353367, xTolerance);
                     assertThat(xList.get(1)).isEqualTo(127.028010119934, xTolerance);
                     assertThat(xList.get(2)).isEqualTo(127.028010119934, xTolerance);
-                    assertThat(xList.get(3)).isEqualTo(127.028010119934, xTolerance);
-                    assertThat(xList.get(4)).isEqualTo(127.028348895147, xTolerance);
-                    assertThat(xList.get(5)).isEqualTo(127.02860980273, xTolerance);
-                    assertThat(xList.get(6)).isEqualTo(127.029416048324, xTolerance);
-                    assertThat(xList.get(7)).isEqualTo(127.029416048324, xTolerance);
-                    assertThat(xList.get(8)).isEqualTo(127.028627058312, xTolerance);
-                    assertThat(xList.get(9)).isEqualTo(127.028627058312, xTolerance);
-                    assertThat(xList.get(10)).isEqualTo(127.028224355185, xTolerance);
+                    assertThat(xList.get(3)).isEqualTo(127.028348895147, xTolerance);
+                    assertThat(xList.get(4)).isEqualTo(127.02860980273, xTolerance);
+                    assertThat(xList.get(5)).isEqualTo(127.028627058312, xTolerance);
+                    assertThat(xList.get(6)).isEqualTo(127.028627058312, xTolerance);
+                    assertThat(xList.get(7)).isEqualTo(127.028224355185, xTolerance);
+                    assertThat(xList.get(8)).isEqualTo(127.02649140554401, xTolerance);
+                    assertThat(xList.get(9)).isEqualTo(127.029241204878, xTolerance);
                 });
 
         assertThat(search).extracting(SearchResult::getLatitude)
@@ -1285,20 +1419,358 @@ class SearchServiceTest {
                     assertThat(yList.get(0)).isEqualTo(37.495544565616, yTolerance);
                     assertThat(yList.get(1)).isEqualTo(37.495982934664, yTolerance);
                     assertThat(yList.get(2)).isEqualTo(37.495982934664, yTolerance);
-                    assertThat(yList.get(3)).isEqualTo(37.495982934664, yTolerance);
-                    assertThat(yList.get(4)).isEqualTo(37.495323407006, yTolerance);
-                    assertThat(yList.get(5)).isEqualTo(37.494798958122, yTolerance);
-                    assertThat(yList.get(6)).isEqualTo(37.495305576475, yTolerance);
-                    assertThat(yList.get(7)).isEqualTo(37.495305576475, yTolerance);
-                    assertThat(yList.get(8)).isEqualTo(37.49704867762, yTolerance);
-                    assertThat(yList.get(9)).isEqualTo(37.49704867762, yTolerance);
-                    assertThat(yList.get(10)).isEqualTo(37.49402562647, yTolerance);
+                    assertThat(yList.get(3)).isEqualTo(37.495323407006, yTolerance);
+                    assertThat(yList.get(4)).isEqualTo(37.494798958122, yTolerance);
+                    assertThat(yList.get(5)).isEqualTo(37.49704867762, yTolerance);
+                    assertThat(yList.get(6)).isEqualTo(37.49704867762, yTolerance);
+                    assertThat(yList.get(7)).isEqualTo(37.49402562647, yTolerance);
+                    assertThat(yList.get(8)).isEqualTo(37.493415595491, yTolerance);
+                    assertThat(yList.get(9)).isEqualTo(37.493519553805, yTolerance);
+                });
+
+    }
+
+    @DisplayName("검색결과는 최대 10개까지 반환된다.(타입검색)")
+    @Test
+    void search_cigar_bins_size_ten() {
+        Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
+        Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
+        memberRepository.saveAll(List.of(admin, user));
+
+        Bin bin = new Bin("쓰레기통1", BinType.CIGAR, PointUtil.getPoint(127.029382413368, 37.498065728468), "address1", 0L, 0L, 0L, null, null);
+        binRepository.save(bin);
+        Bin bin2 = new Bin("쓰레기통2", BinType.CIGAR, PointUtil.getPoint(127.029382413368, 37.498065728468), "address2", 0L, 0L, 0L, null, null);
+        binRepository.save(bin2);
+        Bin bin3 = new Bin("쓰레기통3", BinType.CIGAR, PointUtil.getPoint(127.025519919597, 37.493029367378), "address3", 0L, 0L, 0L, null, null);
+        binRepository.save(bin3);
+        Bin bin4 = new Bin("쓰레기통4", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address4", 0L, 0L, 0L, null, null);
+        binRepository.save(bin4);
+        Bin bin5 = new Bin("쓰레기통5", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address5", 0L, 0L, 0L, null, null);
+        binRepository.save(bin5);
+        Bin bin6 = new Bin("쓰레기통6", BinType.CIGAR, PointUtil.getPoint(127.026692446306, 37.498775008377), "address6", 0L, 0L, 0L, null, null);
+        binRepository.save(bin6);
+        Bin bin7 = new Bin("쓰레기통7", BinType.CIGAR, PointUtil.getPoint(127.029588346617, 37.492625668276), "address7", 0L, 0L, 0L, null, null);
+        binRepository.save(bin7);
+        Bin bin8 = new Bin("쓰레기통8", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539), "address8", 0L, 0L, 0L, null, null);
+        binRepository.save(bin8);
+        Bin bin9 = new Bin("쓰레기통9", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539), "address9", 0L, 0L, 0L, null, null);
+        binRepository.save(bin9);
+        Bin bin10 = new Bin("쓰레기통10", BinType.CIGAR, PointUtil.getPoint(127.02953329109899, 37.498978139947), "address10", 0L, 0L, 0L, null, null);
+        binRepository.save(bin10);
+
+        BinRegistration binRegistration1 = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration1);
+        BinRegistration binRegistration2 = new BinRegistration(user, bin2, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration2);
+        BinRegistration binRegistration3 = new BinRegistration(user, bin3, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration3);
+        BinRegistration binRegistration4 = new BinRegistration(user, bin4, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration4);
+
+        BinRegistration binRegistration5 = new BinRegistration(user, bin5, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration5);
+        BinRegistration binRegistration6 = new BinRegistration(user, bin6, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration6);
+        BinRegistration binRegistration7 = new BinRegistration(user, bin7, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration7);
+        BinRegistration binRegistration8 = new BinRegistration(user, bin8, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration8);
+
+        BinRegistration binRegistration9 = new BinRegistration(user, bin9, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration9);
+        BinRegistration binRegistration10 = new BinRegistration(user, bin10, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration10);
+
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration1.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration2.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration3.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration4.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration5.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration6.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration7.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration8.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration9.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration10.getId());
+
+        List<SearchResult> search = searchService.search(BinType.CIGAR, 127.027722755059, 37.4956241314633, 5000, "dusgh7031@gmail.com");
+
+        assertThat(search.size()).isEqualTo(10);
+        assertThat(search).extracting("address").containsExactly(
+                "서울 서초구 서초대로78길 24",
+                "서울 서초구 서초대로78길 42",
+                "address1",
+                "address2",
+                "address3",
+                "address4",
+                "address5",
+                "address6",
+                "address7",
+                "address8"
+        );
+        assertThat(search).extracting("title").containsExactly(
+                "서초동 1327-5",
+                "서초동 1330-18",
+                "쓰레기통1",
+                "쓰레기통2",
+                "쓰레기통3",
+                "쓰레기통4",
+                "쓰레기통5",
+                "쓰레기통6",
+                "쓰레기통7",
+                "쓰레기통8");
+        assertThat(search).extracting("type").containsExactly(
+                BinType.CIGAR,
+                BinType.CIGAR,
+                BinType.CIGAR,
+                BinType.CIGAR,
+                BinType.CIGAR,
+                BinType.CIGAR,
+                BinType.CIGAR,
+                BinType.CIGAR,
+                BinType.CIGAR,
+                BinType.CIGAR);
+        assertThat(search).extracting("isBookMarked").containsExactly(
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false);
+
+        assertThat(search).extracting(SearchResult::getLongitude)
+                .satisfies(xList -> {
+                    assertThat(xList.get(0)).isEqualTo(127.027752353367, xTolerance);
+                    assertThat(xList.get(1)).isEqualTo(127.028224355185, xTolerance);
+                    assertThat(xList.get(2)).isEqualTo(127.029382413368, xTolerance);
+                    assertThat(xList.get(3)).isEqualTo(127.029382413368, xTolerance);
+                    assertThat(xList.get(4)).isEqualTo(127.025519919597, xTolerance);
+                    assertThat(xList.get(5)).isEqualTo(127.028754000454, xTolerance);
+                    assertThat(xList.get(6)).isEqualTo(127.028754000454, xTolerance);
+                    assertThat(xList.get(7)).isEqualTo(127.026692446306, xTolerance);
+                    assertThat(xList.get(8)).isEqualTo(127.029588346617, xTolerance);
+                    assertThat(xList.get(9)).isEqualTo(127.02754201132602, xTolerance);
+                });
+
+        assertThat(search).extracting(SearchResult::getLatitude)
+                .satisfies(yList -> {
+                    assertThat(yList.get(0)).isEqualTo(37.495544565616, yTolerance);
+                    assertThat(yList.get(1)).isEqualTo(37.49402562647, yTolerance);
+                    assertThat(yList.get(2)).isEqualTo(37.498065728468, yTolerance);
+                    assertThat(yList.get(3)).isEqualTo(37.498065728468, yTolerance);
+                    assertThat(yList.get(4)).isEqualTo(37.493029367378, yTolerance);
+                    assertThat(yList.get(5)).isEqualTo(37.498681360529, yTolerance);
+                    assertThat(yList.get(6)).isEqualTo(37.498681360529, yTolerance);
+                    assertThat(yList.get(7)).isEqualTo(37.498775008377, yTolerance);
+                    assertThat(yList.get(8)).isEqualTo(37.492625668276, yTolerance);
+                    assertThat(yList.get(9)).isEqualTo(37.499218198539, yTolerance);
                 });
     }
 
-    //반환 갯수 제한하기
+    @DisplayName("비로그인 이용자도 쓰레기통 검색을 할 수 있다.")
+    @Test
+    void search_for_no_login_user() {
 
+        List<SearchResult> search = searchService.search(BinType.CIGAR, 127.027722755059, 37.4956241314633, 200, null);
+        assertThat(search.size()).isEqualTo(2);
+        assertThat(search).extracting("address").containsExactly("서울 서초구 서초대로78길 24", "서울 서초구 서초대로78길 42");
+        assertThat(search).extracting("title").containsExactly("서초동 1327-5", "서초동 1330-18");
+        assertThat(search).extracting("type").containsExactly(BinType.CIGAR, BinType.CIGAR);
+        assertThat(search).extracting("isBookMarked").containsExactly(false, false);
 
+        assertThat(search).extracting(SearchResult::getLongitude)
+                .satisfies(xList -> {
+                    assertThat(xList.get(0)).isEqualTo(127.027752353367, xTolerance);
+                    assertThat(xList.get(1)).isEqualTo(127.028224355185, xTolerance);
+                });
 
-    //좋아요 뜨게 하도록
+        assertThat(search).extracting(SearchResult::getLatitude)
+                .satisfies(yList -> {
+                    assertThat(yList.get(0)).isEqualTo(37.495544565616, yTolerance);
+                    assertThat(yList.get(1)).isEqualTo(37.49402562647, yTolerance);
+                });
+    }
+
+    @DisplayName("로그인한 유저에게는 즐겨찾기를 누른 쓰레기통이 표시된다.")
+    @Test
+    void search_result_bookmark() {
+
+        Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
+        Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
+        memberRepository.saveAll(List.of(admin, user));
+
+        Bin bin = new Bin("쓰레기통1", BinType.CIGAR, PointUtil.getPoint(127.029382413368, 37.498065728468), "address1", 0L, 0L, 0L, null, null);
+        Bin savedBin = binRepository.save(bin);
+
+        Bin bin2 = new Bin("쓰레기통2", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address2", 0L, 0L, 0L, null, null);
+        Bin savedBin2 = binRepository.save(bin2);
+
+        BinRegistration binRegistration1 = new BinRegistration(user, savedBin, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration1);
+        BinRegistration binRegistration2 = new BinRegistration(user, savedBin2, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration2);
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration1.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration2.getId());
+
+        bookMarkService.saveBookMark(user.getEmail(), savedBin.getId());
+        bookMarkService.saveBookMark(user.getEmail(), savedBin2.getId());
+
+        List<SearchResult> search = searchService.search(null, 127.027722755059, 37.4956241314633, 500, "user@email.com");
+
+        assertThat(search.size()).isEqualTo(10);
+        assertThat(search).extracting("address").containsExactly(
+                "서울 서초구 서초대로78길 24",
+                "서울 서초구 강남대로 373",
+                "서울 서초구 강남대로 373",
+                "서울 서초구 강남대로 365",
+                "서울 서초구 강남대로 359",
+                "서울 강남구 강남대로 382",
+                "서울 강남구 강남대로 382",
+                "서울 서초구 서초대로78길 42",
+                "address1",
+                "address2"
+        );
+        assertThat(search).extracting("title").contains(
+                "서초동 1327-5",
+                "우성아파트I3",
+                "던킨도너츠 앞",
+                "도씨에빛 1 앞",
+                "티월드 앞",
+                "강남역2번출구 앞",
+                "강남역2번출구 앞",
+                "서초동 1330-18",
+                "쓰레기통1",
+                "쓰레기통2"
+        );
+        assertThat(search).extracting("type").containsExactlyInAnyOrder(
+                BinType.CIGAR,
+                BinType.RECYCLE,
+                BinType.GENERAL,
+                BinType.RECYCLE,
+                BinType.RECYCLE,
+                BinType.GENERAL,
+                BinType.RECYCLE,
+                BinType.CIGAR,
+                BinType.CIGAR,
+                BinType.CIGAR
+        );
+        assertThat(search).extracting("isBookMarked").containsExactly(
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                true,
+                true
+        );
+        assertThat(search).extracting(SearchResult::getLongitude)
+                .satisfies(xList -> {
+                    assertThat(xList.get(0)).isEqualTo(127.027752353367, xTolerance);
+                    assertThat(xList.get(1)).isEqualTo(127.028010119934, xTolerance);
+                    assertThat(xList.get(2)).isEqualTo(127.028010119934, xTolerance);
+                    assertThat(xList.get(3)).isEqualTo(127.028348895147, xTolerance);
+                    assertThat(xList.get(4)).isEqualTo(127.02860980273, xTolerance);
+                    assertThat(xList.get(5)).isEqualTo(127.028627058312, xTolerance);
+                    assertThat(xList.get(6)).isEqualTo(127.028627058312, xTolerance);
+                    assertThat(xList.get(7)).isEqualTo(127.028224355185, xTolerance);
+                    assertThat(xList.get(8)).isEqualTo(127.029382413368, xTolerance);
+                    assertThat(xList.get(9)).isEqualTo(127.028754000454, xTolerance);
+                });
+        assertThat(search).extracting(SearchResult::getLatitude)
+                .satisfies(yList -> {
+                    assertThat(yList.get(0)).isEqualTo(37.495544565616, yTolerance);
+                    assertThat(yList.get(1)).isEqualTo(37.495982934664, yTolerance);
+                    assertThat(yList.get(2)).isEqualTo(37.495982934664, yTolerance);
+                    assertThat(yList.get(3)).isEqualTo(37.495323407006, yTolerance);
+                    assertThat(yList.get(4)).isEqualTo(37.494798958122, yTolerance);
+                    assertThat(yList.get(5)).isEqualTo(37.49704867762, yTolerance);
+                    assertThat(yList.get(6)).isEqualTo(37.49704867762, yTolerance);
+                    assertThat(yList.get(7)).isEqualTo(37.49402562647, yTolerance);
+                    assertThat(yList.get(8)).isEqualTo(37.498065728468, yTolerance);
+                    assertThat(yList.get(9)).isEqualTo(37.498681360529, yTolerance);
+                });
+    }
+
+     /*
+     입력값 테스트
+     한국의 위도는 124도에서 132도, 경도는 33~ 43도
+     */
+
+    @DisplayName("한국의 경도를 벗어나면 검색이 실패한다.(1) ")
+    @Test
+    void test_with_wrong_latitude() {
+        assertThatThrownBy(() ->
+                searchService.search(BinType.CIGAR, 124.5555, 32.99999999999, 200, "dusgh7031@gmail.com"))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("잘못된 좌표입니다.");
+    }
+
+    @DisplayName("한국의 위도를 벗어나면 검색이 실패한다.(2) ")
+    @Test
+    void test_with_wrong_longitude() {
+        assertThatThrownBy(() ->
+                searchService.search(BinType.CIGAR, 123.9999999999999, 33.3332, 200, "dusgh7031@gmail.com"))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("잘못된 좌표입니다.");
+    }
+
+    @DisplayName("한국의 경도와 위도를 벗어나면 검색이 실패한다.(3)")
+    @Test
+    void test_with_wrong_latitude_2() {
+        assertThatThrownBy(() ->
+                searchService.search(BinType.CIGAR, 132.65, 44.000001, 200, "dusgh7031@gmail.com"))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("잘못된 좌표입니다.");
+    }
+
+    @DisplayName("한국의 위도를 벗어나면 검색이 실패한다.(4) ")
+    @Test
+    void test_with_wrong_longitude_2() {
+        assertThatThrownBy(() ->
+                searchService.search(BinType.CIGAR, 133.002211, 34.5, 200, "dusgh7031@gmail.com"))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("잘못된 좌표입니다.");
+    }
+
+    @DisplayName("한국의 경도와 위도를 벗어나면 검색이 실패한다.(5) ")
+    @Test
+    void test_with_wrong_latitude_3() {
+        assertThatThrownBy(() ->
+                searchService.search(BinType.CIGAR, 125.2, 0.1, 200, "dusgh7031@gmail.com"))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("잘못된 좌표입니다.");
+    }
+
+    @DisplayName("한국의 위도를 벗어나면 검색이 실패한다.(6) ")
+    @Test
+    void test_with_wrong_longitude_3() {
+        assertThatThrownBy(() ->
+                searchService.search(BinType.CIGAR, 0.1, 35.111, 200, "dusgh7031@gmail.com"))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("잘못된 좌표입니다.");
+    }
+
+    @DisplayName("한국의 경도와 위도를 벗어나면 검색이 실패한다.(7) ")
+    @Test
+    void test_with_wrong_latitude_4() {
+        assertThatThrownBy(() ->
+                searchService.search(BinType.CIGAR, 125.2, -1.2, 200, "dusgh7031@gmail.com"))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("잘못된 좌표입니다.");
+    }
+
+    @DisplayName("한국의 위도를 벗어나면 검색이 실패한다.(8) ")
+    @Test
+    void test_with_wrong_longitude_4() {
+        assertThatThrownBy(() ->
+                searchService.search(BinType.CIGAR, -2.3, 35.111, 200, "dusgh7031@gmail.com"))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("잘못된 좌표입니다.");
+    }
 }
