@@ -26,6 +26,8 @@ import static net.binder.api.bookmark.entity.QBookmark.bookmark;
 @RequiredArgsConstructor
 public class SearchQueryRepository {
 
+    private static int MAX_SIZE_OF_SEARCH_RESULT= 10;
+
     private final JPAQueryFactory jpaQueryFactory;
 
     public List<SearchResult> findBins(SearchDto searchDto, Long memberId) {
@@ -69,8 +71,11 @@ public class SearchQueryRepository {
                                 ))))
                 .orderBy(Expressions.numberTemplate(Double.class,
                         "ST_Distance({0}, ST_GeomFromText({1}, 4326))",
-                        bin.point, point).asc());
+                        bin.point, point).asc())
+                .limit(MAX_SIZE_OF_SEARCH_RESULT);
 
         return query.fetch();
     }
+
+
 }
