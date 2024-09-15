@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import net.binder.api.bin.entity.BinType;
 import net.binder.api.common.annotation.CurrentUser;
-import net.binder.api.search.dto.SearchDto;
 import net.binder.api.search.dto.SearchResult;
 import net.binder.api.search.service.SearchService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,6 +31,6 @@ public class SearchController {
             @RequestParam(value = "type", required = false) BinType type,
             @CurrentUser String email) {
 
-        return searchService.search(new SearchDto(type, longitude, latitude, radius),email);
+        return searchService.search(type, longitude, latitude, radius, email);
     }
 }
