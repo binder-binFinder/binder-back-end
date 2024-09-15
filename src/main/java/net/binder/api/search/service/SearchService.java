@@ -29,6 +29,10 @@ public class SearchService {
             int radius,
             String email) {
 
+        if(radius<=0){
+            throw new BadRequestException("잘못된 반경 설정입니다.");
+        }
+
         //한국의 경도는 124도에서 132도, 위도는 33~ 43도
 
         if (longitude < 124 || longitude > 133 || latitude < 33 || latitude > 44) {
