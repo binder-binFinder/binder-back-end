@@ -1180,6 +1180,85 @@ class SearchServiceTest {
                 });
     }
 
+    @DisplayName("반경이 최소 제한을 넘지 않으면 100m로 검색된다.")
+    @Test
+    void test_over_minimum_radius() {
+
+        List<SearchResult> search = searchService.search(null, 127.027722755059, 37.4956241314633, 10, "dusgh7031@gmail.com");
+        assertThat(search.size()).isEqualTo(4);
+        assertThat(search).extracting("address").containsExactly(
+                "서울 서초구 서초대로78길 24",
+                "서울 서초구 강남대로 373",
+                "서울 서초구 강남대로 373",
+                "서울 서초구 강남대로 365"
+        );
+        assertThat(search).extracting("title").contains(
+                "서초동 1327-5",
+                "우성아파트I3",
+                "던킨도너츠 앞",
+                "도씨에빛 1 앞"
+        );
+        assertThat(search).extracting("type").containsExactlyInAnyOrder(
+                BinType.CIGAR,
+                BinType.RECYCLE,
+                BinType.GENERAL,
+                BinType.RECYCLE
+        );
+        assertThat(search).extracting("isBookMarked").containsExactly(
+                false,
+                false,
+                false,
+                false
+        );
+
+        assertThat(search).extracting(SearchResult::getLongitude)
+                .satisfies(xList -> {
+                    assertThat(xList.get(0)).isEqualTo(127.027752353367, xTolerance);
+                    assertThat(xList.get(1)).isEqualTo(127.028010119934, xTolerance);
+                    assertThat(xList.get(2)).isEqualTo(127.028010119934, xTolerance);
+                    assertThat(xList.get(3)).isEqualTo(127.028348895147, xTolerance);
+                });
+
+        assertThat(search).extracting(SearchResult::getLatitude)
+                .satisfies(yList -> {
+                    assertThat(yList.get(0)).isEqualTo(37.495544565616, yTolerance);
+                    assertThat(yList.get(1)).isEqualTo(37.495982934664, yTolerance);
+                    assertThat(yList.get(2)).isEqualTo(37.495982934664, yTolerance);
+                    assertThat(yList.get(3)).isEqualTo(37.495323407006, yTolerance);
+
+                });
+    }
+
+    @DisplayName("반경이 최소 제한을 넘지 않으면 100m로 검색된다.(타입검색)")
+    @Test
+    void test_over_minimum_radius_with_cigar_bins() {
+
+        List<SearchResult> search = searchService.search(BinType.CIGAR, 127.027722755059, 37.4956241314633, 10, "dusgh7031@gmail.com");
+        assertThat(search.size()).isEqualTo(1);
+        assertThat(search).extracting("address").containsExactly(
+                "서울 서초구 서초대로78길 24"
+        );
+        assertThat(search).extracting("title").contains(
+                "서초동 1327-5"
+        );
+        assertThat(search).extracting("type").containsExactlyInAnyOrder(
+                BinType.CIGAR
+        );
+        assertThat(search).extracting("isBookMarked").containsExactly(
+                false
+        );
+
+        assertThat(search).extracting(SearchResult::getLongitude)
+                .satisfies(xList -> {
+                    assertThat(xList.get(0)).isEqualTo(127.027752353367, xTolerance);
+                });
+
+        assertThat(search).extracting(SearchResult::getLatitude)
+                .satisfies(yList -> {
+                    assertThat(yList.get(0)).isEqualTo(37.495544565616, yTolerance);
+                });
+    }
+
     @DisplayName("검색 반경을 200m로 제한하면, 200m내에 있는 쓰레기통만 조회된다")
     @Test
     void search_within_200m() {

@@ -40,7 +40,11 @@ public class SearchService {
         }
 
         int radiusToUse = radius;
-        if (radiusToUse > 500) {
+
+        if(radius<100){
+            radiusToUse = 100;
+
+        } else if(radiusToUse > 500){
             radiusToUse = 500;
         }
 
