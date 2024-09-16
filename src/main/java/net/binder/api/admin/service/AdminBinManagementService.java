@@ -38,6 +38,20 @@ public class AdminBinManagementService {
                 request.getModificationReason());
     }
 
+    public void deleteBin(String email, Long binId, String deleteReason) {
+        Member admin = memberService.findByEmail(email);
+
+        Bin bin = getBinOrThrow(binId);
+
+        boolean isDeleted = bin.softDelete();
+
+        if (!isDeleted) {
+            throw new BadRequestException("이미 삭제 처리된 쓰레기통입니다.");
+        }
+
+        notificationService.sendNotification(admin, getReceiver(bin), bin, NotificationType.BIN_DELETED, deleteReason);
+    }
+
     private Bin getBinOrThrow(Long binId) {
         return binRepository.findById(binId)
                 .orElseThrow(() -> new BadRequestException("존재하지 않는 쓰레기통입니다."));

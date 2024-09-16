@@ -1,12 +1,16 @@
 package net.binder.api.admin.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import net.binder.api.admin.dto.DeleteBinRequest;
 import net.binder.api.admin.service.AdminBinManagementService;
 import net.binder.api.bin.dto.BinUpdateRequest;
 import net.binder.api.common.annotation.CurrentUser;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,7 +23,14 @@ public class AdminBinManagementController {
     private final AdminBinManagementService adminBinManagementService;
 
     @PatchMapping("/{id}")
-    public void updateBin(@CurrentUser String email, @PathVariable Long id, BinUpdateRequest request) {
+    public void updateBin(@CurrentUser String email, @PathVariable Long id,
+                          @Valid @RequestBody BinUpdateRequest request) {
         adminBinManagementService.updateBin(email, id, request);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteBin(@CurrentUser String email, @PathVariable Long id,
+                          @Valid @RequestBody DeleteBinRequest request) {
+        adminBinManagementService.deleteBin(email, id, request.getDeleteReason());
     }
 }

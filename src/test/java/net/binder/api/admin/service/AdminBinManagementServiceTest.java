@@ -83,4 +83,36 @@ class AdminBinManagementServiceTest {
         assertThat(notification.getAdditionalInfo()).isEqualTo(binUpdateRequest.getModificationReason());
         assertThat(notification.getType()).isEqualTo(NotificationType.BIN_MODIFIED);
     }
+
+    @Test
+    @DisplayName("쓰레기통을 softDelete 할 수 있고 주인에게 알림이 전송된다.")
+    void deleteBin() {
+        //given
+        Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
+        Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
+
+        memberRepository.saveAll(List.of(admin, user));
+
+        Bin bin = new Bin("title1", BinType.GENERAL, PointUtil.getPoint(100d, 10d), "address1", 0L, 0L, 0L, null, null);
+        BinRegistration binRegistration = new BinRegistration(user, null, BinRegistrationStatus.PENDING);
+        bin.setBinRegistration(binRegistration);
+
+        binRepository.save(bin);
+
+        //when
+        adminBinManagementService.deleteBin(admin.getEmail(), bin.getId(), "잘못된장소");
+
+        //then
+        assertThat(bin.getDeletedAt()).isNotNull();
+
+        List<Notification> notifications = notificationRepository.findAll();
+        assertThat(notifications.size()).isEqualTo(1);
+
+        Notification notification = notifications.get(0);
+
+        assertThat(notification.getSender()).isEqualTo(admin);
+        assertThat(notification.getReceiver()).isEqualTo(user);
+        assertThat(notification.getAdditionalInfo()).isEqualTo("잘못된장소");
+        assertThat(notification.getType()).isEqualTo(NotificationType.BIN_DELETED);
+    }
 }
