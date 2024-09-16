@@ -12,4 +12,7 @@ public enum NotificationType {
 
     BIN_LIKED,
     BIN_DISLIKED,
+
+    BIN_MODIFIED,
+    BIN_DELETED
 }
