@@ -2,13 +2,21 @@ package net.binder.api.bin.entity;
 
 import static net.binder.api.binregistration.entity.BinRegistrationStatus.PENDING;
 
-import jakarta.persistence.*;
-
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Index;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import net.binder.api.binregistration.entity.BinRegistration;
 import net.binder.api.common.entity.BaseEntityWithSoftDelete;
 import net.binder.api.member.entity.Member;
@@ -25,9 +33,10 @@ import org.locationtech.jts.geom.Point;
                 )
         },
         indexes = {
-        @Index(name = "idx_bin_point", columnList = "point")
-}
+                @Index(name = "idx_bin_point", columnList = "point")
+        }
 )
+@ToString
 public class Bin extends BaseEntityWithSoftDelete {
 
     private String title;
