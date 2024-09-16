@@ -142,7 +142,7 @@ public class BinService {
                 .title(binUpdateRequest.getTitle())
                 .address(binUpdateRequest.getAddress())
                 .type(binUpdateRequest.getType())
-                .imageUrl(bin.getImageUrl())
+                .imageUrl(binUpdateRequest.getImageUrl())
                 .latitude(binUpdateRequest.getLatitude())
                 .longitude(binUpdateRequest.getLongitude())
                 .status(BinModificationStatus.PENDING)
