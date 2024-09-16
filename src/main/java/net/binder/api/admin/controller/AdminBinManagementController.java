@@ -1,5 +1,6 @@
 package net.binder.api.admin.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,12 +23,14 @@ public class AdminBinManagementController {
 
     private final AdminBinManagementService adminBinManagementService;
 
+    @Operation(summary = "쓰레기통 즉시 수정")
     @PatchMapping("/{id}")
     public void updateBin(@CurrentUser String email, @PathVariable Long id,
                           @Valid @RequestBody BinUpdateRequest request) {
         adminBinManagementService.updateBin(email, id, request);
     }
 
+    @Operation(summary = "쓰레기통 즉시 삭제")
     @DeleteMapping("/{id}")
     public void deleteBin(@CurrentUser String email, @PathVariable Long id,
                           @Valid @RequestBody DeleteBinRequest request) {
