@@ -2,6 +2,7 @@ package net.binder.api.notification.service;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +10,7 @@ import net.binder.api.bin.entity.Bin;
 import net.binder.api.bin.entity.BinType;
 import net.binder.api.bin.repository.BinRepository;
 import net.binder.api.bin.util.PointUtil;
+import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.member.entity.Member;
 import net.binder.api.member.entity.Role;
 import net.binder.api.member.repository.MemberRepository;
@@ -190,5 +192,79 @@ class NotificationServiceTest {
         //then
         assertThat(hasUnread1).isFalse();
         assertThat(hasUnread2).isTrue();
+    }
+
+    @Test
+    @DisplayName("알림은 본인(수신자)만 삭제할 수 있다.")
+    void deleteNotification_success() {
+        //given
+        Notification notification1 = new Notification(sender, receiver, bin, NotificationType.BIN_COMPLAINT_REJECTED,
+                "info");
+
+        notificationRepository.save(notification1);
+
+        //when
+        notificationService.deleteNotification(receiver.getEmail(), notification1.getId());
+
+        //then
+        assertThat(notification1.getDeletedAt()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("수신자가 아닌 타인이 알림을 삭제할 경우 예외가 발생한다.")
+    void deleteNotification_fail_isNotOwner() {
+        //given
+        Notification notification1 = new Notification(sender, receiver, bin, NotificationType.BIN_COMPLAINT_REJECTED,
+                "info");
+
+        notificationRepository.save(notification1);
+
+        //when & then
+        assertThatThrownBy(() -> notificationService.deleteNotification(sender.getEmail(), notification1.getId()))
+                .isInstanceOf(BadRequestException.class);
+    }
+
+    @Test
+    @DisplayName("이미 삭제된 알림을 다시 삭제 시도할 경우 예외가 발생한다.")
+    void deleteNotification_fail_isAlreadyDeleted() {
+        //given
+        Notification notification1 = new Notification(sender, receiver, bin, NotificationType.BIN_COMPLAINT_REJECTED,
+                "info");
+
+        notificationRepository.save(notification1);
+        notificationService.deleteNotification(receiver.getEmail(), notification1.getId());
+        assertThat(notification1.getDeletedAt()).isNotNull();
+
+        //when & then
+        assertThatThrownBy(() -> notificationService.deleteNotification(receiver.getEmail(), notification1.getId()))
+                .isInstanceOf(BadRequestException.class);
+    }
+
+    @Test
+    @DisplayName("삭제된 알림은 리스트에서 제외된다.")
+    void getNotificationDetails_hasDeleted() {
+        //given
+        Notification notification1 = new Notification(sender, receiver, bin, NotificationType.BIN_COMPLAINT_REJECTED,
+                "info");
+        Notification notification2 = new Notification(sender, receiver, bin, NotificationType.BIN_COMPLAINT_APPROVED,
+                "info");
+        Notification notification3 = new Notification(sender, receiver, bin, NotificationType.BIN_MODIFICATION_APPROVED,
+                "info");
+
+        notificationRepository.saveAll(List.of(notification1, notification2, notification3));
+        List<NotificationDetail> notificationDetails1 = notificationService.getNotificationDetails(receiver.getEmail(),
+                null);
+
+        assertThat(notificationDetails1.size()).isEqualTo(3);
+
+        //when
+        notification1.softDelete();
+        List<NotificationDetail> notificationDetails2 = notificationService.getNotificationDetails(receiver.getEmail(),
+                null);
+
+        //then
+        assertThat(notificationDetails2).size().isEqualTo(2);
+        assertThat(notificationDetails2).extracting(NotificationDetail::getNotificationId)
+                .containsExactly(notification3.getId(), notification2.getId());
     }
 }

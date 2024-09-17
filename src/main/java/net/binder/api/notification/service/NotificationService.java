@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import net.binder.api.bin.entity.Bin;
+import net.binder.api.common.exception.BadRequestException;
+import net.binder.api.common.exception.NotFoundException;
 import net.binder.api.member.entity.Member;
 import net.binder.api.member.service.MemberService;
 import net.binder.api.notification.dto.NotificationDetail;
@@ -85,5 +87,28 @@ public class NotificationService {
             notifications.add(notification);
         }
         return Collections.unmodifiableList(notifications);
+    }
+
+    public void deleteNotification(String email, Long notificationId) {
+        Member member = memberService.findByEmail(email);
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 알림입니다."));
+
+        validateIsOwner(notification, member);
+
+        boolean isDeleted = notification.softDelete();
+        validateIsAlreadyDeleted(isDeleted);
+    }
+
+    private void validateIsOwner(Notification notification, Member member) {
+        if (!notification.isOwner(member)) {
+            throw new BadRequestException("해당 알림 삭제 권한이 없는 사용자입니다.");
+        }
+    }
+
+    private void validateIsAlreadyDeleted(boolean isDeleted) {
+        if (!isDeleted) {
+            throw new BadRequestException("이미 삭제된 알림입니다.");
+        }
     }
 }

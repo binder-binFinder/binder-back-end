@@ -10,7 +10,9 @@ import net.binder.api.notification.dto.NotificationListResponse;
 import net.binder.api.notification.dto.NotificationStatusResponse;
 import net.binder.api.notification.dto.UnreadNotificationCountResponse;
 import net.binder.api.notification.service.NotificationService;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -52,5 +54,11 @@ public class NotificationController {
         Long unreadCount = notificationService.getUnreadCount(email);
 
         return new UnreadNotificationCountResponse(unreadCount);
+    }
+
+    @Operation(summary = "알림 삭제")
+    @DeleteMapping("/{id}")
+    public void deleteNotification(@CurrentUser String email, @PathVariable Long id) {
+        notificationService.deleteNotification(email, id);
     }
 }
