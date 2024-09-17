@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import net.binder.api.common.annotation.CurrentUser;
 import net.binder.api.notification.dto.NotificationDetail;
 import net.binder.api.notification.dto.NotificationListResponse;
+import net.binder.api.notification.dto.NotificationStatusResponse;
 import net.binder.api.notification.service.NotificationService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,4 +39,10 @@ public class NotificationController {
         notificationService.readAllNotifications(email);
     }
 
+    @Operation(summary = "읽지 않은 알림 존재 여부 확인")
+    @GetMapping("/has-unread")
+    public NotificationStatusResponse hasNewNotifications(@CurrentUser String email) {
+        boolean hasUnread = notificationService.hasUnreadNotifications(email);
+        return new NotificationStatusResponse(hasUnread);
+    }
 }

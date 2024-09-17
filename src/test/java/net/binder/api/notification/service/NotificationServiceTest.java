@@ -147,6 +147,8 @@ class NotificationServiceTest {
                 "info");
         Notification notification3 = new Notification(sender, receiver, bin, NotificationType.BIN_MODIFICATION_APPROVED,
                 "info");
+        Notification notification4 = new Notification(sender, new Member("new@email.com", "new", Role.ROLE_USER, null),
+                bin, NotificationType.BIN_DELETED, null);
 
         notification3.markAsRead();
         notificationRepository.saveAll(List.of(notification1, notification2, notification3));
@@ -156,5 +158,37 @@ class NotificationServiceTest {
 
         //then
         assertThat(count).isEqualTo(2);
+        assertThat(notification4.isRead()).isFalse();
+    }
+
+    @Test
+    @DisplayName("읽지 않은 알림이 존재하는지 확인할 수 있다.")
+    void hasUnreadNotifications() {
+        Member receiver2 = new Member("new@email.com", "new", Role.ROLE_USER, null);
+        memberRepository.save(receiver2);
+
+        //given
+        Notification notification1 = new Notification(sender, receiver, bin, NotificationType.BIN_COMPLAINT_REJECTED,
+                "info");
+        Notification notification2 = new Notification(sender, receiver, bin, NotificationType.BIN_COMPLAINT_APPROVED,
+                "info");
+        Notification notification3 = new Notification(sender, receiver, bin, NotificationType.BIN_MODIFICATION_APPROVED,
+                "info");
+        Notification notification4 = new Notification(sender, receiver2,
+                bin, NotificationType.BIN_DELETED, null);
+
+        notification3.markAsRead();
+        notificationRepository.saveAll(List.of(notification1, notification2, notification3, notification4));
+        //모두 읽기 처리 전
+        assertThat(notificationService.hasUnreadNotifications(receiver.getEmail())).isTrue();
+
+        //when
+        notificationService.readAllNotifications(receiver.getEmail());
+        boolean hasUnread1 = notificationService.hasUnreadNotifications(receiver.getEmail());
+        boolean hasUnread2 = notificationService.hasUnreadNotifications(receiver2.getEmail());
+
+        //then
+        assertThat(hasUnread1).isFalse();
+        assertThat(hasUnread2).isTrue();
     }
 }
