@@ -65,7 +65,6 @@ public class NotificationService {
         return notificationRepository.countByReceiverIdAndIsRead(member.getId(), false);
     }
 
-    @Transactional(readOnly = true)
     public Integer readAllNotifications(String email) {
         Member member = memberService.findByEmail(email);
         return notificationRepository.updateUnreadToRead(member.getId());
