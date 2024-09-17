@@ -1,8 +1,10 @@
 package net.binder.api.notification.dto;
 
+import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
 import net.binder.api.bin.entity.Bin;
+import net.binder.api.bin.entity.BinType;
 import net.binder.api.notification.entity.Notification;
 import net.binder.api.notification.entity.NotificationType;
 
@@ -15,22 +17,28 @@ public class NotificationDetail {
 
     private final String binAddress;
 
+    private final BinType binType;
+
     private final NotificationType notificationType;
 
     private final String reasonMessage;
 
     private final Boolean isRead;
 
+    private final LocalDateTime createdAt;
+
     @Builder
-    public NotificationDetail(Long notificationId, String binTitle, String binAddress,
+    public NotificationDetail(Long notificationId, String binTitle, String binAddress, BinType binType,
                               NotificationType notificationType,
-                              String reasonMessage, Boolean isRead) {
+                              String reasonMessage, Boolean isRead, LocalDateTime createdAt) {
         this.notificationId = notificationId;
         this.binTitle = binTitle;
         this.binAddress = binAddress;
+        this.binType = binType;
         this.notificationType = notificationType;
         this.reasonMessage = reasonMessage;
         this.isRead = isRead;
+        this.createdAt = createdAt;
     }
 
     public static NotificationDetail from(Notification notification) {
@@ -40,9 +48,11 @@ public class NotificationDetail {
                 .notificationId(notification.getId())
                 .binTitle(bin.getTitle())
                 .binAddress(bin.getAddress())
+                .binType(bin.getType())
                 .notificationType(notification.getType())
                 .reasonMessage(notification.getAdditionalInfo())
                 .isRead(notification.isRead())
+                .createdAt(notification.getCreatedAt())
                 .build();
     }
 }
