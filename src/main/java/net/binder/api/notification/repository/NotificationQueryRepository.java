@@ -21,7 +21,7 @@ public class NotificationQueryRepository {
         return jpaQueryFactory
                 .select(notification)
                 .from(notification)
-                .where(equalMemberId(memberId), lessThan(lastNotificationId))
+                .where(equalMemberId(memberId), lessThan(lastNotificationId), deleteAtIsNull())
                 .orderBy(notification.id.desc())
                 .limit(pageSize)
                 .fetch();
@@ -31,10 +31,14 @@ public class NotificationQueryRepository {
         return notification.receiver.id.eq(memberId);
     }
 
-    private static BooleanExpression lessThan(Long lastNotificationId) {
+    private BooleanExpression lessThan(Long lastNotificationId) {
         if (lastNotificationId == null) {
             return null;
         }
         return notification.id.lt(lastNotificationId);
+    }
+
+    private BooleanExpression deleteAtIsNull() {
+        return notification.deletedAt.isNull();
     }
 }

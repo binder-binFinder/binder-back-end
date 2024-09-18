@@ -9,6 +9,4 @@ import lombok.RequiredArgsConstructor;
 public class NotificationListResponse {
 
     private final List<NotificationDetail> notificationDetails;
-
-    private final Long unreadCount;
 }

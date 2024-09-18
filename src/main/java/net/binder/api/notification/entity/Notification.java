@@ -11,13 +11,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.binder.api.bin.entity.Bin;
-import net.binder.api.common.entity.BaseEntity;
+import net.binder.api.common.entity.BaseEntityWithSoftDelete;
 import net.binder.api.member.entity.Member;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Notification extends BaseEntity {
+public class Notification extends BaseEntityWithSoftDelete {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id")
@@ -51,5 +51,9 @@ public class Notification extends BaseEntity {
 
     public void markAsRead() {
         this.isRead = true;
+    }
+
+    public boolean isOwner(Member member) {
+        return this.receiver.equals(member);
     }
 }
