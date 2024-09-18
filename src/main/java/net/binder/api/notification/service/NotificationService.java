@@ -78,17 +78,6 @@ public class NotificationService {
         return notificationRepository.existsByReceiverIdAndIsRead(member.getId(), false);
     }
 
-    private List<Notification> getNotifications(Member sender, List<Member> receivers, Bin bin,
-                                                NotificationType type, String additionalInfo) {
-        List<Notification> notifications = new ArrayList<>();
-
-        for (Member receiver : receivers) {
-            Notification notification = new Notification(sender, receiver, bin, type, additionalInfo);
-            notifications.add(notification);
-        }
-        return Collections.unmodifiableList(notifications);
-    }
-
     public void deleteNotification(String email, Long notificationId) {
         Member member = memberService.findByEmail(email);
         Notification notification = notificationRepository.findById(notificationId)
@@ -98,6 +87,22 @@ public class NotificationService {
 
         boolean isDeleted = notification.softDelete();
         validateIsAlreadyDeleted(isDeleted);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean hasLikeNotification(Member sender, Bin bin) {
+        return notificationRepository.existsLike(sender.getId(), bin.getId());
+    }
+
+    private List<Notification> getNotifications(Member sender, List<Member> receivers, Bin bin,
+                                                NotificationType type, String additionalInfo) {
+        List<Notification> notifications = new ArrayList<>();
+
+        for (Member receiver : receivers) {
+            Notification notification = new Notification(sender, receiver, bin, type, additionalInfo);
+            notifications.add(notification);
+        }
+        return Collections.unmodifiableList(notifications);
     }
 
     private void validateIsOwner(Notification notification, Member member) {

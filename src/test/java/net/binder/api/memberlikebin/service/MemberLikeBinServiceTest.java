@@ -74,4 +74,32 @@ class MemberLikeBinServiceTest {
         assertThat(notification.getReceiver()).isEqualTo(creator);
         assertThat(notification.getType()).isEqualTo(NotificationType.BIN_LIKED);
     }
+
+    @Test
+    @DisplayName("좋아요를 취소하고 다시 좋아요를 누르면 알림이 전송되지 않는다.")
+    void saveLike_hasNotification() {
+        //given
+        Member creator = new Member("creator@email.com", "creator", Role.ROLE_USER, null);
+        Member likeMaker = new Member("likeMaker@email.com", "likeMaker", Role.ROLE_USER, null);
+        memberRepository.saveAll(List.of(creator, likeMaker));
+
+        Bin bin = new Bin("title", BinType.GENERAL, PointUtil.getPoint(100d, 10d), "address", 0L, 0L, 0L, null, null);
+        BinRegistration binRegistration = new BinRegistration(creator, null, BinRegistrationStatus.APPROVED);
+        bin.setBinRegistration(binRegistration);
+        binRepository.save(bin);
+
+        memberLikeBinService.saveLike(likeMaker.getEmail(), bin.getId());
+        assertThat(notificationRepository.findAll().size()).isEqualTo(1);
+        assertThat(memberLikeBinRepository.findAll().size()).isEqualTo(1);
+
+        memberLikeBinService.deleteLike(likeMaker.getEmail(), bin.getId());
+        assertThat(notificationRepository.findAll().size()).isEqualTo(1);
+        assertThat(memberLikeBinRepository.findAll().size()).isEqualTo(0);
+
+        //when
+        memberLikeBinService.saveLike(likeMaker.getEmail(), bin.getId());
+
+        //then
+        assertThat(notificationRepository.findAll().size()).isEqualTo(1);
+    }
 }

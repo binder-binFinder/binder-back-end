@@ -267,4 +267,22 @@ class NotificationServiceTest {
         assertThat(notificationDetails2).extracting(NotificationDetail::getNotificationId)
                 .containsExactly(notification3.getId(), notification2.getId());
     }
+
+    @Test
+    @DisplayName("이미 쓰레기통을 좋아요했던 기록이 있는지 확인할 수 있다.")
+    void hasLikeNotification() {
+        //given
+        boolean hasLike = notificationService.hasLikeNotification(sender, bin);
+        assertThat(hasLike).isFalse();
+
+        Notification notification = new Notification(sender, receiver, bin, NotificationType.BIN_LIKED,
+                "info");
+        notificationRepository.save(notification);
+
+        //when
+        hasLike = notificationService.hasLikeNotification(sender, bin);
+
+        //then
+        assertThat(hasLike).isTrue();
+    }
 }
