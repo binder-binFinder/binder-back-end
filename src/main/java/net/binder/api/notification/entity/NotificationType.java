@@ -11,7 +11,6 @@ public enum NotificationType {
     BIN_COMPLAINT_REJECTED,
 
     BIN_LIKED,
-    BIN_DISLIKED,
 
     BIN_MODIFIED,
     BIN_DELETED

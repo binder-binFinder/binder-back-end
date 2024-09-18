@@ -16,4 +16,15 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
             WHERE n.receiver.id = :memberId AND n.isRead = false
             """)
     Integer updateUnreadToRead(Long memberId);
+
+    Boolean existsByReceiverIdAndIsRead(Long memberId, boolean isRead);
+
+    @Query("""
+            SELECT EXISTS(
+                SELECT n
+                FROM Notification n
+                WHERE n.sender.id = :senderId AND n.bin.id = :binId AND n.type = 'BIN_LIKED'
+            )
+            """)
+    Boolean existsLike(Long senderId, Long binId);
 }
