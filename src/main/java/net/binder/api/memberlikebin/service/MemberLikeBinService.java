@@ -3,11 +3,14 @@ package net.binder.api.memberlikebin.service;
 import lombok.RequiredArgsConstructor;
 import net.binder.api.bin.entity.Bin;
 import net.binder.api.bin.service.BinService;
+import net.binder.api.binregistration.entity.BinRegistration;
 import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.member.entity.Member;
 import net.binder.api.member.service.MemberService;
 import net.binder.api.memberlikebin.entity.MemberLikeBin;
 import net.binder.api.memberlikebin.repository.MemberLikeBinRepository;
+import net.binder.api.notification.entity.NotificationType;
+import net.binder.api.notification.service.NotificationService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +22,7 @@ public class MemberLikeBinService {
     private final MemberLikeBinRepository memberLikeBinRepository;
     private final MemberService memberService;
     private final BinService binService;
+    private final NotificationService notificationService;
 
     public void saveLike(String email, Long binId) {
         Member member = memberService.findByEmail(email);
@@ -35,6 +39,8 @@ public class MemberLikeBinService {
                 .bin(bin)
                 .build();
         memberLikeBinRepository.save(memberLikeBin);
+
+        notificationService.sendNotification(member, getReceiver(bin), bin, NotificationType.BIN_LIKED, null);
     }
 
     public void deleteLike(String email, Long binId) {
@@ -46,5 +52,13 @@ public class MemberLikeBinService {
         Bin bin = binService.findById(binId);
         bin.decreaseLike();
         memberLikeBinRepository.deleteMemberLikeBinByMember_EmailAndBin_Id(email, binId);
+    }
+
+    private Member getReceiver(Bin bin) {
+        BinRegistration binRegistration = bin.getBinRegistration();
+        if (binRegistration == null) {
+            return null;
+        }
+        return binRegistration.getMember();
     }
 }
