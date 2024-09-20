@@ -12,7 +12,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/bookmark")
+@RequestMapping("/bookmarks")
 @Tag(name = "쓰레기통 북마크")
 public class BookmarkController {
 
