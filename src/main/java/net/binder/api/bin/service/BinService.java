@@ -85,7 +85,6 @@ public class BinService {
         Member member = memberService.findByEmail(email);
         Bin bin = findById(binId);
 
-        validateBinOwner(bin, member);
         validateBinStatus(bin);
         validatePendingModification(bin);
 
@@ -121,12 +120,6 @@ public class BinService {
                 .member(member)
                 .status(BinRegistrationStatus.PENDING)
                 .build();
-    }
-
-    private void validateBinOwner(Bin bin, Member member) {
-        if (!bin.isOwner(member)) {
-            throw new BadRequestException("해당 쓰레기통을 등록한 사람만 수정 요청이 가능합니다.");
-        }
     }
 
     private void validateBinStatus(Bin bin) {
