@@ -101,6 +101,17 @@ public class Bin extends BaseEntityWithSoftDelete {
         this.dislikeCount--;
     }
 
+    public void increaseBookmark(){
+        this.bookmarkCount++;
+    }
+
+    public void decreaseBookmark(){
+        if(this.bookmarkCount<=0){
+            return;
+        }
+            this.bookmarkCount--;
+    }
+
     public boolean isOwner(Member member) {
         return this.binRegistration.getMember().equals(member);
     }
