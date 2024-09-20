@@ -3,12 +3,16 @@ package net.binder.api.comment.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import net.binder.api.comment.dto.CommentDetail;
 import net.binder.api.comment.dto.CreateCommentRequest;
 import net.binder.api.comment.dto.CreateCommentResponse;
 import net.binder.api.comment.dto.GetCommentDetailResponse;
+import net.binder.api.comment.dto.GetCommentListResponse;
 import net.binder.api.comment.dto.ModifyCommentRequest;
+import net.binder.api.comment.repository.CommentSort;
 import net.binder.api.comment.service.CommentService;
 import net.binder.api.common.annotation.CurrentUser;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,6 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -60,5 +65,18 @@ public class CommentController {
     public void deleteComment(@CurrentUser String email, @PathVariable Long id) {
 
         commentService.deleteComment(email, id);
+    }
+
+    @Operation(summary = "쓰레기통 댓글 목록 조회")
+    @GetMapping
+    public GetCommentListResponse getCommentList(
+            @CurrentUser String email,
+            @RequestParam @NotNull Long binId,
+            @RequestParam(defaultValue = "CREATED_AT_DESC") CommentSort sort,
+            @RequestParam(required = false) Long lastCommentId) {
+
+        List<CommentDetail> commentDetails = commentService.getCommentDetails(email, binId, sort, lastCommentId);
+
+        return new GetCommentListResponse(commentDetails);
     }
 }

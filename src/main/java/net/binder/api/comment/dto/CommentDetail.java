@@ -19,25 +19,25 @@ public class CommentDetail {
 
     private final String content;
 
-    private final Boolean isWriter;
-
     private final Long likeCount;
 
     private final Long dislikeCount;
 
     private final LocalDateTime createdAt;
 
-    public static CommentDetail from(Comment comment, Boolean isOwner) {
+    private final CommentInfoForMember commentInfoForMember;
+
+    public static CommentDetail createForNoMember(Comment comment) {
 
         return CommentDetail.builder()
                 .commentId(comment.getId())
                 .binId(comment.getBin().getId())
                 .writer(comment.getMember().getNickname())
                 .content(comment.getContent())
-                .isWriter(isOwner)
                 .likeCount(comment.getLikeCount())
                 .dislikeCount(comment.getDislikeCount())
                 .createdAt(comment.getCreatedAt())
                 .build();
     }
+
 }
