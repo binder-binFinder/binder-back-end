@@ -41,6 +41,15 @@ public class Comment extends BaseEntityWithSoftDelete {
         this.dislikeCount = 0L;
     }
 
+    public boolean isWriter(String email) {
+        return this.member.isOwnEmail(email);
+    }
+
+    public void modifyContent(String content) {
+        validateContentLength(content);
+        this.content = content;
+    }
+
     private void validateContentLength(String content) {
         if (content != null && content.length() > MAX_CONTENT_LENGTH) {
             throw new BadRequestException("댓글 글자 수는 60자 이하여야 합니다.");

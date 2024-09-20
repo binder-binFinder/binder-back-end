@@ -70,7 +70,7 @@ class CommentServiceTest {
 
     @Test
     @DisplayName("댓글 상세정보를 조회할 수 있다. 본인이 작성한 댓글일 경우 isOwner는 true이다.")
-    void getCommentDetail_isOwner_True() {
+    void getCommentDetail_isWriter_True() {
         //given
         Comment comment = commentRepository.save(new Comment(member, bin, "댓글"));
 
@@ -80,7 +80,7 @@ class CommentServiceTest {
         //then
         assertThat(commentDetail.getCommentId()).isNotNull();
         assertThat(commentDetail.getBinId()).isEqualTo(bin.getId());
-        assertThat(commentDetail.getIsOwner()).isEqualTo(true);
+        assertThat(commentDetail.getIsWriter()).isEqualTo(true);
         assertThat(commentDetail.getCreatedAt()).isNotNull();
         assertThat(commentDetail.getWriter()).isEqualTo(member.getNickname());
         assertThat(commentDetail.getContent()).isEqualTo("댓글");
@@ -90,7 +90,7 @@ class CommentServiceTest {
 
     @Test
     @DisplayName("댓글 상세정보를 조회할 수 있다. 다른 사람이 작성한 댓글일 경우 isOwner는 false이다.")
-    void getCommentDetail_isOwner_False() {
+    void getCommentDetail_isWriter_False() {
         //given
         Member member2 = new Member("member2@email.com", "member2", Role.ROLE_USER, null);
         Comment comment = commentRepository.save(new Comment(member, bin, "댓글"));
@@ -101,11 +101,49 @@ class CommentServiceTest {
         //then
         assertThat(commentDetail.getCommentId()).isNotNull();
         assertThat(commentDetail.getBinId()).isEqualTo(bin.getId());
-        assertThat(commentDetail.getIsOwner()).isEqualTo(false);
+        assertThat(commentDetail.getIsWriter()).isEqualTo(false);
         assertThat(commentDetail.getCreatedAt()).isNotNull();
         assertThat(commentDetail.getWriter()).isEqualTo(member.getNickname());
         assertThat(commentDetail.getContent()).isEqualTo("댓글");
         assertThat(commentDetail.getLikeCount()).isEqualTo(0);
         assertThat(commentDetail.getDislikeCount()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("작성자 본인이라면 댓글 내용을 수정할 수 있다.")
+    void modifyComment_success() {
+        //given
+        Comment comment = commentRepository.save(new Comment(member, bin, "댓글"));
+
+        //when
+        commentService.modifyComment(member.getEmail(), comment.getId(), "수정");
+
+        //then
+        assertThat(comment.getContent()).isEqualTo("수정");
+    }
+
+    @Test
+    @DisplayName("댓글 수정시 길이가 60자를 초과하면 예외가 발생한다.")
+    void modifyComment_fail_contentLength() {
+        //given
+        Comment comment = commentRepository.save(new Comment(member, bin, "댓글"));
+
+        //when&then
+        String newContent = "a".repeat(61);
+        assertThatThrownBy(() -> commentService.modifyComment(member.getEmail(), comment.getId(), newContent))
+                .isInstanceOf(BadRequestException.class);
+    }
+
+    @Test
+    @DisplayName("타인이 댓글 수정을 요청하면 예외가 발생한다.")
+    void modifyComment_fail_isNotWriter() {
+        //given
+        Comment comment = commentRepository.save(new Comment(member, bin, "댓글"));
+        Member member2 = new Member("member2@email.com", "member2", Role.ROLE_USER, null);
+        memberRepository.save(member2);
+
+        //when & then
+        assertThatThrownBy(() -> commentService.modifyComment(member2.getEmail(), comment.getId(), "수정"))
+                .isInstanceOf(BadRequestException.class);
     }
 }

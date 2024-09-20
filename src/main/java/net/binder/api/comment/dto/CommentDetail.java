@@ -19,7 +19,7 @@ public class CommentDetail {
 
     private final String content;
 
-    private final Boolean isOwner;
+    private final Boolean isWriter;
 
     private final Long likeCount;
 
@@ -34,7 +34,7 @@ public class CommentDetail {
                 .binId(comment.getBin().getId())
                 .writer(comment.getMember().getNickname())
                 .content(comment.getContent())
-                .isOwner(isOwner)
+                .isWriter(isOwner)
                 .likeCount(comment.getLikeCount())
                 .dislikeCount(comment.getDislikeCount())
                 .createdAt(comment.getCreatedAt())
