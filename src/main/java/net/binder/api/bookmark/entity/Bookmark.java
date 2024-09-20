@@ -1,9 +1,6 @@
 package net.binder.api.bookmark.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,6 +12,14 @@ import net.binder.api.member.entity.Member;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "sameBookmark",
+                        columnNames = {"member_id", "bin_id"}
+                )
+        }
+)
 public class Bookmark extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
