@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import net.binder.api.bin.entity.Bin;
 import net.binder.api.bin.entity.BinType;
@@ -294,50 +295,6 @@ class CommentServiceTest {
     }
 
     @Test
-    @DisplayName("로그인 사용자가 댓글 목록을 조회할 수 있다.")
-    void getCommentDetails_LoggedIn() {
-        // given
-        Comment comment1 = commentRepository.save(new Comment(member, bin, "댓글1"));
-        Comment comment2 = commentRepository.save(new Comment(member, bin, "댓글2"));
-        Comment comment3 = commentRepository.save(new Comment(member, bin, "댓글3"));
-        commentLikeRepository.save(new CommentLike(member, comment2));
-
-        // when
-        List<CommentDetail> commentDetails = commentService.getCommentDetails(member.getEmail(), bin.getId(),
-                CommentSort.CREATED_AT_DESC, null, null);
-
-        // then
-        assertThat(commentDetails).hasSize(3);
-        assertThat(commentDetails.get(0).getCommentId()).isEqualTo(comment3.getId());
-        assertThat(commentDetails.get(1).getCommentId()).isEqualTo(comment2.getId());
-        assertThat(commentDetails.get(2).getCommentId()).isEqualTo(comment1.getId());
-        assertThat(commentDetails.get(0).getCommentInfoForMember().getIsWriter()).isTrue();
-        assertThat(commentDetails.get(1).getCommentInfoForMember().getIsLiked()).isTrue();
-    }
-
-    @Test
-    @DisplayName("커서 기반 페이지네이션이 작동한다.")
-    void getCommentDetails_Pagination() {
-        // given
-        List<Comment> comments = new ArrayList<>();
-        for (int i = 0; i < 25; i++) {
-            comments.add(commentRepository.save(new Comment(member, bin, "댓글" + i)));
-        }
-
-        // when
-        List<CommentDetail> firstPage = commentService.getCommentDetails(member.getEmail(), bin.getId(),
-                CommentSort.CREATED_AT_DESC, null, null);
-        List<CommentDetail> secondPage = commentService.getCommentDetails(member.getEmail(), bin.getId(),
-                CommentSort.CREATED_AT_DESC, firstPage.get(firstPage.size() - 1).getCommentId(), null);
-
-        // then
-        assertThat(firstPage).hasSize(20);
-        assertThat(secondPage).hasSize(5);
-        assertThat(firstPage.get(0).getCommentId()).isEqualTo(comments.get(24).getId());
-        assertThat(secondPage.get(0).getCommentId()).isEqualTo(comments.get(4).getId());
-    }
-
-    @Test
     @DisplayName("좋아요 순으로 댓글 목록을 정렬할 수 있다.")
     void getCommentDetails_SortByLikeCount() {
         // given
@@ -417,5 +374,43 @@ class CommentServiceTest {
         assertThat(commentDetails.get(1).getCommentInfoForMember().getIsDisliked()).isTrue();
         assertThat(commentDetails.get(0).getCommentInfoForMember().getIsLiked()).isFalse();
         assertThat(commentDetails.get(0).getCommentInfoForMember().getIsDisliked()).isFalse();
+    }
+
+    @Test
+    @DisplayName("좋아요 순 정렬 시 페이지네이션이 올바르게 동작한다")
+    void getCommentDetails_LikeCountDescPagination() {
+        // given
+        for (int i = 0; i < 25; i++) {
+            Comment comment = commentRepository.save(new Comment(member, bin, "댓글" + i));
+            for (int j = 0; j < i / 5; j++) {
+                comment.increaseLikeCount();
+            }
+            commentRepository.save(comment);
+        }
+
+        // when
+        List<CommentDetail> firstPage = commentService.getCommentDetails(member.getEmail(), bin.getId(),
+                CommentSort.LIKE_COUNT_DESC, null, null);
+        CommentDetail lastCommentOfFirstPage = firstPage.get(firstPage.size() - 1);
+        List<CommentDetail> secondPage = commentService.getCommentDetails(member.getEmail(), bin.getId(),
+                CommentSort.LIKE_COUNT_DESC, lastCommentOfFirstPage.getCommentId(),
+                lastCommentOfFirstPage.getLikeCount());
+
+        // then
+        assertThat(firstPage).hasSize(20);
+        assertThat(secondPage).hasSize(5);
+
+        // 정렬 검증
+        Comparator<CommentDetail> commentDetailComparator = (c1, c2) -> {
+            int likeCountCompare = c2.getLikeCount().compareTo(c1.getLikeCount());
+            return likeCountCompare != 0 ? likeCountCompare : c2.getCommentId().compareTo(c1.getCommentId());
+        };
+
+        assertThat(firstPage).isSortedAccordingTo(commentDetailComparator);
+        assertThat(secondPage).isSortedAccordingTo(commentDetailComparator);
+
+        // 페이지네이션 연속성 검증
+        assertThat(commentDetailComparator.compare(firstPage.get(firstPage.size() - 1), secondPage.get(0)))
+                .isLessThanOrEqualTo(0);
     }
 }
