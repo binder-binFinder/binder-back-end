@@ -54,4 +54,8 @@ public class Member extends BaseEntityWithSoftDelete {
         this.nickname = nickname;
         this.imageUrl = imageUrl;
     }
+
+    public boolean isOwnEmail(String email) {
+        return this.email.equals(email);
+    }
 }

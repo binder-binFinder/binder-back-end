@@ -64,6 +64,7 @@ public class SecurityConfig {
                         .requestMatchers("/error").permitAll()
                         .requestMatchers(HttpMethod.GET, "/bins/**").permitAll() // 쓰레기통 검색 및 상세 조회
                         .requestMatchers(HttpMethod.GET, "/search/bins/**").permitAll() // 쓰레기통 검색
+                        .requestMatchers(HttpMethod.GET, "/comments/**").permitAll() // 댓글 조회
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .exceptionHandling(exceptionHandling -> exceptionHandling

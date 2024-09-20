@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Getter
-public class CreateCommentResponse {
+public class GetCommentDetailResponse {
 
-    private final Long commentId;
+    private final CommentDetail commentDetail;
 }

@@ -7,8 +7,11 @@ import lombok.RequiredArgsConstructor;
 import net.binder.api.comment.dto.CommentDetail;
 import net.binder.api.comment.dto.CreateCommentRequest;
 import net.binder.api.comment.dto.CreateCommentResponse;
+import net.binder.api.comment.dto.GetCommentDetailResponse;
 import net.binder.api.comment.service.CommentService;
 import net.binder.api.common.annotation.CurrentUser;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,8 +30,17 @@ public class CommentController {
     public CreateCommentResponse createComment(@CurrentUser String email,
                                                @Valid @RequestBody CreateCommentRequest request) {
 
-        CommentDetail commentDetail = commentService.createComment(email, request.getBinId(), request.getContent());
-        
-        return new CreateCommentResponse(commentDetail);
+        Long commentId = commentService.createComment(email, request.getBinId(), request.getContent());
+
+        return new CreateCommentResponse(commentId);
+    }
+
+    @Operation(summary = "코멘트 상세 조회")
+    @GetMapping("/{id}")
+    public GetCommentDetailResponse getCommentDetail(@CurrentUser String email, @PathVariable Long id) {
+
+        CommentDetail commentDetail = commentService.getCommentDetail(email, id);
+
+        return new GetCommentDetailResponse(commentDetail);
     }
 }

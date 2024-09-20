@@ -6,6 +6,7 @@ import net.binder.api.bin.service.BinService;
 import net.binder.api.comment.dto.CommentDetail;
 import net.binder.api.comment.entity.Comment;
 import net.binder.api.comment.repository.CommentRepository;
+import net.binder.api.common.exception.NotFoundException;
 import net.binder.api.member.entity.Member;
 import net.binder.api.member.service.MemberService;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
 
-    public CommentDetail createComment(String email, Long binId, String content) {
+    public Long createComment(String email, Long binId, String content) {
         Member member = memberService.findByEmail(email);
         Bin bin = binService.findById(binId);
 
@@ -30,6 +31,16 @@ public class CommentService {
 
         commentRepository.save(comment);
 
-        return CommentDetail.from(comment, true); // 자신이 생성한 코멘트이므로 isOwner -> true
+        return comment.getId();
+    }
+
+    public CommentDetail getCommentDetail(String email, Long commentId) {
+
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 댓글입니다."));
+
+        boolean isOwner = comment.getMember().isOwnEmail(email);
+
+        return CommentDetail.from(comment, isOwner);
     }
 }
