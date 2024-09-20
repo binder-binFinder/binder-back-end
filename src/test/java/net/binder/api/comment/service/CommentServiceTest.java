@@ -9,6 +9,10 @@ import net.binder.api.bin.repository.BinRepository;
 import net.binder.api.bin.util.PointUtil;
 import net.binder.api.comment.dto.CommentDetail;
 import net.binder.api.comment.entity.Comment;
+import net.binder.api.comment.entity.CommentDislike;
+import net.binder.api.comment.entity.CommentLike;
+import net.binder.api.comment.repository.CommentDislikeRepository;
+import net.binder.api.comment.repository.CommentLikeRepository;
 import net.binder.api.comment.repository.CommentRepository;
 import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.member.entity.Member;
@@ -36,6 +40,12 @@ class CommentServiceTest {
 
     @Autowired
     private CommentRepository commentRepository;
+
+    @Autowired
+    private CommentLikeRepository commentLikeRepository;
+
+    @Autowired
+    private CommentDislikeRepository commentDislikeRepository;
 
     private Member member;
 
@@ -69,6 +79,51 @@ class CommentServiceTest {
     }
 
     @Test
+    @DisplayName("댓글 상세정보를 조회할 수 있다. 비로그인 유저일 경우 info는 null이다.")
+    void getCommentDetail_NoMember() {
+        //given
+        Comment comment = commentRepository.save(new Comment(member, bin, "댓글"));
+
+        //when
+        CommentDetail commentDetail = commentService.getCommentDetail(null, comment.getId());
+
+        //then
+        assertThat(commentDetail.getCommentId()).isNotNull();
+        assertThat(commentDetail.getBinId()).isEqualTo(bin.getId());
+        assertThat(commentDetail.getCreatedAt()).isNotNull();
+        assertThat(commentDetail.getWriter()).isEqualTo(member.getNickname());
+        assertThat(commentDetail.getContent()).isEqualTo("댓글");
+        assertThat(commentDetail.getLikeCount()).isEqualTo(0);
+        assertThat(commentDetail.getDislikeCount()).isEqualTo(0);
+        assertThat(commentDetail.getCommentInfoForMember()).isNull();
+    }
+
+    @Test
+    @DisplayName("댓글 상세정보를 조회할 수 있다. 다른 사람이 작성한 댓글일 경우 isOwner는 false이다.")
+    void getCommentDetail_isWriter_False() {
+        //given
+        Comment comment = commentRepository.save(new Comment(member, bin, "댓글"));
+
+        Member member2 = new Member("member2@email.com", "member2", Role.ROLE_USER, null);
+        memberRepository.save(member2);
+
+        //when
+        CommentDetail commentDetail = commentService.getCommentDetail(member2.getEmail(), comment.getId());
+
+        //then
+        assertThat(commentDetail.getCommentId()).isNotNull();
+        assertThat(commentDetail.getBinId()).isEqualTo(bin.getId());
+        assertThat(commentDetail.getCreatedAt()).isNotNull();
+        assertThat(commentDetail.getWriter()).isEqualTo(member.getNickname());
+        assertThat(commentDetail.getContent()).isEqualTo("댓글");
+        assertThat(commentDetail.getLikeCount()).isEqualTo(0);
+        assertThat(commentDetail.getDislikeCount()).isEqualTo(0);
+        assertThat(commentDetail.getCommentInfoForMember().getIsWriter()).isFalse();
+        assertThat(commentDetail.getCommentInfoForMember().getIsLiked()).isFalse();
+        assertThat(commentDetail.getCommentInfoForMember().getIsDisliked()).isFalse();
+    }
+
+    @Test
     @DisplayName("댓글 상세정보를 조회할 수 있다. 본인이 작성한 댓글일 경우 isOwner는 true이다.")
     void getCommentDetail_isWriter_True() {
         //given
@@ -80,33 +135,62 @@ class CommentServiceTest {
         //then
         assertThat(commentDetail.getCommentId()).isNotNull();
         assertThat(commentDetail.getBinId()).isEqualTo(bin.getId());
-        assertThat(commentDetail.getIsWriter()).isEqualTo(true);
         assertThat(commentDetail.getCreatedAt()).isNotNull();
         assertThat(commentDetail.getWriter()).isEqualTo(member.getNickname());
         assertThat(commentDetail.getContent()).isEqualTo("댓글");
         assertThat(commentDetail.getLikeCount()).isEqualTo(0);
         assertThat(commentDetail.getDislikeCount()).isEqualTo(0);
+        assertThat(commentDetail.getCommentInfoForMember().getIsWriter()).isTrue();
+        assertThat(commentDetail.getCommentInfoForMember().getIsLiked()).isFalse();
+        assertThat(commentDetail.getCommentInfoForMember().getIsDisliked()).isFalse();
     }
 
     @Test
-    @DisplayName("댓글 상세정보를 조회할 수 있다. 다른 사람이 작성한 댓글일 경우 isOwner는 false이다.")
-    void getCommentDetail_isWriter_False() {
+    @DisplayName("댓글 상세정보를 조회할 수 있다. 해당 글을 좋아요 할 경우 isLiked는 true이다.")
+    void getCommentDetail_isLiked_True() {
         //given
-        Member member2 = new Member("member2@email.com", "member2", Role.ROLE_USER, null);
         Comment comment = commentRepository.save(new Comment(member, bin, "댓글"));
 
+        commentLikeRepository.save(new CommentLike(member, comment));
+
         //when
-        CommentDetail commentDetail = commentService.getCommentDetail(member2.getEmail(), comment.getId());
+        CommentDetail commentDetail = commentService.getCommentDetail(member.getEmail(), comment.getId());
 
         //then
         assertThat(commentDetail.getCommentId()).isNotNull();
         assertThat(commentDetail.getBinId()).isEqualTo(bin.getId());
-        assertThat(commentDetail.getIsWriter()).isEqualTo(false);
         assertThat(commentDetail.getCreatedAt()).isNotNull();
         assertThat(commentDetail.getWriter()).isEqualTo(member.getNickname());
         assertThat(commentDetail.getContent()).isEqualTo("댓글");
         assertThat(commentDetail.getLikeCount()).isEqualTo(0);
         assertThat(commentDetail.getDislikeCount()).isEqualTo(0);
+        assertThat(commentDetail.getCommentInfoForMember().getIsWriter()).isTrue();
+        assertThat(commentDetail.getCommentInfoForMember().getIsLiked()).isTrue();
+        assertThat(commentDetail.getCommentInfoForMember().getIsDisliked()).isFalse();
+    }
+
+    @Test
+    @DisplayName("댓글 상세정보를 조회할 수 있다. 해당 글을 싫어요 할 경우 isdisliked는 true이다.")
+    void getCommentDetail_isDisliked_True() {
+        //given
+        Comment comment = commentRepository.save(new Comment(member, bin, "댓글"));
+
+        commentDislikeRepository.save(new CommentDislike(member, comment));
+
+        //when
+        CommentDetail commentDetail = commentService.getCommentDetail(member.getEmail(), comment.getId());
+
+        //then
+        assertThat(commentDetail.getCommentId()).isNotNull();
+        assertThat(commentDetail.getBinId()).isEqualTo(bin.getId());
+        assertThat(commentDetail.getCreatedAt()).isNotNull();
+        assertThat(commentDetail.getWriter()).isEqualTo(member.getNickname());
+        assertThat(commentDetail.getContent()).isEqualTo("댓글");
+        assertThat(commentDetail.getLikeCount()).isEqualTo(0);
+        assertThat(commentDetail.getDislikeCount()).isEqualTo(0);
+        assertThat(commentDetail.getCommentInfoForMember().getIsWriter()).isTrue();
+        assertThat(commentDetail.getCommentInfoForMember().getIsLiked()).isFalse();
+        assertThat(commentDetail.getCommentInfoForMember().getIsDisliked()).isTrue();
     }
 
     @Test
