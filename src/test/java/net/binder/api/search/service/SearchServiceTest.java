@@ -9,7 +9,7 @@ import net.binder.api.bin.util.PointUtil;
 import net.binder.api.binregistration.entity.BinRegistration;
 import net.binder.api.binregistration.entity.BinRegistrationStatus;
 import net.binder.api.binregistration.repository.BinRegistrationRepository;
-import net.binder.api.bookmark.service.BookMarkService;
+import net.binder.api.bookmark.service.BookmarkService;
 import net.binder.api.common.binsetup.dto.PublicBinData;
 import net.binder.api.common.binsetup.repository.BinBatchInsertRepository;
 import net.binder.api.common.exception.BadRequestException;
@@ -60,7 +60,7 @@ class SearchServiceTest {
     private AdminBinRegistrationService adminBinRegistrationService;
 
     @Autowired
-    private BookMarkService bookMarkService;
+    private BookmarkService bookMarkService;
 
     private Member testMember;
 
@@ -319,8 +319,8 @@ class SearchServiceTest {
             assertThat(searchResult.get(i).getDistance()).isLessThanOrEqualTo(searchResult.get(i + 1).getDistance());
         }
 
-        for (int i = 0; i < searchResult.size(); i++) {
-            assertThat(distanceOfFirstBins).isLessThanOrEqualTo(searchResult.get(i).getDistance());
+        for (SearchResult result : searchResult) {
+            assertThat(distanceOfFirstBins).isLessThanOrEqualTo(result.getDistance());
         }
     }
 
@@ -859,9 +859,7 @@ class SearchServiceTest {
                 });
 
         assertThat(search).extracting("distance")
-                .satisfies(distanceList -> {
-                    assertThat((Double) distanceList.get(0)).isLessThan((Double) distanceList.get(1));
-                });
+                .satisfies(distanceList -> assertThat((Double) distanceList.get(0)).isLessThan((Double) distanceList.get(1)));
 
     }
 
@@ -1694,8 +1692,8 @@ class SearchServiceTest {
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration1.getId());
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration2.getId());
 
-        bookMarkService.saveBookMark(user.getEmail(), savedBin.getId());
-        bookMarkService.saveBookMark(user.getEmail(), savedBin2.getId());
+        bookMarkService.createBookMark(user.getEmail(), savedBin.getId());
+        bookMarkService.createBookMark(user.getEmail(), savedBin2.getId());
 
         List<SearchResult> search = searchService.search(null, 127.027722755059, 37.4956241314633, 500, "user@email.com");
 
