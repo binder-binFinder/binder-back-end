@@ -55,4 +55,20 @@ public class Comment extends BaseEntityWithSoftDelete {
             throw new BadRequestException("댓글 글자 수는 60자 이하여야 합니다.");
         }
     }
+
+    public void increaseLikeCount() {
+        this.likeCount++;
+    }
+
+    public void decreaseLikeCount() {
+        this.likeCount--;
+    }
+
+    public void increaseDislikeCount() {
+        this.dislikeCount++;
+    }
+
+    public void decreaseDislikeCount() {
+        this.dislikeCount--;
+    }
 }

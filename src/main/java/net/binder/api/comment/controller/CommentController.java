@@ -52,7 +52,7 @@ public class CommentController {
         return new GetCommentDetailResponse(commentDetail);
     }
 
-    @Operation(summary = "쓰레기통 댓글 수정", description = "작성자 본인이 아닐 경우 예외가 발생한다")
+    @Operation(summary = "쓰레기통 댓글 수정", description = "작성자 본인이 아닐 경우 예외가 발생합니다.")
     @PatchMapping("/{id}")
     public void modifyComment(@CurrentUser String email, @PathVariable Long id,
                               @Valid @RequestBody ModifyCommentRequest request) {
@@ -60,23 +60,24 @@ public class CommentController {
         commentService.modifyComment(email, id, request.getContent());
     }
 
-    @Operation(summary = "쓰레기통 댓글 삭제", description = "작성자 본인이 아닐 경우 예외가 발생한다")
+    @Operation(summary = "쓰레기통 댓글 삭제", description = "작성자 본인이 아닐 경우 예외가 발생합니다.")
     @DeleteMapping("/{id}")
     public void deleteComment(@CurrentUser String email, @PathVariable Long id) {
 
         commentService.deleteComment(email, id);
     }
 
-    @Operation(summary = "쓰레기통 댓글 목록 조회")
+    @Operation(summary = "쓰레기통 댓글 목록 조회", description = "정렬 조건이 좋아요순(LIKE_COUNT_DESC)일 경우, lastCommentId와 lastLikeCount는 둘 다 제공되거나 둘 다 제공되지 않아야 합니다.")
     @GetMapping
     public GetCommentListResponse getCommentList(
             @CurrentUser String email,
             @RequestParam @NotNull Long binId,
             @RequestParam(defaultValue = "CREATED_AT_DESC") CommentSort sort,
-            @RequestParam(required = false) Long lastCommentId) {
+            @RequestParam(required = false) Long lastCommentId,
+            @RequestParam(required = false) Long lastLikeCount) {
 
-        List<CommentDetail> commentDetails = commentService.getCommentDetails(email, binId, sort, lastCommentId);
-
+        List<CommentDetail> commentDetails = commentService.getCommentDetails(email, binId, sort, lastCommentId,
+                lastLikeCount);
         return new GetCommentListResponse(commentDetails);
     }
 }
