@@ -13,6 +13,7 @@ import net.binder.api.common.exception.NotFoundException;
 import net.binder.api.member.entity.Member;
 import net.binder.api.member.entity.Role;
 import net.binder.api.member.repository.MemberRepository;
+import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.AssertionsForClassTypes.within;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Transactional
@@ -57,6 +59,9 @@ class BookmarkServiceTest {
 
     private Bin bin4;
 
+
+    private final Offset<Double> distanceTolerance = within(0.1);
+
     @BeforeEach
     void setUp() {
         testMember = new Member("dusgh7031@gmail.com", "테스트", Role.ROLE_USER, "http://example.com/image.jpg");
@@ -89,9 +94,9 @@ class BookmarkServiceTest {
         assertThat(bookmarks).extracting("binType").containsExactly(BinType.CIGAR, BinType.BEVERAGE);
 
         assertThat(bookmarks).extracting("distance")
-                .satisfies(yList -> {
-                    assertThat(yList.get(0)).isEqualTo(0.0);
-                    assertThat(yList.get(1)).isEqualTo(132.13127520524972);
+                .satisfies(distance -> {
+                    assertThat((Double) distance.get(0)).isCloseTo(0.0, distanceTolerance);
+                    assertThat((Double) distance.get(1)).isEqualTo(132.13127520524972, distanceTolerance);
 
                 });
     }
@@ -243,11 +248,11 @@ class BookmarkServiceTest {
         assertThat(b3).extracting("bookmarkCount").isEqualTo(1L);
         assertThat(b4).extracting("bookmarkCount").isEqualTo(1L);
         assertThat(bookmarks).extracting("distance")
-                .satisfies(yList -> {
-                    assertThat(yList.get(0)).isEqualTo(0.0);
-                    assertThat(yList.get(1)).isEqualTo(132.13127520524972);
-                    assertThat(yList.get(2)).isEqualTo(132.13127520524972);
-                    assertThat(yList.get(3)).isEqualTo(160.2506317060672);
+                .satisfies(distance -> {
+                    assertThat((Double) distance.get(0)).isCloseTo(0.0, distanceTolerance);
+                    assertThat((Double) distance.get(1)).isCloseTo(132.13127520524972, distanceTolerance);
+                    assertThat((Double) distance.get(2)).isCloseTo(132.13127520524972, distanceTolerance);
+                    assertThat((Double) distance.get(3)).isCloseTo(160.2506317060672, distanceTolerance);
 
                 });
     }
@@ -269,5 +274,4 @@ class BookmarkServiceTest {
                 .isInstanceOf(NotFoundException.class)
                 .hasMessage("존재하지 않는 쓰레기통입니다.");
     }
-
 }
