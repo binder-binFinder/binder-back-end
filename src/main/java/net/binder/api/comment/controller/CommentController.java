@@ -11,6 +11,7 @@ import net.binder.api.comment.dto.GetCommentDetailResponse;
 import net.binder.api.comment.dto.ModifyCommentRequest;
 import net.binder.api.comment.service.CommentService;
 import net.binder.api.common.annotation.CurrentUser;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -52,5 +53,12 @@ public class CommentController {
                               @Valid @RequestBody ModifyCommentRequest request) {
 
         commentService.modifyComment(email, id, request.getContent());
+    }
+
+    @Operation(summary = "쓰레기통 댓글 삭제", description = "작성자 본인이 아닐 경우 예외가 발생한다")
+    @DeleteMapping("/{id}")
+    public void deleteComment(@CurrentUser String email, @PathVariable Long id) {
+
+        commentService.deleteComment(email, id);
     }
 }

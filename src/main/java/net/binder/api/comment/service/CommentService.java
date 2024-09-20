@@ -51,6 +51,17 @@ public class CommentService {
         comment.modifyContent(content);
     }
 
+    public void deleteComment(String email, Long commentId) {
+        Comment comment = getComment(commentId);
+        validateIsWriter(email, comment);
+
+        boolean isDeleted = comment.softDelete();
+
+        if (!isDeleted) {
+            throw new BadRequestException("이미 삭제된 댓글입니다.");
+        }
+    }
+
     private Comment getComment(Long commentId) {
         return commentRepository.findById(commentId)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 댓글입니다."));

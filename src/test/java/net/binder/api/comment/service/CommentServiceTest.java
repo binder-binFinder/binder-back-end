@@ -146,4 +146,43 @@ class CommentServiceTest {
         assertThatThrownBy(() -> commentService.modifyComment(member2.getEmail(), comment.getId(), "수정"))
                 .isInstanceOf(BadRequestException.class);
     }
+
+    @Test
+    @DisplayName("작성자 본인이라면 댓글을 삭제할 수 있다.")
+    void deleteComment_success() {
+        //given
+        Comment comment = commentRepository.save(new Comment(member, bin, "댓글"));
+
+        //when
+        commentService.deleteComment(member.getEmail(), comment.getId());
+
+        //then
+        assertThat(comment.getDeletedAt()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("타인이 댓글 삭제를 요청하면 예외가 발생한다.")
+    void deleteComment_fail_isNotWriter() {
+        //given
+        Comment comment = commentRepository.save(new Comment(member, bin, "댓글"));
+
+        Member member2 = new Member("member2@email.com", "member2", Role.ROLE_USER, null);
+        memberRepository.save(member2);
+
+        //when & then
+        assertThatThrownBy(() -> commentService.deleteComment(member2.getEmail(), comment.getId()))
+                .isInstanceOf(BadRequestException.class);
+    }
+
+    @Test
+    @DisplayName("이미 삭제된 댓글을 다시 삭제 요청하면 예외가 발생한다.")
+    void deleteComment_fail_isAlreadyDeleted() {
+        //given
+        Comment comment = commentRepository.save(new Comment(member, bin, "댓글"));
+        commentService.deleteComment(member.getEmail(), comment.getId());
+
+        //when & then
+        assertThatThrownBy(() -> commentService.deleteComment(member.getEmail(), comment.getId()))
+                .isInstanceOf(BadRequestException.class);
+    }
 }
