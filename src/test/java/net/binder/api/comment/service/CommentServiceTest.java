@@ -3,6 +3,8 @@ package net.binder.api.comment.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.util.ArrayList;
+import java.util.List;
 import net.binder.api.bin.entity.Bin;
 import net.binder.api.bin.entity.BinType;
 import net.binder.api.bin.repository.BinRepository;
@@ -14,6 +16,7 @@ import net.binder.api.comment.entity.CommentLike;
 import net.binder.api.comment.repository.CommentDislikeRepository;
 import net.binder.api.comment.repository.CommentLikeRepository;
 import net.binder.api.comment.repository.CommentRepository;
+import net.binder.api.comment.repository.CommentSort;
 import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.member.entity.Member;
 import net.binder.api.member.entity.Role;
@@ -268,5 +271,151 @@ class CommentServiceTest {
         //when & then
         assertThatThrownBy(() -> commentService.deleteComment(member.getEmail(), comment.getId()))
                 .isInstanceOf(BadRequestException.class);
+    }
+
+    @Test
+    @DisplayName("비로그인 사용자가 댓글 목록을 조회할 수 있다.")
+    void getCommentDetails_Anonymous() {
+        // given
+        List<Comment> comments = new ArrayList<>();
+        for (int i = 0; i < 25; i++) {
+            comments.add(commentRepository.save(new Comment(member, bin, "댓글" + i)));
+        }
+
+        // when
+        List<CommentDetail> commentDetails = commentService.getCommentDetails(null, bin.getId(),
+                CommentSort.CREATED_AT_DESC, null, null);
+
+        // then
+        assertThat(commentDetails).hasSize(20); // PAGE_SIZE is 20
+        assertThat(commentDetails.get(0).getCommentId()).isEqualTo(comments.get(24).getId());
+        assertThat(commentDetails.get(19).getCommentId()).isEqualTo(comments.get(5).getId());
+        assertThat(commentDetails.get(0).getCommentInfoForMember()).isNull();
+    }
+
+    @Test
+    @DisplayName("로그인 사용자가 댓글 목록을 조회할 수 있다.")
+    void getCommentDetails_LoggedIn() {
+        // given
+        Comment comment1 = commentRepository.save(new Comment(member, bin, "댓글1"));
+        Comment comment2 = commentRepository.save(new Comment(member, bin, "댓글2"));
+        Comment comment3 = commentRepository.save(new Comment(member, bin, "댓글3"));
+        commentLikeRepository.save(new CommentLike(member, comment2));
+
+        // when
+        List<CommentDetail> commentDetails = commentService.getCommentDetails(member.getEmail(), bin.getId(),
+                CommentSort.CREATED_AT_DESC, null, null);
+
+        // then
+        assertThat(commentDetails).hasSize(3);
+        assertThat(commentDetails.get(0).getCommentId()).isEqualTo(comment3.getId());
+        assertThat(commentDetails.get(1).getCommentId()).isEqualTo(comment2.getId());
+        assertThat(commentDetails.get(2).getCommentId()).isEqualTo(comment1.getId());
+        assertThat(commentDetails.get(0).getCommentInfoForMember().getIsWriter()).isTrue();
+        assertThat(commentDetails.get(1).getCommentInfoForMember().getIsLiked()).isTrue();
+    }
+
+    @Test
+    @DisplayName("커서 기반 페이지네이션이 작동한다.")
+    void getCommentDetails_Pagination() {
+        // given
+        List<Comment> comments = new ArrayList<>();
+        for (int i = 0; i < 25; i++) {
+            comments.add(commentRepository.save(new Comment(member, bin, "댓글" + i)));
+        }
+
+        // when
+        List<CommentDetail> firstPage = commentService.getCommentDetails(member.getEmail(), bin.getId(),
+                CommentSort.CREATED_AT_DESC, null, null);
+        List<CommentDetail> secondPage = commentService.getCommentDetails(member.getEmail(), bin.getId(),
+                CommentSort.CREATED_AT_DESC, firstPage.get(firstPage.size() - 1).getCommentId(), null);
+
+        // then
+        assertThat(firstPage).hasSize(20);
+        assertThat(secondPage).hasSize(5);
+        assertThat(firstPage.get(0).getCommentId()).isEqualTo(comments.get(24).getId());
+        assertThat(secondPage.get(0).getCommentId()).isEqualTo(comments.get(4).getId());
+    }
+
+    @Test
+    @DisplayName("좋아요 순으로 댓글 목록을 정렬할 수 있다.")
+    void getCommentDetails_SortByLikeCount() {
+        // given
+        Member other = new Member("other@email.com", "other", Role.ROLE_USER, null);
+        memberRepository.save(other);
+
+        Comment comment1 = commentRepository.save(new Comment(member, bin, "댓글1"));
+        Comment comment2 = commentRepository.save(new Comment(member, bin, "댓글2"));
+        Comment comment3 = commentRepository.save(new Comment(member, bin, "댓글3"));
+
+        commentLikeRepository.save(new CommentLike(member, comment2));
+        commentLikeRepository.save(new CommentLike(member, comment3));
+        commentLikeRepository.save(
+                new CommentLike(other, comment3));
+
+        comment2.increaseLikeCount();
+        comment3.increaseLikeCount();
+        comment3.increaseLikeCount();
+        commentRepository.saveAll(List.of(comment2, comment3));
+
+        // when
+        List<CommentDetail> commentDetails = commentService.getCommentDetails(member.getEmail(), bin.getId(),
+                CommentSort.LIKE_COUNT_DESC, null, null);
+
+        // then
+        assertThat(commentDetails).hasSize(3);
+        assertThat(commentDetails.get(0).getCommentId()).isEqualTo(comment3.getId());
+        assertThat(commentDetails.get(1).getCommentId()).isEqualTo(comment2.getId());
+        assertThat(commentDetails.get(2).getCommentId()).isEqualTo(comment1.getId());
+        assertThat(commentDetails.get(0).getLikeCount()).isEqualTo(2);
+        assertThat(commentDetails.get(1).getLikeCount()).isEqualTo(1);
+        assertThat(commentDetails.get(2).getLikeCount()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("잘못된 커서 값으로 조회 시 예외가 발생한다.")
+    void getCommentDetails_InvalidCursor() {
+        // given
+        commentRepository.save(new Comment(member, bin, "댓글"));
+
+        // when & then
+        // 1. LIKE_COUNT_DESC 정렬에서 lastCommentId만 제공
+        assertThatThrownBy(() ->
+                commentService.getCommentDetails(member.getEmail(), bin.getId(), CommentSort.LIKE_COUNT_DESC, 1L, null)
+        ).isInstanceOf(BadRequestException.class)
+                .hasMessageContaining(
+                        "정렬 조건이 좋아요순(LIKE_COUNT_DESC)일 경우, lastCommentId와 lastLikeCount는 둘 다 제공되거나 둘 다 제공되지 않아야 합니다.");
+
+        // 2. LIKE_COUNT_DESC 정렬에서 lastLikeCount만 제공
+        assertThatThrownBy(() ->
+                commentService.getCommentDetails(member.getEmail(), bin.getId(), CommentSort.LIKE_COUNT_DESC, null, 5L)
+        ).isInstanceOf(BadRequestException.class)
+                .hasMessageContaining(
+                        "정렬 조건이 좋아요순(LIKE_COUNT_DESC)일 경우, lastCommentId와 lastLikeCount는 둘 다 제공되거나 둘 다 제공되지 않아야 합니다.");
+    }
+
+    @Test
+    @DisplayName("댓글 목록을 조회할 때 좋아요와 싫어요 상태가 정확히 반영된다.")
+    void getCommentDetails_LikeAndDislikeStatus() {
+        // given
+        Comment comment1 = commentRepository.save(new Comment(member, bin, "댓글1"));
+        Comment comment2 = commentRepository.save(new Comment(member, bin, "댓글2"));
+        Comment comment3 = commentRepository.save(new Comment(member, bin, "댓글3"));
+
+        commentLikeRepository.save(new CommentLike(member, comment1));
+        commentDislikeRepository.save(new CommentDislike(member, comment2));
+
+        // when
+        List<CommentDetail> commentDetails = commentService.getCommentDetails(member.getEmail(), bin.getId(),
+                CommentSort.CREATED_AT_DESC, null, null);
+
+        // then
+        assertThat(commentDetails).hasSize(3);
+        assertThat(commentDetails.get(2).getCommentInfoForMember().getIsLiked()).isTrue();
+        assertThat(commentDetails.get(2).getCommentInfoForMember().getIsDisliked()).isFalse();
+        assertThat(commentDetails.get(1).getCommentInfoForMember().getIsLiked()).isFalse();
+        assertThat(commentDetails.get(1).getCommentInfoForMember().getIsDisliked()).isTrue();
+        assertThat(commentDetails.get(0).getCommentInfoForMember().getIsLiked()).isFalse();
+        assertThat(commentDetails.get(0).getCommentInfoForMember().getIsDisliked()).isFalse();
     }
 }
