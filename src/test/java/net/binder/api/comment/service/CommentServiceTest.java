@@ -413,4 +413,24 @@ class CommentServiceTest {
         assertThat(commentDetailComparator.compare(firstPage.get(firstPage.size() - 1), secondPage.get(0)))
                 .isLessThanOrEqualTo(0);
     }
+
+    @Test
+    @DisplayName("댓글 목록을 조회할 때 삭제된 댓글은 포함되지 않는다.")
+    void getCommentDetails_notContainsDeleted() {
+        // given
+        Comment comment1 = commentRepository.save(new Comment(member, bin, "댓글1"));
+        Comment comment2 = commentRepository.save(new Comment(member, bin, "댓글2"));
+        Comment comment3 = commentRepository.save(new Comment(member, bin, "댓글3"));
+
+        commentService.deleteComment(member.getEmail(), comment1.getId());
+
+        // when
+        List<CommentDetail> commentDetails = commentService.getCommentDetails(member.getEmail(), bin.getId(),
+                CommentSort.CREATED_AT_DESC, null, null);
+
+        // then
+        assertThat(commentDetails).hasSize(2);
+        assertThat(commentDetails).extracting(CommentDetail::getCommentId)
+                .containsExactly(comment3.getId(), comment2.getId());
+    }
 }

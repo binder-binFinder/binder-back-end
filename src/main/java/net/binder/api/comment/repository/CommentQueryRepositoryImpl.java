@@ -110,7 +110,8 @@ public class CommentQueryRepositoryImpl implements CommentQueryRepository {
 
     private BooleanBuilder getWhere(Long binId, CommentSort sort, Long lastCommentId, Long lastLikeCount) {
         BooleanBuilder booleanBuilder = new BooleanBuilder();
-        booleanBuilder.and(comment.bin.id.eq(binId));
+        booleanBuilder.and(comment.bin.id.eq(binId)); // 특정 쓰레기통에 포함된 경우
+        booleanBuilder.and(comment.deletedAt.isNull()); // 삭제되지 않은 경우
 
         if (sort == CommentSort.LIKE_COUNT_DESC && lastLikeCount != null && lastCommentId != null) {
             return booleanBuilder.and(comment.likeCount.lt(lastLikeCount)
