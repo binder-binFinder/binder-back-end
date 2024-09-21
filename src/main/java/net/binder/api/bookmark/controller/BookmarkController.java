@@ -36,8 +36,9 @@ public class BookmarkController {
     @GetMapping
     public List<BookmarkResponse> getBookmarks(@CurrentUser String email,
                                                @RequestParam Double longitude,
-                                               @RequestParam Double latitude){
+                                               @RequestParam Double latitude,
+                                               @RequestParam(required = false) Long bookmarkId){
 
-       return bookMarkService.getBookmarks(email, longitude, latitude);
+       return bookMarkService.getBookmarks(email, longitude, latitude, bookmarkId);
     }
 }

@@ -6,6 +6,7 @@ import net.binder.api.bin.service.BinService;
 import net.binder.api.bookmark.dto.BookmarkProjection;
 import net.binder.api.bookmark.dto.BookmarkResponse;
 import net.binder.api.bookmark.entity.Bookmark;
+import net.binder.api.bookmark.repository.BookmarkQueryRepository;
 import net.binder.api.bookmark.repository.BookmarkRepository;
 import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.member.entity.Member;
@@ -32,7 +33,10 @@ public class BookmarkService {
     @Autowired
     private BookmarkRepository bookmarkRepository;
 
-    public void createBookMark(String email, Long binId){
+    @Autowired
+    private BookmarkQueryRepository bookmarkQueryRepository;
+
+    public Bookmark createBookMark(String email, Long binId){
         if(bookmarkRepository.existsByMember_EmailAndBin_Id(email, binId)){
             throw new BadRequestException("이미 북마크를 한 쓰레기통입니다.");
         }
@@ -43,8 +47,10 @@ public class BookmarkService {
                 .member(member)
                 .bin(bin)
                 .build();
-        bookmarkRepository.save(bookmark);
+        Bookmark save = bookmarkRepository.save(bookmark);
         bin.increaseBookmark();
+
+        return save;
     }
 
     public void deleteBookMark(String email, Long binId){
@@ -56,9 +62,8 @@ public class BookmarkService {
         bin.decreaseBookmark();
     }
 
-    public List<BookmarkResponse> getBookmarks(String email, Double longitude, Double latitude){
-        List<BookmarkProjection> bookmarkList = bookmarkRepository.findBookmarkByMember_Email(email, longitude, latitude)
+    public List<BookmarkResponse> getBookmarks(String email, Double longitude, Double latitude, Long bookmarkId){
+         return bookmarkQueryRepository.findBookmarksByMember(email, longitude, latitude, bookmarkId)
                 .orElseThrow(() -> new BadRequestException("북마크 내역이 존재하지 않습니다."));
-        return bookmarkList.stream().map(BookmarkResponse::from).toList();
     }
 }
