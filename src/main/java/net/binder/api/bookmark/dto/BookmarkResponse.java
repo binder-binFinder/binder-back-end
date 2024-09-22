@@ -24,6 +24,7 @@ public class BookmarkResponse {
 
     public static BookmarkResponse from(BookmarkProjection projection) {
         return BookmarkResponse.builder()
+                .bookmarkId(projection.getBookmarkId())
                 .binId(projection.getBinId())
                 .address(projection.getAddress())
                 .title(projection.getTitle())
