@@ -102,7 +102,7 @@ class BookmarkServiceTest {
         assertThat(bookmarks).extracting("distance")
                 .satisfies(distance -> {
                     assertThat((Double) distance.get(0)).isCloseTo(0.0, distanceTolerance);
-                    assertThat((Double) distance.get(1)).isEqualTo(132.13127520524972, distanceTolerance);
+                    assertThat((Double) distance.get(1)).isCloseTo(132.13127520524972, distanceTolerance);
 
                 });
     }
