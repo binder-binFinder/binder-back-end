@@ -1,27 +1,30 @@
 package net.binder.api.bookmark.dto;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import net.binder.api.bin.entity.BinType;
 
-@RequiredArgsConstructor
+
+@AllArgsConstructor
 @Builder
 @Getter
+@NoArgsConstructor
 public class BookmarkResponse {
 
-    private final Long binId;
+    private Long bookmarkId;
 
-    private final String address;
+    private Long binId;
 
-    private final String title;
+    private String address;
 
-    private final BinType binType;
+    private String title;
 
-    private final Double distance;
+    private BinType binType;
+
+    private Double distance;
 
     public static BookmarkResponse from(BookmarkProjection projection) {
         return BookmarkResponse.builder()
+                .bookmarkId(projection.getBookmarkId())
                 .binId(projection.getBinId())
                 .address(projection.getAddress())
                 .title(projection.getTitle())

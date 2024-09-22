@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.awt.print.Pageable;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,16 +22,18 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
     boolean existsByMember_EmailAndBin_Id(String email, Long binId);
 
     @Query("""
-             select bi.id as binId, bi.address as address, bi.title as title, bi.type as binType,
-        st_distance(bi.point, st_geomfromtext(CONCAT('POINT(', :latitude, ' ', :longitude, ')'), 4326)) as distance
-        from Bookmark b
-        left join Bin bi on b.bin.id = bi.id
-        left join Member m on b.member.id = m.id
-        where m.email = :email
-        """)
+    SELECT b.id AS bookmarkId, bi.id AS binId, bi.address AS address, bi.title AS title, bi.type AS binType,
+    ST_Distance(bi.point, ST_GeomFromText(CONCAT('POINT(', :latitude, ' ', :longitude, ')'), 4326)) AS distance
+    FROM Bookmark b
+    LEFT JOIN Bin bi ON b.bin.id = bi.id
+    LEFT JOIN Member m ON b.member.id = m.id
+    WHERE m.email = :email
+    AND ST_Contains(ST_Buffer(ST_GeomFromText(CONCAT('POINT(', :latitude, ' ', :longitude, ')'), 4326), :radius), bi.point)
+    ORDER BY ST_Distance(bi.point, ST_GeomFromText(CONCAT('POINT(', :latitude, ' ', :longitude, ')'), 4326))
+    LIMIT 5
+""")
     Optional<List<BookmarkProjection>> findBookmarkByMember_Email(@Param("email") String email,
-                                                    @Param("longitude") Double longitude,
-                                                    @Param("latitude") Double latitude);
-
-
+                                                                  @Param("longitude") Double longitude,
+                                                                  @Param("latitude") Double latitude,
+                                                                  @Param("radius") int radius);
 }
