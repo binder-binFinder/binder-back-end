@@ -61,10 +61,21 @@ public class BookmarkService {
     }
 
     public List<BookmarkResponse> getNearByBookmarks(String email, Double longitude, Double latitude, int radius){
+        //한국의 경도는 124도에서 132도, 위도는 33~ 43도
+        if (longitude < 124 || longitude > 133 || latitude < 33 || latitude > 44) {
+            throw new BadRequestException("잘못된 좌표입니다.");
+        }
+        if(radius<=0){
+            throw new BadRequestException("잘못된 반경 설정입니다.");
+        }
+
         int radiusToUse =radius;
-        if(radius>500){
+        if(radius<100){
+            radiusToUse = 100;
+        } else if(radius>500) {
             radiusToUse = 500;
         }
+
         List<BookmarkProjection> bookmarkProjections = bookmarkRepository.findBookmarkByMember_Email(email, longitude, latitude, radiusToUse)
                 .orElseThrow(() -> new BadRequestException("북마크 내역이 존재하지 않습니다."));
 
@@ -74,7 +85,11 @@ public class BookmarkService {
     }
 
     public List<BookmarkResponse> getAllBookmarks(String email, Double longitude, Double latitude, Long bookmarkId){
-         return bookmarkQueryRepository.findBookmarksByMember(email, longitude, latitude, bookmarkId)
+
+        if (longitude < 124 || longitude > 133 || latitude < 33 || latitude > 44) {
+            throw new BadRequestException("잘못된 좌표입니다.");
+        }
+        return bookmarkQueryRepository.findBookmarksByMember(email, longitude, latitude, bookmarkId)
                 .orElseThrow(() -> new BadRequestException("북마크 내역이 존재하지 않습니다."));
     }
 }
