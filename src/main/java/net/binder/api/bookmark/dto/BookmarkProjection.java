@@ -4,6 +4,8 @@ import net.binder.api.bin.entity.BinType;
 
 public interface BookmarkProjection {
 
+    Long getBookmarkId();
+
     Long getBinId();
 
     String  getAddress();

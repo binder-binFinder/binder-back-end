@@ -12,11 +12,9 @@ import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.member.entity.Member;
 import net.binder.api.member.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 
 @Service
@@ -62,7 +60,20 @@ public class BookmarkService {
         bin.decreaseBookmark();
     }
 
-    public List<BookmarkResponse> getBookmarks(String email, Double longitude, Double latitude, Long bookmarkId){
+    public List<BookmarkResponse> getNearByBookmarks(String email, Double longitude, Double latitude, int radius){
+        int radiusToUse =radius;
+        if(radius>500){
+            radiusToUse = 500;
+        }
+        List<BookmarkProjection> bookmarkProjections = bookmarkRepository.findBookmarkByMember_Email(email, longitude, latitude, radiusToUse)
+                .orElseThrow(() -> new BadRequestException("북마크 내역이 존재하지 않습니다."));
+
+        return bookmarkProjections.stream()
+                .map(BookmarkResponse::from)
+                .limit(5).toList();
+    }
+
+    public List<BookmarkResponse> getAllBookmarks(String email, Double longitude, Double latitude, Long bookmarkId){
          return bookmarkQueryRepository.findBookmarksByMember(email, longitude, latitude, bookmarkId)
                 .orElseThrow(() -> new BadRequestException("북마크 내역이 존재하지 않습니다."));
     }

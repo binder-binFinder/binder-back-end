@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static net.binder.api.bin.entity.QBin.bin;
-import static net.binder.api.binregistration.entity.QBinRegistration.binRegistration;
 import static net.binder.api.bookmark.entity.QBookmark.bookmark;
 import static net.binder.api.member.entity.QMember.member;
 
@@ -63,4 +62,10 @@ public class BookmarkQueryRepository {
 
         return Optional.of(result);
     }
+
+
+
+
+
+
 }
