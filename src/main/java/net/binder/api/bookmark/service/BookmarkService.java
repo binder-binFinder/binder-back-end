@@ -76,7 +76,7 @@ public class BookmarkService {
             radiusToUse = 500;
         }
 
-        List<BookmarkProjection> bookmarkProjections = bookmarkRepository.findBookmarkByMember_Email(email, longitude, latitude, radiusToUse)
+        List<BookmarkProjection> bookmarkProjections = bookmarkRepository.findNearByBookmarksByMember_Email(email, longitude, latitude, radiusToUse)
                 .orElseThrow(() -> new BadRequestException("북마크 내역이 존재하지 않습니다."));
 
         return bookmarkProjections.stream()
