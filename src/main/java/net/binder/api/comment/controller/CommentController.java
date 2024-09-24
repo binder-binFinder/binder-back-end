@@ -88,4 +88,24 @@ public class CommentController {
     public void createCommentLike(@CurrentUser String email, @PathVariable Long id) {
         commentService.createCommentLike(email, id);
     }
+
+    @Operation(
+            summary = "쓰레기통 댓글 싫어요",
+            description = "이미 싫어요를 누른 상태이면 400 예외가 발생하고, 이미 좋아요를 누른 상태이면 좋아요가 삭제됩니다.")
+    @PostMapping("/{id}/dislike")
+    public void createCommentDislike(@CurrentUser String email, @PathVariable Long id) {
+        commentService.createCommentDislike(email, id);
+    }
+
+    @Operation(summary = "쓰레기통 댓글 좋아요 취소")
+    @DeleteMapping("/{id}/like")
+    public void deleteCommentLike(@CurrentUser String email, @PathVariable Long id) {
+        commentService.deleteCommentLike(email, id);
+    }
+
+    @Operation(summary = "쓰레기통 댓글 싫어요 취소")
+    @DeleteMapping("/{id}/dislike")
+    public void deleteCommentDislike(@CurrentUser String email, @PathVariable Long id) {
+        commentService.deleteCommentDislike(email, id);
+    }
 }

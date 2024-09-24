@@ -132,6 +132,26 @@ public class CommentService {
         comment.increaseDislikeCount();
     }
 
+    public void deleteCommentLike(String email, Long commentId) {
+        Member member = memberService.findByEmail(email);
+        Comment comment = getCommentWithPessimisticLock(commentId);
+
+        validateIsNotLiked(comment, member);
+
+        commentLikeRepository.deleteByCommentIdAndMemberId(comment.getId(), member.getId());
+        comment.decreaseLikeCount();
+    }
+
+    public void deleteCommentDislike(String email, Long commentId) {
+        Member member = memberService.findByEmail(email);
+        Comment comment = getCommentWithPessimisticLock(commentId);
+
+        validateIsNotDisliked(comment, member);
+
+        commentDislikeRepository.deleteByCommentIdAndMemberId(comment.getId(), member.getId());
+        comment.decreaseDislikeCount();
+    }
+
     private void validateSearchCondition(CommentSort sort, Long lastCommentId, Long lastLikeCount) {
         if (sort == CommentSort.LIKE_COUNT_DESC) {
             if ((lastLikeCount == null && lastCommentId != null) || (lastLikeCount != null && lastCommentId == null)) {
@@ -178,6 +198,18 @@ public class CommentService {
     private void decreaseLikeIfExists(Comment comment, Member member) {
         if (commentLikeRepository.deleteByCommentIdAndMemberId(comment.getId(), member.getId()) != 0) {
             comment.decreaseLikeCount();
+        }
+    }
+
+    private void validateIsNotLiked(Comment comment, Member member) {
+        if (!commentLikeRepository.existsByCommentIdAndMemberId(comment.getId(), member.getId())) {
+            throw new BadRequestException("좋아요를 한 내역이 없습니다.");
+        }
+    }
+
+    private void validateIsNotDisliked(Comment comment, Member member) {
+        if (!commentDislikeRepository.existsByCommentIdAndMemberId(comment.getId(), member.getId())) {
+            throw new BadRequestException("싫어요를 한 내역이 없습니다.");
         }
     }
 }

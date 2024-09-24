@@ -491,7 +491,7 @@ class CommentServiceTest {
         commentRepository.save(comment);
         commentLikeRepository.save(new CommentLike(member, comment));
         comment.increaseLikeCount();
-        
+
         assertThat(commentLikeRepository.findAll()).size().isEqualTo(1);
         assertThat(comment.getLikeCount()).isEqualTo(1);
 
@@ -695,6 +695,60 @@ class CommentServiceTest {
         assertThat(commentDislikes).size().isEqualTo(count);
 
         executorService.submit(this::deleteAll).get(); // 메인 트랜잭션에서 데이터 삭제 하면 다시 롤백되므로 다른 트랜잭션에서 삭제
+    }
+
+    @Test
+    @DisplayName("좋아요한 내역이 있으면 취소가 가능하다.")
+    void deleteCommentLike_success() {
+        //given
+        Comment comment = commentRepository.save(new Comment(member, bin, "댓글"));
+        commentService.createCommentLike(member.getEmail(), comment.getId());
+
+        //when
+        commentService.deleteCommentLike(member.getEmail(), comment.getId());
+
+        //then
+        assertThat(comment.getLikeCount()).isEqualTo(0);
+        assertThat(commentLikeRepository.findAll().size()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("싫어요한 내역이 있으면 취소가 가능하다.")
+    void deleteCommentDislike_success() {
+        //given
+        Comment comment = commentRepository.save(new Comment(member, bin, "댓글"));
+        commentService.createCommentDislike(member.getEmail(), comment.getId());
+
+        //when
+        commentService.deleteCommentDislike(member.getEmail(), comment.getId());
+
+        //then
+        assertThat(comment.getDislikeCount()).isEqualTo(0);
+        assertThat(commentDislikeRepository.findAll().size()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("좋아요한 내역이 없으면 취소가 불가능하다.")
+    void deleteCommentLike_fail() {
+        //given
+        Comment comment = commentRepository.save(new Comment(member, bin, "댓글"));
+
+        //when & then
+        assertThatThrownBy(() -> commentService.deleteCommentLike(member.getEmail(), comment.getId()))
+                .isInstanceOf(BadRequestException.class);
+
+    }
+
+    @Test
+    @DisplayName("싫어요한 내역이 없으면 취소가 불가능하다.")
+    void deleteCommentDislike_fail() {
+        //given
+        Comment comment = commentRepository.save(new Comment(member, bin, "댓글"));
+
+        //when & then
+        assertThatThrownBy(() -> commentService.deleteCommentDislike(member.getEmail(), comment.getId()))
+                .isInstanceOf(BadRequestException.class);
+
     }
 
     private void deleteAll() {
