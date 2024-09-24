@@ -22,7 +22,7 @@ public class SearchService {
 
     private final MemberService memberService;
 
-    public List<SearchResult> search(
+    public List<SearchResult> searchByCoordinate(
             BinType bintype,
             Double longitude,
             Double latitude,
@@ -56,5 +56,43 @@ public class SearchService {
 
         Member member = memberService.findByEmail(email);
         return searchQueryRepository.findBins(searchDto, member.getId());
+    }
+
+    public List<SearchResult> searchByKeyword(
+            Double longitude,
+            Double latitude,
+            Double targetLongitude,
+            Double targetLatitude,
+            String keyword,
+            String address,
+            String email) {
+
+        //한국의 경도는 124도에서 132도, 위도는 33~ 43도
+        if (longitude < 124 || longitude > 133 || latitude < 33 || latitude > 44) {
+            throw new BadRequestException("잘못된 좌표입니다.");
+        }
+
+        if (targetLongitude < 124 || targetLongitude > 133 || targetLatitude < 33 || targetLatitude > 44) {
+            throw new BadRequestException("잘못된 좌표입니다.");
+        }
+
+        if(email == null){
+            return searchQueryRepository.findBinsByKeyword(
+                    longitude,
+                    latitude,
+                    targetLongitude,
+                    targetLatitude,
+                    null);
+        }
+
+        Member member = memberService.findByEmail(email);
+        //keyword와 addreess를 통해서 검색 로그 저장하기
+
+        return searchQueryRepository.findBinsByKeyword(
+                longitude,
+                latitude,
+                targetLongitude,
+                targetLatitude,
+                member.getId());
     }
 }

@@ -1,15 +1,12 @@
 package net.binder.api.bookmark.repository;
 
-import net.binder.api.bin.entity.BinDetailProjection;
 import net.binder.api.bookmark.dto.BookmarkProjection;
-import net.binder.api.bookmark.dto.BookmarkResponse;
 import net.binder.api.bookmark.entity.Bookmark;
 import net.binder.api.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.awt.print.Pageable;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,8 +29,8 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
     ORDER BY ST_Distance(bi.point, ST_GeomFromText(CONCAT('POINT(', :latitude, ' ', :longitude, ')'), 4326))
     LIMIT 5
 """)
-    Optional<List<BookmarkProjection>> findBookmarkByMember_Email(@Param("email") String email,
-                                                                  @Param("longitude") Double longitude,
-                                                                  @Param("latitude") Double latitude,
-                                                                  @Param("radius") int radius);
+    Optional<List<BookmarkProjection>> findNearByBookmarksByMember_Email(@Param("email") String email,
+                                                                         @Param("longitude") Double longitude,
+                                                                         @Param("latitude") Double latitude,
+                                                                         @Param("radius") int radius);
 }
