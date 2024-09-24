@@ -6,6 +6,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import net.binder.api.bin.entity.Bin;
 import net.binder.api.bin.entity.BinType;
 import net.binder.api.bin.repository.BinRepository;
@@ -27,7 +31,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @SpringBootTest
 @Transactional
@@ -55,8 +62,16 @@ class CommentServiceTest {
 
     private Bin bin;
 
+    @Autowired
+    private PlatformTransactionManager transactionManager;
+
+    private TransactionTemplate transactionTemplate;
+
     @BeforeEach
     void setUp() {
+        transactionTemplate = new TransactionTemplate(transactionManager);
+        transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+
         member = new Member("member@email.com", "member", Role.ROLE_USER, null);
         memberRepository.save(member);
 
@@ -432,5 +447,315 @@ class CommentServiceTest {
         assertThat(commentDetails).hasSize(2);
         assertThat(commentDetails).extracting(CommentDetail::getCommentId)
                 .containsExactly(comment3.getId(), comment2.getId());
+    }
+
+    @Test
+    @DisplayName("싫어요를 누르면 싫어요 수가 1 증가한다.")
+    void createCommentDislike_success() {
+        //given
+        Comment comment = commentRepository.save(new Comment(member, bin, "댓글1"));
+        commentRepository.save(comment);
+
+        //when
+        commentService.createCommentDislike(member.getEmail(), comment.getId());
+
+        //then
+        List<CommentDislike> all = commentDislikeRepository.findAll();
+        assertThat(comment.getDislikeCount()).isEqualTo(1);
+        assertThat(all.size()).isEqualTo(1);
+        assertThat(all).extracting(commentDislike -> commentDislike.getMember().getId())
+                .containsExactly(member.getId());
+        assertThat(all).extracting(commentDislike -> commentDislike.getComment().getId())
+                .containsExactly(comment.getId());
+    }
+
+    @Test
+    @DisplayName("이미 싫어요를 누른 상태에서 싫어요를 누르면 예외가 발생한다.")
+    void createCommentDislike_fail_isAlreadyDisliked() {
+        //given
+        Comment comment = commentRepository.save(new Comment(member, bin, "댓글1"));
+        commentRepository.save(comment);
+        commentService.createCommentDislike(member.getEmail(), comment.getId());
+
+        //when & then
+        assertThatThrownBy(() -> commentService.createCommentDislike(member.getEmail(), comment.getId()))
+                .isInstanceOf(BadRequestException.class);
+    }
+
+    @Test
+    @DisplayName("이미 좋아요를 누른 상태에서 싫어요를 누르면 좋아요가 1 감소하고 싫어요 수가 1 증가한다.")
+    void createCommentDislike_success_isAlreadyLiked() {
+        //given
+
+        Comment comment = commentRepository.save(new Comment(member, bin, "댓글1"));
+        commentRepository.save(comment);
+        commentLikeRepository.save(new CommentLike(member, comment));
+        comment.increaseLikeCount();
+
+        assertThat(commentLikeRepository.findAll()).size().isEqualTo(1);
+        assertThat(comment.getLikeCount()).isEqualTo(1);
+
+        //when
+        commentService.createCommentDislike(member.getEmail(), comment.getId());
+
+        //then
+        List<CommentDislike> commentDislikes = commentDislikeRepository.findAll();
+        List<CommentLike> commentLikes = commentLikeRepository.findAll();
+
+        assertThat(comment.getDislikeCount()).isEqualTo(1);
+        assertThat(commentDislikes.size()).isEqualTo(1);
+        assertThat(commentDislikes).extracting(commentDislike -> commentDislike.getMember().getId())
+                .containsExactly(member.getId());
+        assertThat(commentDislikes).extracting(commentDislike -> commentDislike.getComment().getId())
+                .containsExactly(comment.getId());
+        assertThat(commentLikes).size().isEqualTo(0);
+        assertThat(comment.getLikeCount()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("100명이 동시에 좋아요를 누르면 좋아요 수가 100 증가한다.")
+    void createCommentLike_success_concurrent() throws InterruptedException, ExecutionException {
+        //given
+        int count = 100;
+
+        ExecutorService executorService = Executors.newFixedThreadPool(count);
+        CountDownLatch latch = new CountDownLatch(count);
+
+        transactionTemplate.execute((status) -> {
+            deleteAll(); // 혹시 존재할 수 있는 데이터 삭제
+            return null;
+        });
+
+        // 멤버 생성
+        Member member = transactionTemplate.execute((status) -> {
+            return memberRepository.save(new Member("test@email.com", "test", Role.ROLE_USER, null));
+        });
+
+        // 쓰레기통 생성
+        Bin bin = transactionTemplate.execute((status) -> {
+
+            Bin temp = new Bin("title", BinType.GENERAL, PointUtil.getPoint(100d, 11d), "address1", 0L, 0L, 0L, null,
+                    null);
+            return binRepository.save(temp);
+        });
+
+        // 코멘트 생성
+        Comment comment = transactionTemplate.execute(
+                (status) -> commentRepository.save(new Comment(member, bin, "댓글")));
+
+        //when
+        for (int i = 0; i < count; i++) {
+            int finalI = i;
+            executorService.submit(() -> {
+                try {
+                    Member saved = memberRepository.save(
+                            new Member("user" + finalI + "@email.com", "user" + finalI, Role.ROLE_USER, null));
+
+                    commentService.createCommentLike(saved.getEmail(), comment.getId());
+                } catch (Exception e) {
+                    System.err.println(e.getMessage());
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        latch.await();
+
+        Comment updated = commentRepository.findById(comment.getId()).get();
+        assertThat(updated.getLikeCount()).isEqualTo(count);
+        assertThat(updated.getDislikeCount()).isEqualTo(0);
+
+        List<CommentLike> commentLikes = commentLikeRepository.findAll();
+        List<CommentDislike> commentDislikes = commentDislikeRepository.findAll();
+        assertThat(commentLikes).size().isEqualTo(count);
+        assertThat(commentDislikes).size().isEqualTo(0);
+
+        executorService.submit(this::deleteAll).get(); // 메인 트랜잭션에서 데이터 삭제 하면 다시 롤백되므로 다른 트랜잭션에서 삭제
+    }
+
+
+    @Test
+    @DisplayName("좋아요를 누르면 좋아요 수가 1 증가한다.")
+    void createCommentLike_success() {
+        //given
+        Comment comment = commentRepository.save(new Comment(member, bin, "댓글1"));
+        commentRepository.save(comment);
+
+        //when
+        commentService.createCommentLike(member.getEmail(), comment.getId());
+
+        //then
+        List<CommentLike> all = commentLikeRepository.findAll();
+        assertThat(comment.getLikeCount()).isEqualTo(1);
+        assertThat(all.size()).isEqualTo(1);
+        assertThat(all).extracting(commentLike -> commentLike.getMember().getId()).containsExactly(member.getId());
+        assertThat(all).extracting(commentLike -> commentLike.getComment().getId()).containsExactly(comment.getId());
+    }
+
+    @Test
+    @DisplayName("이미 좋아요를 누른 상태에서 좋아요를 누르면 예외가 발생한다.")
+    void createCommentLike_fail_isAlreadyLiked() {
+        //given
+        Comment comment = commentRepository.save(new Comment(member, bin, "댓글1"));
+        commentRepository.save(comment);
+        commentService.createCommentLike(member.getEmail(), comment.getId());
+
+        //when & then
+        assertThatThrownBy(() -> commentService.createCommentLike(member.getEmail(), comment.getId()))
+                .isInstanceOf(BadRequestException.class);
+    }
+
+    @Test
+    @DisplayName("이미 싫어요를 누른 상태에서 좋아요를 누르면 싫어요가 1 감소하고 좋아요 수가 1 증가한다.")
+    void createCommentLike_success_isAlreadyDisliked() {
+        //given
+        Comment comment = commentRepository.save(new Comment(member, bin, "댓글1"));
+        commentRepository.save(comment);
+        commentDislikeRepository.save(new CommentDislike(member, comment));
+        comment.increaseDislikeCount();
+
+        assertThat(commentDislikeRepository.findAll()).size().isEqualTo(1);
+        assertThat(comment.getDislikeCount()).isEqualTo(1);
+
+        //when
+        commentService.createCommentLike(member.getEmail(), comment.getId());
+
+        //then
+        List<CommentLike> commentLikes = commentLikeRepository.findAll();
+        List<CommentDislike> commentDislikes = commentDislikeRepository.findAll();
+
+        assertThat(comment.getLikeCount()).isEqualTo(1);
+        assertThat(commentLikes.size()).isEqualTo(1);
+        assertThat(commentLikes).extracting(commentLike -> commentLike.getMember().getId())
+                .containsExactly(member.getId());
+        assertThat(commentLikes).extracting(commentLike -> commentLike.getComment().getId())
+                .containsExactly(comment.getId());
+        assertThat(commentDislikes).size().isEqualTo(0);
+        assertThat(comment.getDislikeCount()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("100명이 동시에 싫어요를 누르면 싫어요 수가 100 증가한다.")
+    void createCommentDislike_success_concurrent() throws InterruptedException, ExecutionException {
+        //given
+        int count = 100;
+
+        ExecutorService executorService = Executors.newFixedThreadPool(count);
+        CountDownLatch latch = new CountDownLatch(count);
+
+        transactionTemplate.execute((status) -> {
+            deleteAll(); // 혹시 존재할 수 있는 데이터 삭제
+            return null;
+        });
+
+        // 멤버 생성
+        Member member = transactionTemplate.execute((status) -> {
+            return memberRepository.save(new Member("test@email.com", "test", Role.ROLE_USER, null));
+        });
+
+        // 쓰레기통 생성
+        Bin bin = transactionTemplate.execute((status) -> {
+
+            Bin temp = new Bin("title", BinType.GENERAL, PointUtil.getPoint(100d, 11d), "address1", 0L, 0L, 0L, null,
+                    null);
+            return binRepository.save(temp);
+        });
+
+        // 코멘트 생성
+        Comment comment = transactionTemplate.execute(
+                (status) -> commentRepository.save(new Comment(member, bin, "댓글")));
+
+        //when
+        for (int i = 0; i < count; i++) {
+            int finalI = i;
+            executorService.submit(() -> {
+                try {
+                    Member saved = memberRepository.save(
+                            new Member("user" + finalI + "@email.com", "user" + finalI, Role.ROLE_USER, null));
+
+                    commentService.createCommentDislike(saved.getEmail(), comment.getId());
+                } catch (Exception e) {
+                    System.err.println(e.getMessage());
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        latch.await();
+
+        Comment updated = commentRepository.findById(comment.getId()).get();
+        assertThat(updated.getDislikeCount()).isEqualTo(count);
+        assertThat(updated.getLikeCount()).isEqualTo(0);
+
+        List<CommentLike> commentLikes = commentLikeRepository.findAll();
+        List<CommentDislike> commentDislikes = commentDislikeRepository.findAll();
+        assertThat(commentLikes).size().isEqualTo(0);
+        assertThat(commentDislikes).size().isEqualTo(count);
+
+        executorService.submit(this::deleteAll).get(); // 메인 트랜잭션에서 데이터 삭제 하면 다시 롤백되므로 다른 트랜잭션에서 삭제
+    }
+
+    @Test
+    @DisplayName("좋아요한 내역이 있으면 취소가 가능하다.")
+    void deleteCommentLike_success() {
+        //given
+        Comment comment = commentRepository.save(new Comment(member, bin, "댓글"));
+        commentService.createCommentLike(member.getEmail(), comment.getId());
+
+        //when
+        commentService.deleteCommentLike(member.getEmail(), comment.getId());
+
+        //then
+        assertThat(comment.getLikeCount()).isEqualTo(0);
+        assertThat(commentLikeRepository.findAll().size()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("싫어요한 내역이 있으면 취소가 가능하다.")
+    void deleteCommentDislike_success() {
+        //given
+        Comment comment = commentRepository.save(new Comment(member, bin, "댓글"));
+        commentService.createCommentDislike(member.getEmail(), comment.getId());
+
+        //when
+        commentService.deleteCommentDislike(member.getEmail(), comment.getId());
+
+        //then
+        assertThat(comment.getDislikeCount()).isEqualTo(0);
+        assertThat(commentDislikeRepository.findAll().size()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("좋아요한 내역이 없으면 취소가 불가능하다.")
+    void deleteCommentLike_fail() {
+        //given
+        Comment comment = commentRepository.save(new Comment(member, bin, "댓글"));
+
+        //when & then
+        assertThatThrownBy(() -> commentService.deleteCommentLike(member.getEmail(), comment.getId()))
+                .isInstanceOf(BadRequestException.class);
+
+    }
+
+    @Test
+    @DisplayName("싫어요한 내역이 없으면 취소가 불가능하다.")
+    void deleteCommentDislike_fail() {
+        //given
+        Comment comment = commentRepository.save(new Comment(member, bin, "댓글"));
+
+        //when & then
+        assertThatThrownBy(() -> commentService.deleteCommentDislike(member.getEmail(), comment.getId()))
+                .isInstanceOf(BadRequestException.class);
+
+    }
+
+    private void deleteAll() {
+        commentLikeRepository.deleteAll();
+        commentDislikeRepository.deleteAll();
+        commentRepository.deleteAll();
+        binRepository.deleteAll();
+        memberRepository.deleteAll();
     }
 }
