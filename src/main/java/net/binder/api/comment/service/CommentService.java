@@ -6,6 +6,10 @@ import net.binder.api.bin.entity.Bin;
 import net.binder.api.bin.service.BinService;
 import net.binder.api.comment.dto.CommentDetail;
 import net.binder.api.comment.entity.Comment;
+import net.binder.api.comment.entity.CommentDislike;
+import net.binder.api.comment.entity.CommentLike;
+import net.binder.api.comment.repository.CommentDislikeRepository;
+import net.binder.api.comment.repository.CommentLikeRepository;
 import net.binder.api.comment.repository.CommentRepository;
 import net.binder.api.comment.repository.CommentSort;
 import net.binder.api.common.exception.BadRequestException;
@@ -27,6 +31,10 @@ public class CommentService {
     private final BinService binService;
 
     private final CommentRepository commentRepository;
+
+    private final CommentLikeRepository commentLikeRepository;
+
+    private final CommentDislikeRepository commentDislikeRepository;
 
     public Long createComment(String email, Long binId, String content) {
         Member member = memberService.findByEmail(email);
@@ -94,6 +102,36 @@ public class CommentService {
                 lastCommentId, lastLikeCount, PAGE_SIZE);
     }
 
+    public void createCommentLike(String email, Long commentId) {
+        Member member = memberService.findByEmail(email);
+        Comment comment = getCommentWithPessimisticLock(commentId); // 조회와 동시에 배타적 락 획득
+
+        // 이미 좋아요가 존재하는 경우 예외 발생
+        validateIsAlreadyLiked(comment, member);
+
+        // 이미 싫어요가 있는 경우 삭제하고 싫어요 1 감소
+        decreaseDislikeIfExists(comment, member);
+
+        CommentLike commentLike = new CommentLike(member, comment);
+        commentLikeRepository.save(commentLike);
+        comment.increaseLikeCount();
+    }
+
+    public void createCommentDislike(String email, Long commentId) {
+        Member member = memberService.findByEmail(email);
+        Comment comment = getCommentWithPessimisticLock(commentId);
+
+        // 이미 싫어요가 존재하는 경우 예외 발생
+        validateIsAlreadyDisliked(comment, member);
+
+        // 이미 좋아요가 있는 경우 삭제하고 좋아요 1 감소
+        decreaseLikeIfExists(comment, member);
+
+        CommentDislike commentDislike = new CommentDislike(member, comment);
+        commentDislikeRepository.save(commentDislike);
+        comment.increaseDislikeCount();
+    }
+
     private void validateSearchCondition(CommentSort sort, Long lastCommentId, Long lastLikeCount) {
         if (sort == CommentSort.LIKE_COUNT_DESC) {
             if ((lastLikeCount == null && lastCommentId != null) || (lastLikeCount != null && lastCommentId == null)) {
@@ -108,9 +146,38 @@ public class CommentService {
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 댓글입니다."));
     }
 
+    private Comment getCommentWithPessimisticLock(Long commentId) {
+        return commentRepository.findByIdWithPessimisticLock(commentId)
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 댓글입니다."));
+    }
+
     private void validateIsWriter(String email, Comment comment) {
         if (!comment.isWriter(email)) {
             throw new BadRequestException("작성자 본인만 댓글 수정이 가능합니다.");
+        }
+    }
+
+    private void validateIsAlreadyLiked(Comment comment, Member member) {
+        if (commentLikeRepository.existsByCommentIdAndMemberId(comment.getId(), member.getId())) {
+            throw new BadRequestException("이미 좋아요한 댓글입니다.");
+        }
+    }
+
+    private void validateIsAlreadyDisliked(Comment comment, Member member) {
+        if (commentDislikeRepository.existsByCommentIdAndMemberId(comment.getId(), member.getId())) {
+            throw new BadRequestException("이미 싫어요한 댓글입니다.");
+        }
+    }
+
+    private void decreaseDislikeIfExists(Comment comment, Member member) {
+        if (commentDislikeRepository.deleteByCommentIdAndMemberId(comment.getId(), member.getId()) != 0) {
+            comment.decreaseDislikeCount();
+        }
+    }
+
+    private void decreaseLikeIfExists(Comment comment, Member member) {
+        if (commentLikeRepository.deleteByCommentIdAndMemberId(comment.getId(), member.getId()) != 0) {
+            comment.decreaseLikeCount();
         }
     }
 }
