@@ -55,7 +55,7 @@ public class BookmarkQueryRepository {
                 .from(bookmark)
                 .leftJoin(bookmark.bin, bin)
                 .leftJoin(bookmark.member, member)
-                .where(builder.and(member.email.eq(email)))
+                .where(builder.and(member.email.eq(email)).and(bin.deletedAt.isNull()))
                 .orderBy(bookmark.id.asc())
                 .limit(10)
                 .fetch();
