@@ -63,7 +63,7 @@ public class SearchQueryRepository {
                         Expressions.booleanTemplate(geoFunction, point, searchDto.getRadius()
                                 )
                                 .and(binRegistration.isNull().or(binRegistration.status.eq(BinRegistrationStatus.APPROVED)
-                                ))))
+                                )).and(bin.deletedAt.isNull())))
                 .orderBy(Expressions.numberTemplate(Double.class,
                         "ST_Distance({0}, ST_GeomFromText({1}, 4326))",
                         bin.point, point).asc())
@@ -111,7 +111,7 @@ public class SearchQueryRepository {
                         Expressions.booleanTemplate(geoFunction, targetPoint, RADIS_FOR_KEYWORD_SEARCH
                                 )
                                 .and(binRegistration.isNull().or(binRegistration.status.eq(BinRegistrationStatus.APPROVED)
-                                ))))
+                                )).and(bin.deletedAt.isNull())))
                 .orderBy(Expressions.numberTemplate(Double.class,
                         "ST_Distance({0}, ST_GeomFromText({1}, 4326))",
                         bin.point, currentPoint).asc())
