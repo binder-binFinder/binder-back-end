@@ -27,11 +27,13 @@ public class BinRegistrationActivity {
 
     private final Long bookmarkCount;
 
+    private final Boolean isDeleted;
+
     @Builder
     public BinRegistrationActivity(Long binId, String title, String address, BinType type, BinRegistrationStatus status,
                                    LocalDateTime createdAt,
                                    LocalDateTime modifiedAt,
-                                   Long bookmarkCount) {
+                                   Long bookmarkCount, Boolean isDeleted) {
         this.binId = binId;
         this.title = title;
         this.address = address;
@@ -40,6 +42,7 @@ public class BinRegistrationActivity {
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
         this.bookmarkCount = bookmarkCount;
+        this.isDeleted = isDeleted;
     }
 
     public static BinRegistrationActivity from(BinRegistration binRegistration) {
@@ -53,6 +56,7 @@ public class BinRegistrationActivity {
                 .createdAt(bin.getCreatedAt())
                 .modifiedAt(bin.getModifiedAt())
                 .bookmarkCount(bin.getBookmarkCount())
+                .isDeleted(bin.isDeleted())
                 .build();
     }
 }

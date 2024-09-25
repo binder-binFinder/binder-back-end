@@ -20,7 +20,6 @@ import net.binder.api.member.repository.MemberRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
@@ -193,6 +192,7 @@ class MemberServiceTest {
         Bin bin2 = getBin("Bin2", BinType.RECYCLE, "Address2", 10L, "image2", 127.2, 37.5);
         Bin deletedBin = getBin("Bin3", BinType.RECYCLE, "Address3", 15L, "image3", 127.3, 37.6);
         deletedBin.softDelete();
+
         binRepository.saveAll(List.of(bin1, bin2, deletedBin));
 
         BinRegistration br1 = new BinRegistration(testMember, bin1, BinRegistrationStatus.APPROVED);
@@ -207,9 +207,11 @@ class MemberServiceTest {
         assertThat(result).hasSize(3);
         assertThat(result).extracting("title").containsExactly("Bin3", "Bin2", "Bin1");
         assertThat(result).extracting("bookmarkCount").containsExactly(15L, 10L, 5L);
+        assertThat(result).extracting(BinRegistrationActivity::getIsDeleted).containsExactly(true, false, false);
     }
 
-    private Bin getBin(String title, BinType type, String address, Long bookmarkCount, String imageUrl, Double longitude, Double latitude) {
+    private Bin getBin(String title, BinType type, String address, Long bookmarkCount, String imageUrl,
+                       Double longitude, Double latitude) {
         return Bin.builder()
                 .title(title)
                 .point(PointUtil.getPoint(longitude, latitude))
