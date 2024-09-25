@@ -1,5 +1,6 @@
 package net.binder.api.bookmark.service;
 
+import net.binder.api.admin.service.AdminBinManagementService;
 import net.binder.api.admin.service.AdminBinRegistrationService;
 import net.binder.api.bin.entity.Bin;
 import net.binder.api.bin.entity.BinType;
@@ -16,6 +17,7 @@ import net.binder.api.common.exception.NotFoundException;
 import net.binder.api.member.entity.Member;
 import net.binder.api.member.entity.Role;
 import net.binder.api.member.repository.MemberRepository;
+import net.binder.api.search.dto.SearchResult;
 import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -51,6 +53,9 @@ class BookmarkServiceTest {
 
     @Autowired
     private AdminBinRegistrationService adminBinRegistrationService;
+
+    @Autowired
+    private AdminBinManagementService adminBinManagementService;
 
 
     private Member testMember;
@@ -727,5 +732,78 @@ class BookmarkServiceTest {
         assertThatThrownBy(() -> bookmarkService.createBookMark("dusgh7031@gmail.com", -23L))
                 .isInstanceOf(NotFoundException.class)
                 .hasMessage("존재하지 않는 쓰레기통입니다.");
+    }
+
+
+    @DisplayName("삭제된 쓰레기통은 근처 북마크 목록에 포함되지 않는다.")
+    @Test
+    void deleted_bin_in_nearby_bookmark(){
+
+        Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
+        Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
+        memberRepository.saveAll(List.of(admin, user));
+
+        Bin bin = new Bin("쓰레기통1", BinType.CIGAR, PointUtil.getPoint(126.874538741651, 37.547287215885), "address1", 0L, 0L, 0L, null, null);
+        Bin savedBin = binRepository.save(bin);
+        Bin bin2 = new Bin("쓰레기통2", BinType.CIGAR, PointUtil.getPoint(126.874538741651, 37.547287215885), "address2", 0L, 0L, 0L, null, null);
+        Bin savedBin2 = binRepository.save(bin2);
+
+
+        BinRegistration binRegistration1 = new BinRegistration(user, savedBin, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration1);
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration1.getId());
+
+
+        BinRegistration binRegistration2 = new BinRegistration(user, savedBin2, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration2);
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration2.getId());
+
+        bookmarkService.createBookMark("user@email.com", bin1.getId());
+        bookmarkService.createBookMark("user@email.com", bin2.getId());
+        adminBinManagementService.deleteBin("admin@email.com", bin.getId(), "그냥");
+        List<BookmarkResponse> nearByBookmarks = bookmarkService.getNearByBookmarks("user@email.com", 126.874538741651, 37.547287215885, 300);
+
+
+        assertThat(nearByBookmarks).hasSize(1);
+        assertThat(nearByBookmarks).extracting("address").containsExactly("address2");
+        assertThat(nearByBookmarks).extracting("title").contains("쓰레기통2");
+        assertThat(nearByBookmarks).extracting("binType").containsExactlyInAnyOrder(BinType.CIGAR);
+
+    }
+
+    @DisplayName("삭제된 쓰레기통은 전체 북마크 목록에 포함되지 않는다.")
+    @Test
+    void deleted_bin_in_all_bookmark(){
+
+        Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
+        Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
+        memberRepository.saveAll(List.of(admin, user));
+
+        Bin bin = new Bin("쓰레기통1", BinType.CIGAR, PointUtil.getPoint(126.874538741651, 37.547287215885), "address1", 0L, 0L, 0L, null, null);
+        Bin savedBin = binRepository.save(bin);
+        Bin bin2 = new Bin("쓰레기통2", BinType.CIGAR, PointUtil.getPoint(126.874538741651, 37.547287215885), "address2", 0L, 0L, 0L, null, null);
+        Bin savedBin2 = binRepository.save(bin2);
+
+
+        BinRegistration binRegistration1 = new BinRegistration(user, savedBin, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration1);
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration1.getId());
+
+        BinRegistration binRegistration2 = new BinRegistration(user, savedBin2, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration2);
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration2.getId());
+
+        bookmarkService.createBookMark("user@email.com", bin.getId());
+        bookmarkService.createBookMark("user@email.com", bin2.getId());
+        adminBinManagementService.deleteBin("admin@email.com", bin.getId(), "그냥");
+
+        List<BookmarkResponse> nearByBookmarks = bookmarkService.getAllBookmarks("user@email.com", 126.874538741651, 37.547287215885, null);
+
+
+        assertThat(nearByBookmarks).hasSize(1);
+        assertThat(nearByBookmarks).extracting("address").containsExactly("address2");
+        assertThat(nearByBookmarks).extracting("title").contains("쓰레기통2");
+        assertThat(nearByBookmarks).extracting("binType").containsExactlyInAnyOrder(BinType.CIGAR);
+
     }
 }

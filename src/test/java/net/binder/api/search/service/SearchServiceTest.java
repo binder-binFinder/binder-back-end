@@ -1,6 +1,7 @@
 package net.binder.api.search.service;
 
 import jakarta.persistence.EntityManager;
+import net.binder.api.admin.service.AdminBinManagementService;
 import net.binder.api.admin.service.AdminBinRegistrationService;
 import net.binder.api.bin.entity.Bin;
 import net.binder.api.bin.entity.BinType;
@@ -58,6 +59,9 @@ class SearchServiceTest {
 
     @Autowired
     private AdminBinRegistrationService adminBinRegistrationService;
+
+    @Autowired
+    private AdminBinManagementService adminBinManagementService;
 
     @Autowired
     private BookmarkService bookMarkService;
@@ -1860,6 +1864,42 @@ class SearchServiceTest {
                 .hasMessage("잘못된 반경 설정입니다.");
     }
 
+    @DisplayName("삭제된 쓰레기통은 검색에 포함되지 않는다.")
+    @Test
+    void deleted_bin2(){
+
+
+        Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
+        Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
+        memberRepository.saveAll(List.of(admin, user));
+
+        Bin bin = new Bin("쓰레기통1", BinType.CIGAR, PointUtil.getPoint(126.874538741651, 37.547287215885), "address1", 0L, 0L, 0L, null, null);
+        Bin savedBin = binRepository.save(bin);
+        Bin bin2 = new Bin("쓰레기통2", BinType.CIGAR, PointUtil.getPoint(126.874538741651, 37.547287215885), "address2", 0L, 0L, 0L, null, null);
+        Bin savedBin2 = binRepository.save(bin2);
+
+
+        BinRegistration binRegistration1 = new BinRegistration(user, savedBin, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration1);
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration1.getId());
+
+
+        BinRegistration binRegistration2 = new BinRegistration(user, savedBin2, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration2);
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration2.getId());
+
+        adminBinManagementService.deleteBin("admin@email.com", bin.getId(), "그냥");
+
+        List<SearchResult> searchResults = searchService.searchByCoordinate(null, 126.874538741651, 37.547287215885, 100,   null);
+
+        assertThat(searchResults).hasSize(1);
+        assertThat(searchResults).extracting("address").containsExactly("address2");
+        assertThat(searchResults).extracting("title").contains("쓰레기통2");
+        assertThat(searchResults).extracting("type").containsExactlyInAnyOrder(BinType.CIGAR);
+        assertThat(searchResults).extracting("isBookMarked").containsExactly(false);
+
+    }
+
 
     //키워드 검색 테스트
 
@@ -2109,6 +2149,43 @@ class SearchServiceTest {
                     assertThat(distance.get(0)).isCloseTo(362.3704015636515, within(0.01));
                     assertThat(distance.get(1)).isCloseTo(445.23196905568466, within(0.01));
                 });
+    }
+
+
+    @DisplayName("삭제된 쓰레기통은 키워드 검색에 포함되지 않는다.")
+    @Test
+    void deleted_bi_in_keyword_search(){
+
+        Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
+        Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
+        memberRepository.saveAll(List.of(admin, user));
+
+        Bin bin = new Bin("쓰레기통1", BinType.CIGAR, PointUtil.getPoint(126.874538741651, 37.547287215885), "address1", 0L, 0L, 0L, null, null);
+        Bin savedBin = binRepository.save(bin);
+        Bin bin2 = new Bin("쓰레기통2", BinType.CIGAR, PointUtil.getPoint(126.874538741651, 37.547287215885), "address2", 0L, 0L, 0L, null, null);
+        Bin savedBin2 = binRepository.save(bin2);
+
+
+        BinRegistration binRegistration1 = new BinRegistration(user, savedBin, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration1);
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration1.getId());
+
+
+        BinRegistration binRegistration2 = new BinRegistration(user, savedBin2, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration2);
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration2.getId());
+
+        adminBinManagementService.deleteBin("admin@email.com", bin.getId(), "그냥");
+
+        
+        List<SearchResult> searchResults = searchService.searchByKeyword(126.874538741651, 37.547287215885, 126.874538741651, 37.547287215885, "키워드1", "주소1", null);
+
+        assertThat(searchResults).hasSize(1);
+        assertThat(searchResults).extracting("address").containsExactly("address2");
+        assertThat(searchResults).extracting("title").contains("쓰레기통2");
+        assertThat(searchResults).extracting("type").containsExactlyInAnyOrder(BinType.CIGAR);
+        assertThat(searchResults).extracting("isBookMarked").containsExactly(false);
+
     }
 
 }
