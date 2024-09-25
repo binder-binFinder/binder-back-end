@@ -15,6 +15,7 @@ import net.binder.api.binregistration.entity.BinRegistrationStatus;
 import net.binder.api.binregistration.repository.BinRegistrationRepository;
 import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.common.exception.NotFoundException;
+import net.binder.api.complaint.service.ComplaintCountReader;
 import net.binder.api.member.entity.Member;
 import net.binder.api.member.service.MemberService;
 import org.locationtech.jts.geom.Coordinate;
@@ -36,6 +37,8 @@ public class BinService {
     private final BinModificationRepository binModificationRepository;
 
     private final MemberService memberService;
+
+    private final ComplaintCountReader complaintCountReader;
 
 
     public void requestBinRegistration(BinCreateRequest binCreateRequest, String email) {
@@ -61,9 +64,12 @@ public class BinService {
     public BinDetailResponse getBinDetail(String email, Long binId) {
         Bin bin = findById(binId);
 
-        if (email == null) {
-            return BinDetailResponse.from(bin);
+        if (email == null) { // 비로그인 유저
+            Long complaintCount = complaintCountReader.getComplaintCount(bin);
+
+            return BinDetailResponse.from(bin, complaintCount);
         }
+        // 로그인 유저
         Member member = memberService.findByEmail(email);
 
         BinDetailProjection projection = binRepository.findDetailByIdAndMemberIdNative(binId, member.getId()).
@@ -148,4 +154,5 @@ public class BinService {
             throw new BadRequestException("아직 처리되지 않는 수정 요청 건이 존재합니다.");
         }
     }
+
 }
