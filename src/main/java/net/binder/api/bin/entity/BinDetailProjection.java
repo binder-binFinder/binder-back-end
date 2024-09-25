@@ -26,6 +26,8 @@ public interface BinDetailProjection {
 
     Long getBookmarkCount();
 
+    Long getComplaintCount();
+
     String getImageUrl();
 
     Boolean getIsOwner();

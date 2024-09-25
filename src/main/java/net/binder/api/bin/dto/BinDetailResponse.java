@@ -27,6 +27,8 @@ public class BinDetailResponse extends BaseResponse {
 
     private final Long bookmarkCount;
 
+    private final Long complaintCount;
+
     private final String imageUrl;
 
     private final BinInfoForMember binInfoForMember;
@@ -34,7 +36,8 @@ public class BinDetailResponse extends BaseResponse {
     @Builder
     public BinDetailResponse(Long id, LocalDateTime createdAt, LocalDateTime modifiedAt, String title, BinType type,
                              Double latitude, Double longitude, String address, Long likeCount, Long dislikeCount,
-                             Long bookmarkCount, String imageUrl, BinInfoForMember binInfoForMember) {
+                             Long bookmarkCount, Long complaintCount, String imageUrl,
+                             BinInfoForMember binInfoForMember) {
         super(id, createdAt, modifiedAt);
         this.title = title;
         this.type = type;
@@ -44,11 +47,12 @@ public class BinDetailResponse extends BaseResponse {
         this.likeCount = likeCount;
         this.dislikeCount = dislikeCount;
         this.bookmarkCount = bookmarkCount;
+        this.complaintCount = complaintCount;
         this.imageUrl = imageUrl;
         this.binInfoForMember = binInfoForMember;
     }
 
-    public static BinDetailResponse from(Bin bin) {
+    public static BinDetailResponse from(Bin bin, Long complaintCount) {
         return BinDetailResponse.builder()
                 .id(bin.getId())
                 .createdAt(bin.getCreatedAt())
@@ -61,6 +65,7 @@ public class BinDetailResponse extends BaseResponse {
                 .likeCount(bin.getLikeCount())
                 .dislikeCount(bin.getDislikeCount())
                 .bookmarkCount(bin.getBookmarkCount())
+                .complaintCount(complaintCount)
                 .imageUrl(bin.getImageUrl())
                 .build();
     }
@@ -81,6 +86,7 @@ public class BinDetailResponse extends BaseResponse {
                 .likeCount(bin.getLikeCount())
                 .dislikeCount(bin.getDislikeCount())
                 .bookmarkCount(bin.getBookmarkCount())
+                .complaintCount(bin.getComplaintCount())
                 .imageUrl(bin.getImageUrl())
                 .binInfoForMember(binInfoForMember)
                 .build();
