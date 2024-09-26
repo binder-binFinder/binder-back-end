@@ -71,9 +71,8 @@ public class AdminBinComplaintsService {
         validateComplaintStatus(complaint);
         complaint.reject();
 
-        List<Member> receivers = adminBinComplaintRepository.findMembers(complaint);
-
-        notificationService.sendNotificationForUsers(admin, receivers, complaint.getBin(),
+        // 유저에게 알림을 전송하지 않고 로그로만 활용
+        notificationService.saveNotificationWithNoReceiver(admin, complaint.getBin(),
                 NotificationType.BIN_COMPLAINT_REJECTED, rejectReason);
     }
 

@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.within;
 
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Objects;
 import net.binder.api.admin.dto.BinComplaintDetail;
 import net.binder.api.admin.dto.ComplaintFilter;
 import net.binder.api.admin.dto.TypeCount;
@@ -235,7 +236,7 @@ class AdminBinComplaintsServiceTest {
     }
 
     @Test
-    @DisplayName("신고가 거절되면 status가 REJECTED로 변경되며, 신고를 작성한 모든 사람들에게 알림이 전송된다.")
+    @DisplayName("신고가 거절되면 status가 REJECTED로 변경되며, 로그 목적의 알림이 생성된다.")
     void reject() {
         //given
         String adminEmail = "admin@example.com";
@@ -267,11 +268,12 @@ class AdminBinComplaintsServiceTest {
         assertThat(complaint.getStatus()).isEqualTo(ComplaintStatus.REJECTED);
 
         List<Notification> notifications = notificationRepository.findAll();
+        assertThat(notifications.size()).isEqualTo(1);
         assertThat(notifications).extracting(Notification::getBin).allMatch(bin -> bin.equals(this.bin));
         assertThat(notifications).extracting(Notification::getType)
                 .allMatch(type -> type == NotificationType.BIN_COMPLAINT_REJECTED);
         assertThat(notifications).extracting(Notification::getSender).allMatch(member -> member.equals(admin));
-        assertThat(notifications).extracting(Notification::getReceiver).containsExactly(user1, user2, user3);
+        assertThat(notifications).extracting(Notification::getReceiver).allMatch(Objects::isNull);
     }
 
     @Test
@@ -333,5 +335,4 @@ class AdminBinComplaintsServiceTest {
         assertThatThrownBy(() -> adminBinComplaintsService.approve(adminEmail, complaint.getId(), "신고가 적절하지 않습니다."))
                 .isInstanceOf(BadRequestException.class);
     }
-
 }
