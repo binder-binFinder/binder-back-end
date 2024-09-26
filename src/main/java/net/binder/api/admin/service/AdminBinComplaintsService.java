@@ -6,6 +6,8 @@ import net.binder.api.admin.dto.BinComplaintDetail;
 import net.binder.api.admin.dto.ComplaintFilter;
 import net.binder.api.admin.dto.TypeCount;
 import net.binder.api.admin.repository.AdminBinComplaintQueryRepository;
+import net.binder.api.bin.entity.Bin;
+import net.binder.api.binregistration.entity.BinRegistration;
 import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.complaint.entity.Complaint;
 import net.binder.api.complaint.entity.ComplaintStatus;
@@ -55,9 +57,14 @@ public class AdminBinComplaintsService {
         Complaint complaint = getComplaint(id);
 
         validateComplaintStatus(complaint);
-        complaint.approve(); // 승인시 Bin을 softDelete
+        // 승인시 Bin을 softDelete
+        complaint.approve();
 
+        // 신고자 목록
         List<Member> receivers = adminBinComplaintRepository.findMembers(complaint);
+
+        // 쓰레기통 등록자가 존재한다면 알림 대상자에 추가
+        addReceiver(complaint.getBin(), receivers);
 
         notificationService.sendNotificationForUsers(admin, receivers, complaint.getBin(),
                 NotificationType.BIN_COMPLAINT_APPROVED, approveReason);
@@ -71,9 +78,8 @@ public class AdminBinComplaintsService {
         validateComplaintStatus(complaint);
         complaint.reject();
 
-        List<Member> receivers = adminBinComplaintRepository.findMembers(complaint);
-
-        notificationService.sendNotificationForUsers(admin, receivers, complaint.getBin(),
+        // 유저에게 알림을 전송하지 않고 로그로만 활용
+        notificationService.saveNotificationWithNoReceiver(admin, complaint.getBin(),
                 NotificationType.BIN_COMPLAINT_REJECTED, rejectReason);
     }
 
@@ -85,6 +91,13 @@ public class AdminBinComplaintsService {
     private void validateComplaintStatus(Complaint complaint) {
         if (!complaint.isPending()) {
             throw new BadRequestException("이미 심사가 완료된 상태입니다.");
+        }
+    }
+
+    private void addReceiver(Bin bin, List<Member> receivers) {
+        BinRegistration binRegistration = bin.getBinRegistration();
+        if (binRegistration != null) {
+            receivers.add(binRegistration.getMember());
         }
     }
 }

@@ -48,6 +48,15 @@ public class NotificationService {
         return notificationRepository.saveAll(notifications);
     }
 
+    // 단순 로그 활용 목적 저장
+    public Notification saveNotificationWithNoReceiver(Member sender, Bin bin, NotificationType type,
+                                                       String additionalInfo) {
+
+        Notification notification = new Notification(sender, null, bin, type, additionalInfo);
+
+        return notificationRepository.save(notification);
+    }
+
     @Transactional(readOnly = true)
     public List<NotificationDetail> getNotificationDetails(String email, Long lastNotificationId) {
         Member member = memberService.findByEmail(email);
