@@ -26,14 +26,12 @@ public class NotificationDetail {
 
     private final Boolean isRead;
 
-    private final Boolean isBinCreator;
-
     private final LocalDateTime createdAt;
 
     @Builder
     public NotificationDetail(Long notificationId, String binTitle, String binAddress, BinType binType,
                               NotificationType notificationType,
-                              String reasonMessage, Boolean isRead, Boolean isBinCreator, LocalDateTime createdAt) {
+                              String reasonMessage, Boolean isRead, LocalDateTime createdAt) {
         this.notificationId = notificationId;
         this.binTitle = binTitle;
         this.binAddress = binAddress;
@@ -41,7 +39,6 @@ public class NotificationDetail {
         this.notificationType = notificationType;
         this.reasonMessage = reasonMessage;
         this.isRead = isRead;
-        this.isBinCreator = isBinCreator;
         this.createdAt = createdAt;
     }
 
@@ -56,7 +53,6 @@ public class NotificationDetail {
                 .notificationType(notification.getType())
                 .reasonMessage(notification.getAdditionalInfo())
                 .isRead(notification.isRead())
-                .isBinCreator(isBinCreator(bin, notification))
                 .createdAt(notification.getCreatedAt())
                 .build();
     }

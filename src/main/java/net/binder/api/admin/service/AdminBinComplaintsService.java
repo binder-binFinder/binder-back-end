@@ -61,14 +61,18 @@ public class AdminBinComplaintsService {
         complaint.approve();
 
         // 신고자 목록
-        List<Member> receivers = adminBinComplaintRepository.findMembers(complaint);
+        List<Member> complaintCreators = adminBinComplaintRepository.findMembers(complaint);
 
-        // 쓰레기통 등록자가 존재한다면 알림 대상자에 추가
-        addReceiver(complaint.getBin(), receivers);
+        // 쓰레기통 등록자가 존재한다면 찾기
+        Member binCreator = getBinCreator(complaint.getBin());
 
-        notificationService.sendNotificationForUsers(admin, receivers, complaint.getBin(),
+        notificationService.sendNotificationForUsers(admin, complaintCreators, complaint.getBin(),
                 NotificationType.BIN_COMPLAINT_APPROVED, approveReason);
 
+        if (binCreator != null) {
+            notificationService.sendNotification(admin, binCreator, complaint.getBin(), NotificationType.BIN_DELETED,
+                    approveReason);
+        }
     }
 
     public void reject(String email, Long id, String rejectReason) {
@@ -94,10 +98,11 @@ public class AdminBinComplaintsService {
         }
     }
 
-    private void addReceiver(Bin bin, List<Member> receivers) {
+    private Member getBinCreator(Bin bin) {
         BinRegistration binRegistration = bin.getBinRegistration();
-        if (binRegistration != null) {
-            receivers.add(binRegistration.getMember());
+        if (binRegistration == null) {
+            return null;
         }
+        return binRegistration.getMember();
     }
 }

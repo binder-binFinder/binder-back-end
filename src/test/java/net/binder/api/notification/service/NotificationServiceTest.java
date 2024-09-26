@@ -10,8 +10,6 @@ import net.binder.api.bin.entity.Bin;
 import net.binder.api.bin.entity.BinType;
 import net.binder.api.bin.repository.BinRepository;
 import net.binder.api.bin.util.PointUtil;
-import net.binder.api.binregistration.entity.BinRegistration;
-import net.binder.api.binregistration.entity.BinRegistrationStatus;
 import net.binder.api.binregistration.repository.BinRegistrationRepository;
 import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.member.entity.Member;
@@ -289,45 +287,5 @@ class NotificationServiceTest {
 
         //then
         assertThat(hasLike).isTrue();
-    }
-
-    @Test
-    @DisplayName("알림 수신자와 쓰레기통의 주인이 같으면 isBinCreator는 true이다.")
-    void getNotificationDetails_isCreator_true() {
-        //given
-        bin.setBinRegistration(new BinRegistration(receiver, bin, BinRegistrationStatus.APPROVED));
-
-        notificationRepository.save(
-                new Notification(sender, receiver, bin, NotificationType.BIN_COMPLAINT_APPROVED, null));
-
-        //when
-        List<NotificationDetail> details = notificationService.getNotificationDetails(receiver.getEmail(),
-                null);// null 일 경우 가장 최신부터 20개
-
-        //then
-        assertThat(details.size()).isEqualTo(1);
-
-        NotificationDetail notificationDetail = details.get(0);
-        assertThat(notificationDetail.getIsBinCreator()).isTrue();
-    }
-
-    @Test
-    @DisplayName("알림 수신자와 쓰레기통의 주인이 다르면 isBinCreator는 false이다.")
-    void getNotificationDetails_isCreator_false() {
-        //given
-        bin.setBinRegistration(new BinRegistration(sender, bin, BinRegistrationStatus.APPROVED));
-
-        notificationRepository.save(
-                new Notification(sender, receiver, bin, NotificationType.BIN_COMPLAINT_APPROVED, null));
-
-        //when
-        List<NotificationDetail> details = notificationService.getNotificationDetails(receiver.getEmail(),
-                null);// null 일 경우 가장 최신부터 20개
-
-        //then
-        assertThat(details.size()).isEqualTo(1);
-
-        NotificationDetail notificationDetail = details.get(0);
-        assertThat(notificationDetail.getIsBinCreator()).isFalse();
     }
 }
