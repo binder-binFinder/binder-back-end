@@ -1,5 +1,7 @@
 package net.binder.api.admin.service;
 
+import static net.binder.api.notification.entity.NotificationType.BIN_COMPLAINT_APPROVED;
+import static net.binder.api.notification.entity.NotificationType.BIN_DELETED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.within;
@@ -240,7 +242,7 @@ class AdminBinComplaintsServiceTest {
         assertThat(notifications.size()).isEqualTo(4);
         assertThat(notifications).extracting(Notification::getBin).allMatch(bin -> bin.equals(this.bin));
         assertThat(notifications).extracting(Notification::getType)
-                .allMatch(type -> type == NotificationType.BIN_COMPLAINT_APPROVED);
+                .containsExactly(BIN_COMPLAINT_APPROVED, BIN_COMPLAINT_APPROVED, BIN_COMPLAINT_APPROVED, BIN_DELETED);
         assertThat(notifications).extracting(Notification::getSender).allMatch(member -> member.equals(admin));
         assertThat(notifications).extracting(Notification::getReceiver).containsExactly(user1, user2, user3, user4);
     }
