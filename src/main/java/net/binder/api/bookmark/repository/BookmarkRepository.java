@@ -27,7 +27,7 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
     WHERE m.email = :email and bi.deletedAt IS null
     AND ST_Contains(ST_Buffer(ST_GeomFromText(CONCAT('POINT(', :latitude, ' ', :longitude, ')'), 4326), :radius), bi.point)
     ORDER BY ST_Distance(bi.point, ST_GeomFromText(CONCAT('POINT(', :latitude, ' ', :longitude, ')'), 4326))
-    LIMIT 5
+    LIMIT 10
 """)
     Optional<List<BookmarkProjection>> findNearByBookmarksByMember_Email(@Param("email") String email,
                                                                          @Param("longitude") Double longitude,
