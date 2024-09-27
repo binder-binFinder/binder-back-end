@@ -24,7 +24,7 @@ import static net.binder.api.bookmark.entity.QBookmark.bookmark;
 public class SearchQueryRepository {
 
     private static int RADIS_FOR_KEYWORD_SEARCH = 500;
-    private static final int MAX_SIZE_OF_SEARCH_RESULT = 10;
+    private static final int MAX_SIZE_OF_SEARCH_RESULT = 20;
 
     private final JPAQueryFactory jpaQueryFactory;
 
