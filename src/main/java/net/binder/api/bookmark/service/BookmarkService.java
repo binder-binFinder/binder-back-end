@@ -80,8 +80,7 @@ public class BookmarkService {
                 .orElseThrow(() -> new BadRequestException("북마크 내역이 존재하지 않습니다."));
 
         return bookmarkProjections.stream()
-                .map(BookmarkResponse::from)
-                .limit(5).toList();
+                .map(BookmarkResponse::from).toList();
     }
 
     public List<BookmarkResponse> getAllBookmarks(String email, Double longitude, Double latitude, Long bookmarkId){

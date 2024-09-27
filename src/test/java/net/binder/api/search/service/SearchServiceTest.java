@@ -1397,9 +1397,9 @@ class SearchServiceTest {
                 });
     }
 
-    @DisplayName("검색결과는 최대 10개까지만 반환된다.")
+    @DisplayName("검색결과는 최대 20개까지만 반환된다.")
     @Test
-    void search_ByCoordinate_size_ten() {
+    void search_ByCoordinate_size_twenties() {
         Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
@@ -1525,9 +1525,9 @@ class SearchServiceTest {
         assertThat(search.size()).isEqualTo(20);
     }
 
-    @DisplayName("검색결과는 최대 10개까지 반환된다.(타입검색)")
+    @DisplayName("검색결과는 최대 20개까지 반환된다.(타입검색)")
     @Test
-    void search_ByCoordinate_cigar_bins_size_ten() {
+    void search_ByCoordinate_cigar_bins_size_twenties() {
         Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
@@ -1973,7 +1973,7 @@ class SearchServiceTest {
                 });
     }
 
-    @DisplayName("키워드로 검색하면 검색 결과는 10개까지만 나온다.")
+    @DisplayName("키워드로 검색하면 검색 결과는 20개까지만 나온다.")
     @Test
     void search_by_keyword_limit(){
 
