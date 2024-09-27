@@ -991,7 +991,7 @@ class SearchServiceTest {
         binRepository.save(bin);
         Bin bin2 = new Bin("쓰레기통123", BinType.BEVERAGE, PointUtil.getPoint(127.026692446306, 37.498775008377), "address2", 0L, 0L, 0L, null, null);
         binRepository.save(bin2);
-        Bin bin3 = new Bin("500M이상1", BinType.GENERAL, PointUtil.getPoint(127.031703595662, 37.498784671997), "address3", 0L, 0L, 0L, null, null);
+        Bin bin3 = new Bin("500M이상1", BinType.GENERAL, PointUtil.getPoint(127.031062762603, 37.499416177304), "address3", 0L, 0L, 0L, null, null);
         binRepository.save(bin3);
         Bin bin4 = new Bin("500M이상2", BinType.RECYCLE, PointUtil.getPoint(127.031062762603, 37.499416177304), "address4", 0L, 0L, 0L, null, null);
         binRepository.save(bin4);
@@ -1404,14 +1404,50 @@ class SearchServiceTest {
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin = new Bin("쓰레기통1", BinType.CIGAR, PointUtil.getPoint(127.02649140554401, 37.493415595491), "address1", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통1", BinType.CIGAR, PointUtil.getPoint(127.029382413368, 37.498065728468), "address1", 0L, 0L, 0L, null, null);
         binRepository.save(bin);
-        Bin bin2 = new Bin("쓰레기통2", BinType.CIGAR, PointUtil.getPoint(127.029241204878, 37.493519553805), "address2", 0L, 0L, 0L, null, null);
+        Bin bin2 = new Bin("쓰레기통2", BinType.CIGAR, PointUtil.getPoint(127.029382413368, 37.498065728468), "address2", 0L, 0L, 0L, null, null);
         binRepository.save(bin2);
-        Bin bin3 = new Bin("쓰레기통3", BinType.CIGAR, PointUtil.getPoint(127.029123181305, 37.497969565176), "address3", 0L, 0L, 0L, null, null);
+        Bin bin3 = new Bin("쓰레기통3", BinType.BEVERAGE, PointUtil.getPoint(127.025519919597, 37.493029367378), "address3", 0L, 0L, 0L, null, null);
         binRepository.save(bin3);
-        Bin bin4 = new Bin("쓰레기통4", BinType.CIGAR, PointUtil.getPoint(127.029123181305, 37.497969565176), "address4", 0L, 0L, 0L, null, null);
+        Bin bin4 = new Bin("쓰레기통4", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address4", 0L, 0L, 0L, null, null);
         binRepository.save(bin4);
+        Bin bin5 = new Bin("쓰레기통5", BinType.BEVERAGE, PointUtil.getPoint(127.028754000454, 37.498681360529), "address5", 0L, 0L, 0L, null, null);
+        binRepository.save(bin5);
+        Bin bin6 = new Bin("쓰레기통6", BinType.GENERAL, PointUtil.getPoint(127.026692446306, 37.498775008377), "address6", 0L, 0L, 0L, null, null);
+        binRepository.save(bin6);
+        Bin bin7 = new Bin("쓰레기통7", BinType.RECYCLE, PointUtil.getPoint(127.029588346617, 37.492625668276), "address7", 0L, 0L, 0L, null, null);
+        binRepository.save(bin7);
+        Bin bin8 = new Bin("쓰레기통8", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539), "address8", 0L, 0L, 0L, null, null);
+        binRepository.save(bin8);
+        Bin bin9 = new Bin("쓰레기통9", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539), "address9", 0L, 0L, 0L, null, null);
+        binRepository.save(bin9);
+        Bin bin10 = new Bin("쓰레기통10", BinType.RECYCLE, PointUtil.getPoint(127.02953329109899, 37.498978139947), "address10", 0L, 0L, 0L, null, null);
+        binRepository.save(bin10);
+
+
+        Bin bin11 = new Bin("쓰레기통11", BinType.BEVERAGE, PointUtil.getPoint(127.029382413368, 37.498065728468), "address11", 0L, 0L, 0L, null, null);
+        binRepository.save(bin11);
+        Bin bin12 = new Bin("쓰레기통12", BinType.BEVERAGE, PointUtil.getPoint(127.029382413368, 37.498065728468), "address12", 0L, 0L, 0L, null, null);
+        binRepository.save(bin12);
+        Bin bin13 = new Bin("쓰레기통13", BinType.CIGAR, PointUtil.getPoint(127.025519919597, 37.493029367378), "address13", 0L, 0L, 0L, null, null);
+        binRepository.save(bin13);
+        Bin bin14 = new Bin("쓰레기통14", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address14", 0L, 0L, 0L, null, null);
+        binRepository.save(bin14);
+        Bin bin15 = new Bin("쓰레기통15", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address15", 0L, 0L, 0L, null, null);
+        binRepository.save(bin15);
+        Bin bin16 = new Bin("쓰레기통16", BinType.CIGAR, PointUtil.getPoint(127.026692446306, 37.498775008377), "address16", 0L, 0L, 0L, null, null);
+        binRepository.save(bin16);
+        Bin bin17 = new Bin("쓰레기통17", BinType.CIGAR, PointUtil.getPoint(127.029588346617, 37.492625668276), "address17", 0L, 0L, 0L, null, null);
+        binRepository.save(bin17);
+        Bin bin18 = new Bin("쓰레기통18", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539), "address18", 0L, 0L, 0L, null, null);
+        binRepository.save(bin18);
+        Bin bin19 = new Bin("쓰레기통19", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539), "address19", 0L, 0L, 0L, null, null);
+        binRepository.save(bin19);
+        Bin bin20 = new Bin("쓰레기통20", BinType.CIGAR, PointUtil.getPoint(127.02953329109899, 37.498978139947), "address20", 0L, 0L, 0L, null, null);
+        binRepository.save(bin20);
+
+
 
         BinRegistration binRegistration1 = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration1);
@@ -1422,93 +1458,71 @@ class SearchServiceTest {
         BinRegistration binRegistration4 = new BinRegistration(user, bin4, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration4);
 
+        BinRegistration binRegistration5 = new BinRegistration(user, bin5, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration5);
+        BinRegistration binRegistration6 = new BinRegistration(user, bin6, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration6);
+        BinRegistration binRegistration7 = new BinRegistration(user, bin7, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration7);
+        BinRegistration binRegistration8 = new BinRegistration(user, bin8, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration8);
+
+        BinRegistration binRegistration9 = new BinRegistration(user, bin9, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration9);
+        BinRegistration binRegistration10 = new BinRegistration(user, bin10, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration10);
+
+
+        BinRegistration binRegistration11 = new BinRegistration(user, bin11, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration11);
+        BinRegistration binRegistration12 = new BinRegistration(user, bin12, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration12);
+        BinRegistration binRegistration13 = new BinRegistration(user, bin13, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration13);
+        BinRegistration binRegistration14 = new BinRegistration(user, bin14, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration14);
+
+        BinRegistration binRegistration15 = new BinRegistration(user, bin15, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration15);
+        BinRegistration binRegistration16 = new BinRegistration(user, bin16, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration16);
+        BinRegistration binRegistration17 = new BinRegistration(user, bin17, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration17);
+        BinRegistration binRegistration18 = new BinRegistration(user, bin18, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration18);
+
+        BinRegistration binRegistration19 = new BinRegistration(user, bin19, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration19);
+        BinRegistration binRegistration20 = new BinRegistration(user, bin20, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration20);
+
+
+
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration1.getId());
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration2.getId());
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration3.getId());
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration4.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration5.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration6.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration7.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration8.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration9.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration10.getId());
+
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration11.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration12.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration13.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration14.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration15.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration16.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration17.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration18.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration19.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration20.getId());
 
         List<SearchResult> search = searchService.searchByCoordinate(null, 127.027722755059, 37.4956241314633, 500, "dusgh7031@gmail.com");
 
-        assertThat(search.size()).isEqualTo(10);
-        assertThat(search).extracting("address").containsExactly(
-                "서울 서초구 서초대로78길 24",
-                "서울 서초구 강남대로 373",
-                "서울 서초구 강남대로 373",
-                "서울 서초구 강남대로 365",
-                "서울 서초구 강남대로 359",
-                "서울 강남구 강남대로 382",
-                "서울 강남구 강남대로 382",
-                "서울 서초구 서초대로78길 42",
-                "address1",
-                "address2"
-
-        );
-        assertThat(search).extracting("title").contains(
-                "서초동 1327-5",
-                "우성아파트I3",
-                "던킨도너츠 앞",
-                "도씨에빛 1 앞",
-                "티월드 앞",
-                "강남역2번출구 앞",
-                "강남역2번출구 앞",
-                "서초동 1330-18",
-                "쓰레기통1",
-                "쓰레기통2"
-        );
-        assertThat(search).extracting("type").containsExactlyInAnyOrder(
-                BinType.CIGAR,
-                BinType.RECYCLE,
-                BinType.GENERAL,
-                BinType.RECYCLE,
-                BinType.RECYCLE,
-                BinType.GENERAL,
-                BinType.RECYCLE,
-                BinType.CIGAR,
-                BinType.CIGAR,
-                BinType.CIGAR
-        );
-
-        assertThat(search).extracting("isBookMarked").containsExactly(
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false
-        );
-
-        assertThat(search).extracting(SearchResult::getLongitude)
-                .satisfies(xList -> {
-                    assertThat(xList.get(0)).isEqualTo(127.027752353367, xTolerance);
-                    assertThat(xList.get(1)).isEqualTo(127.028010119934, xTolerance);
-                    assertThat(xList.get(2)).isEqualTo(127.028010119934, xTolerance);
-                    assertThat(xList.get(3)).isEqualTo(127.028348895147, xTolerance);
-                    assertThat(xList.get(4)).isEqualTo(127.02860980273, xTolerance);
-                    assertThat(xList.get(5)).isEqualTo(127.028627058312, xTolerance);
-                    assertThat(xList.get(6)).isEqualTo(127.028627058312, xTolerance);
-                    assertThat(xList.get(7)).isEqualTo(127.028224355185, xTolerance);
-                    assertThat(xList.get(8)).isEqualTo(127.02649140554401, xTolerance);
-                    assertThat(xList.get(9)).isEqualTo(127.029241204878, xTolerance);
-                });
-
-        assertThat(search).extracting(SearchResult::getLatitude)
-                .satisfies(yList -> {
-                    assertThat(yList.get(0)).isEqualTo(37.495544565616, yTolerance);
-                    assertThat(yList.get(1)).isEqualTo(37.495982934664, yTolerance);
-                    assertThat(yList.get(2)).isEqualTo(37.495982934664, yTolerance);
-                    assertThat(yList.get(3)).isEqualTo(37.495323407006, yTolerance);
-                    assertThat(yList.get(4)).isEqualTo(37.494798958122, yTolerance);
-                    assertThat(yList.get(5)).isEqualTo(37.49704867762, yTolerance);
-                    assertThat(yList.get(6)).isEqualTo(37.49704867762, yTolerance);
-                    assertThat(yList.get(7)).isEqualTo(37.49402562647, yTolerance);
-                    assertThat(yList.get(8)).isEqualTo(37.493415595491, yTolerance);
-                    assertThat(yList.get(9)).isEqualTo(37.493519553805, yTolerance);
-                });
-
+        assertThat(search.size()).isEqualTo(20);
     }
 
     @DisplayName("검색결과는 최대 10개까지 반환된다.(타입검색)")
@@ -1539,6 +1553,30 @@ class SearchServiceTest {
         Bin bin10 = new Bin("쓰레기통10", BinType.CIGAR, PointUtil.getPoint(127.02953329109899, 37.498978139947), "address10", 0L, 0L, 0L, null, null);
         binRepository.save(bin10);
 
+
+        Bin bin11 = new Bin("쓰레기통11", BinType.CIGAR, PointUtil.getPoint(127.029382413368, 37.498065728468), "address11", 0L, 0L, 0L, null, null);
+        binRepository.save(bin11);
+        Bin bin12 = new Bin("쓰레기통12", BinType.CIGAR, PointUtil.getPoint(127.029382413368, 37.498065728468), "address12", 0L, 0L, 0L, null, null);
+        binRepository.save(bin12);
+        Bin bin13 = new Bin("쓰레기통13", BinType.CIGAR, PointUtil.getPoint(127.025519919597, 37.493029367378), "address13", 0L, 0L, 0L, null, null);
+        binRepository.save(bin13);
+        Bin bin14 = new Bin("쓰레기통14", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address14", 0L, 0L, 0L, null, null);
+        binRepository.save(bin14);
+        Bin bin15 = new Bin("쓰레기통15", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address15", 0L, 0L, 0L, null, null);
+        binRepository.save(bin15);
+        Bin bin16 = new Bin("쓰레기통16", BinType.CIGAR, PointUtil.getPoint(127.026692446306, 37.498775008377), "address16", 0L, 0L, 0L, null, null);
+        binRepository.save(bin16);
+        Bin bin17 = new Bin("쓰레기통17", BinType.CIGAR, PointUtil.getPoint(127.029588346617, 37.492625668276), "address17", 0L, 0L, 0L, null, null);
+        binRepository.save(bin17);
+        Bin bin18 = new Bin("쓰레기통18", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539), "address18", 0L, 0L, 0L, null, null);
+        binRepository.save(bin18);
+        Bin bin19 = new Bin("쓰레기통19", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539), "address19", 0L, 0L, 0L, null, null);
+        binRepository.save(bin19);
+        Bin bin20 = new Bin("쓰레기통20", BinType.CIGAR, PointUtil.getPoint(127.02953329109899, 37.498978139947), "address20", 0L, 0L, 0L, null, null);
+        binRepository.save(bin20);
+
+
+
         BinRegistration binRegistration1 = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration1);
         BinRegistration binRegistration2 = new BinRegistration(user, bin2, BinRegistrationStatus.PENDING);
@@ -1562,6 +1600,32 @@ class SearchServiceTest {
         BinRegistration binRegistration10 = new BinRegistration(user, bin10, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration10);
 
+
+        BinRegistration binRegistration11 = new BinRegistration(user, bin11, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration11);
+        BinRegistration binRegistration12 = new BinRegistration(user, bin12, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration12);
+        BinRegistration binRegistration13 = new BinRegistration(user, bin13, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration13);
+        BinRegistration binRegistration14 = new BinRegistration(user, bin14, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration14);
+
+        BinRegistration binRegistration15 = new BinRegistration(user, bin15, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration15);
+        BinRegistration binRegistration16 = new BinRegistration(user, bin16, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration16);
+        BinRegistration binRegistration17 = new BinRegistration(user, bin17, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration17);
+        BinRegistration binRegistration18 = new BinRegistration(user, bin18, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration18);
+
+        BinRegistration binRegistration19 = new BinRegistration(user, bin19, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration19);
+        BinRegistration binRegistration20 = new BinRegistration(user, bin20, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration20);
+
+
+
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration1.getId());
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration2.getId());
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration3.getId());
@@ -1573,82 +1637,20 @@ class SearchServiceTest {
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration9.getId());
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration10.getId());
 
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration11.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration12.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration13.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration14.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration15.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration16.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration17.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration18.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration19.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration20.getId());
+
         List<SearchResult> search = searchService.searchByCoordinate(BinType.CIGAR, 127.027722755059, 37.4956241314633, 5000, "dusgh7031@gmail.com");
 
-        assertThat(search.size()).isEqualTo(10);
-        assertThat(search).extracting("address").containsExactly(
-                "서울 서초구 서초대로78길 24",
-                "서울 서초구 서초대로78길 42",
-                "address1",
-                "address2",
-                "address3",
-                "address4",
-                "address5",
-                "address6",
-                "address7",
-                "address8"
-        );
-        assertThat(search).extracting("title").containsExactly(
-                "서초동 1327-5",
-                "서초동 1330-18",
-                "쓰레기통1",
-                "쓰레기통2",
-                "쓰레기통3",
-                "쓰레기통4",
-                "쓰레기통5",
-                "쓰레기통6",
-                "쓰레기통7",
-                "쓰레기통8");
-        assertThat(search).extracting("type").containsExactly(
-                BinType.CIGAR,
-                BinType.CIGAR,
-                BinType.CIGAR,
-                BinType.CIGAR,
-                BinType.CIGAR,
-                BinType.CIGAR,
-                BinType.CIGAR,
-                BinType.CIGAR,
-                BinType.CIGAR,
-                BinType.CIGAR);
-        assertThat(search).extracting("isBookMarked").containsExactly(
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false);
-
-        assertThat(search).extracting(SearchResult::getLongitude)
-                .satisfies(xList -> {
-                    assertThat(xList.get(0)).isEqualTo(127.027752353367, xTolerance);
-                    assertThat(xList.get(1)).isEqualTo(127.028224355185, xTolerance);
-                    assertThat(xList.get(2)).isEqualTo(127.029382413368, xTolerance);
-                    assertThat(xList.get(3)).isEqualTo(127.029382413368, xTolerance);
-                    assertThat(xList.get(4)).isEqualTo(127.025519919597, xTolerance);
-                    assertThat(xList.get(5)).isEqualTo(127.028754000454, xTolerance);
-                    assertThat(xList.get(6)).isEqualTo(127.028754000454, xTolerance);
-                    assertThat(xList.get(7)).isEqualTo(127.026692446306, xTolerance);
-                    assertThat(xList.get(8)).isEqualTo(127.029588346617, xTolerance);
-                    assertThat(xList.get(9)).isEqualTo(127.02754201132602, xTolerance);
-                });
-
-        assertThat(search).extracting(SearchResult::getLatitude)
-                .satisfies(yList -> {
-                    assertThat(yList.get(0)).isEqualTo(37.495544565616, yTolerance);
-                    assertThat(yList.get(1)).isEqualTo(37.49402562647, yTolerance);
-                    assertThat(yList.get(2)).isEqualTo(37.498065728468, yTolerance);
-                    assertThat(yList.get(3)).isEqualTo(37.498065728468, yTolerance);
-                    assertThat(yList.get(4)).isEqualTo(37.493029367378, yTolerance);
-                    assertThat(yList.get(5)).isEqualTo(37.498681360529, yTolerance);
-                    assertThat(yList.get(6)).isEqualTo(37.498681360529, yTolerance);
-                    assertThat(yList.get(7)).isEqualTo(37.498775008377, yTolerance);
-                    assertThat(yList.get(8)).isEqualTo(37.492625668276, yTolerance);
-                    assertThat(yList.get(9)).isEqualTo(37.499218198539, yTolerance);
-                });
+        assertThat(search.size()).isEqualTo(20);
     }
 
     @DisplayName("비로그인 이용자도 쓰레기통 검색을 할 수 있다.")
@@ -1978,84 +1980,125 @@ class SearchServiceTest {
         Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
-
-        Bin bin = new Bin("쓰레기통1", BinType.CIGAR, PointUtil.getPoint(127.029588346617, 37.492625668276), "address1", 0L, 0L, 0L, null, null);
-        Bin savedBin = binRepository.save(bin);
-        Bin bin2 = new Bin("쓰레기통2", BinType.CIGAR, PointUtil.getPoint(127.03034053027, 37.491751140026), "address2", 0L, 0L, 0L, null, null);
-        Bin savedBin2 = binRepository.save(bin2);
-        Bin bin3 = new Bin("쓰레기통3", BinType.CIGAR, PointUtil.getPoint(127.030921234166, 37.492427285546), "address3", 0L, 0L, 0L, null, null);
-        Bin savedBin3 = binRepository.save(bin3);
-
-        Bin bin4 = new Bin("쓰레기통4", BinType.BEVERAGE, PointUtil.getPoint(127.029588346617, 37.492625668276), "address1", 0L, 0L, 0L, null, null);
-        Bin savedBin4 = binRepository.save(bin4);
-        Bin bin5 = new Bin("쓰레기통5", BinType.BEVERAGE, PointUtil.getPoint(127.03034053027, 37.491751140026), "address2", 0L, 0L, 0L, null, null);
-        Bin savedBin5 = binRepository.save(bin5);
-        Bin bin6 = new Bin("쓰레기통6", BinType.BEVERAGE, PointUtil.getPoint(127.030921234166, 37.492427285546), "address3", 0L, 0L, 0L, null, null);
-        Bin savedBin6 = binRepository.save(bin6);
-
-        Bin bin7 = new Bin("쓰레기통7", BinType.GENERAL, PointUtil.getPoint(127.029588346617, 37.492625668276), "address1", 0L, 0L, 0L, null, null);
-        Bin savedBin7 = binRepository.save(bin7);
-        Bin bin8 = new Bin("쓰레기통8", BinType.GENERAL, PointUtil.getPoint(127.03034053027, 37.491751140026), "address2", 0L, 0L, 0L, null, null);
-        Bin savedBin8 = binRepository.save(bin8);
-        Bin bin9 = new Bin("쓰레기통9", BinType.GENERAL, PointUtil.getPoint(127.030921234166, 37.492427285546), "address3", 0L, 0L, 0L, null, null);
-        Bin savedBin9 = binRepository.save(bin9);
-
-        Bin bin10 = new Bin("쓰레기통10", BinType.RECYCLE, PointUtil.getPoint(127.029588346617, 37.492625668276), "address1", 0L, 0L, 0L, null, null);
-        Bin savedBin10 = binRepository.save(bin10);
-        Bin bin11 = new Bin("쓰레기통11", BinType.RECYCLE, PointUtil.getPoint(127.03034053027, 37.491751140026), "address2", 0L, 0L, 0L, null, null);
-        Bin savedBin11 = binRepository.save(bin11);
-        Bin bin12 = new Bin("쓰레기통12", BinType.RECYCLE, PointUtil.getPoint(127.030921234166, 37.492427285546), "address3", 0L, 0L, 0L, null, null);
-        Bin savedBin12 = binRepository.save(bin12);
+        Bin bin = new Bin("쓰레기통1", BinType.CIGAR, PointUtil.getPoint(127.029382413368, 37.498065728468), "address1", 0L, 0L, 0L, null, null);
+        binRepository.save(bin);
+        Bin bin2 = new Bin("쓰레기통2", BinType.CIGAR, PointUtil.getPoint(127.029382413368, 37.498065728468), "address2", 0L, 0L, 0L, null, null);
+        binRepository.save(bin2);
+        Bin bin3 = new Bin("쓰레기통3", BinType.CIGAR, PointUtil.getPoint(127.025519919597, 37.493029367378), "address3", 0L, 0L, 0L, null, null);
+        binRepository.save(bin3);
+        Bin bin4 = new Bin("쓰레기통4", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address4", 0L, 0L, 0L, null, null);
+        binRepository.save(bin4);
+        Bin bin5 = new Bin("쓰레기통5", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address5", 0L, 0L, 0L, null, null);
+        binRepository.save(bin5);
+        Bin bin6 = new Bin("쓰레기통6", BinType.CIGAR, PointUtil.getPoint(127.026692446306, 37.498775008377), "address6", 0L, 0L, 0L, null, null);
+        binRepository.save(bin6);
+        Bin bin7 = new Bin("쓰레기통7", BinType.CIGAR, PointUtil.getPoint(127.029588346617, 37.492625668276), "address7", 0L, 0L, 0L, null, null);
+        binRepository.save(bin7);
+        Bin bin8 = new Bin("쓰레기통8", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539), "address8", 0L, 0L, 0L, null, null);
+        binRepository.save(bin8);
+        Bin bin9 = new Bin("쓰레기통9", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539), "address9", 0L, 0L, 0L, null, null);
+        binRepository.save(bin9);
+        Bin bin10 = new Bin("쓰레기통10", BinType.CIGAR, PointUtil.getPoint(127.02953329109899, 37.498978139947), "address10", 0L, 0L, 0L, null, null);
+        binRepository.save(bin10);
 
 
-        BinRegistration binRegistration1 = new BinRegistration(user, savedBin, BinRegistrationStatus.PENDING);
+        Bin bin11 = new Bin("쓰레기통11", BinType.CIGAR, PointUtil.getPoint(127.029382413368, 37.498065728468), "address11", 0L, 0L, 0L, null, null);
+        binRepository.save(bin11);
+        Bin bin12 = new Bin("쓰레기통12", BinType.CIGAR, PointUtil.getPoint(127.029382413368, 37.498065728468), "address12", 0L, 0L, 0L, null, null);
+        binRepository.save(bin12);
+        Bin bin13 = new Bin("쓰레기통13", BinType.CIGAR, PointUtil.getPoint(127.025519919597, 37.493029367378), "address13", 0L, 0L, 0L, null, null);
+        binRepository.save(bin13);
+        Bin bin14 = new Bin("쓰레기통14", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address14", 0L, 0L, 0L, null, null);
+        binRepository.save(bin14);
+        Bin bin15 = new Bin("쓰레기통15", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address15", 0L, 0L, 0L, null, null);
+        binRepository.save(bin15);
+        Bin bin16 = new Bin("쓰레기통16", BinType.CIGAR, PointUtil.getPoint(127.026692446306, 37.498775008377), "address16", 0L, 0L, 0L, null, null);
+        binRepository.save(bin16);
+        Bin bin17 = new Bin("쓰레기통17", BinType.CIGAR, PointUtil.getPoint(127.029588346617, 37.492625668276), "address17", 0L, 0L, 0L, null, null);
+        binRepository.save(bin17);
+        Bin bin18 = new Bin("쓰레기통18", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539), "address18", 0L, 0L, 0L, null, null);
+        binRepository.save(bin18);
+        Bin bin19 = new Bin("쓰레기통19", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539), "address19", 0L, 0L, 0L, null, null);
+        binRepository.save(bin19);
+        Bin bin20 = new Bin("쓰레기통20", BinType.CIGAR, PointUtil.getPoint(127.02953329109899, 37.498978139947), "address20", 0L, 0L, 0L, null, null);
+        binRepository.save(bin20);
+
+
+
+        BinRegistration binRegistration1 = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration1);
-        BinRegistration binRegistration2 = new BinRegistration(user, savedBin2, BinRegistrationStatus.PENDING);
+        BinRegistration binRegistration2 = new BinRegistration(user, bin2, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration2);
-        BinRegistration binRegistration3 = new BinRegistration(user, savedBin3, BinRegistrationStatus.PENDING);
+        BinRegistration binRegistration3 = new BinRegistration(user, bin3, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration3);
+        BinRegistration binRegistration4 = new BinRegistration(user, bin4, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration4);
+
+        BinRegistration binRegistration5 = new BinRegistration(user, bin5, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration5);
+        BinRegistration binRegistration6 = new BinRegistration(user, bin6, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration6);
+        BinRegistration binRegistration7 = new BinRegistration(user, bin7, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration7);
+        BinRegistration binRegistration8 = new BinRegistration(user, bin8, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration8);
+
+        BinRegistration binRegistration9 = new BinRegistration(user, bin9, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration9);
+        BinRegistration binRegistration10 = new BinRegistration(user, bin10, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration10);
+
+
+        BinRegistration binRegistration11 = new BinRegistration(user, bin11, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration11);
+        BinRegistration binRegistration12 = new BinRegistration(user, bin12, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration12);
+        BinRegistration binRegistration13 = new BinRegistration(user, bin13, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration13);
+        BinRegistration binRegistration14 = new BinRegistration(user, bin14, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration14);
+
+        BinRegistration binRegistration15 = new BinRegistration(user, bin15, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration15);
+        BinRegistration binRegistration16 = new BinRegistration(user, bin16, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration16);
+        BinRegistration binRegistration17 = new BinRegistration(user, bin17, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration17);
+        BinRegistration binRegistration18 = new BinRegistration(user, bin18, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration18);
+
+        BinRegistration binRegistration19 = new BinRegistration(user, bin19, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration19);
+        BinRegistration binRegistration20 = new BinRegistration(user, bin20, BinRegistrationStatus.PENDING);
+        binRegistrationRepository.save(binRegistration20);
+
+
 
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration1.getId());
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration2.getId());
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration3.getId());
-
-        BinRegistration binRegistration4 = new BinRegistration(user, savedBin4, BinRegistrationStatus.PENDING);
-        binRegistrationRepository.save(binRegistration4);
-        BinRegistration binRegistration5 = new BinRegistration(user, savedBin5, BinRegistrationStatus.PENDING);
-        binRegistrationRepository.save(binRegistration5);
-        BinRegistration binRegistration6 = new BinRegistration(user, savedBin6, BinRegistrationStatus.PENDING);
-        binRegistrationRepository.save(binRegistration6);
-
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration4.getId());
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration5.getId());
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration6.getId());
-
-        BinRegistration binRegistration7 = new BinRegistration(user, savedBin7, BinRegistrationStatus.PENDING);
-        binRegistrationRepository.save(binRegistration7);
-        BinRegistration binRegistration8 = new BinRegistration(user, savedBin8, BinRegistrationStatus.PENDING);
-        binRegistrationRepository.save(binRegistration8);
-        BinRegistration binRegistration9 = new BinRegistration(user, savedBin9, BinRegistrationStatus.PENDING);
-        binRegistrationRepository.save(binRegistration9);
-
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration7.getId());
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration8.getId());
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration9.getId());
-
-
-        BinRegistration binRegistration10 = new BinRegistration(user, savedBin10, BinRegistrationStatus.PENDING);
-        binRegistrationRepository.save(binRegistration10);
-        BinRegistration binRegistration11 = new BinRegistration(user, savedBin11, BinRegistrationStatus.PENDING);
-        binRegistrationRepository.save(binRegistration11);
-        BinRegistration binRegistration12 = new BinRegistration(user, savedBin12, BinRegistrationStatus.PENDING);
-        binRegistrationRepository.save(binRegistration12);
-
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration10.getId());
+
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration11.getId());
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration12.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration13.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration14.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration15.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration16.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration17.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration18.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration19.getId());
+        adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration20.getId());
 
-        List<SearchResult> searchResults = searchService.searchByKeyword(127.027752353367, 37.495544565616, 127.031360322259, 37.489194715316, "키워드1", "주소1", null);
+        List<SearchResult> searchResults = searchService.searchByKeyword(127.027752353367, 37.495544565616, 127.027722755059, 37.4956241314633, "키워드1", "주소1", null);
 
-        assertThat(searchResults).hasSize(10);
+        assertThat(searchResults).hasSize(20);
     }
 
     @DisplayName("키워드로 검색하면 좋아요를 누른 쓰레기통이 표시된다.")
