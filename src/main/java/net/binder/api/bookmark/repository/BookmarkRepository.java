@@ -1,10 +1,13 @@
 package net.binder.api.bookmark.repository;
 
+import jakarta.persistence.QueryHint;
 import net.binder.api.bookmark.dto.BookmarkProjection;
 import net.binder.api.bookmark.entity.Bookmark;
 import net.binder.api.member.entity.Member;
+import org.hibernate.jpa.AvailableHints;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
@@ -12,6 +15,12 @@ import java.util.Optional;
 
 public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
 
+    @Query("""
+            SELECT COUNT(*) FROM Bookmark b
+            left join b.bin bi
+            left join b.member m
+            where m = :member and bi.deletedAt is null
+            """)
     Long countByMember(Member member);
 
     void deleteByMember_EmailAndBin_Id(String email, Long binId);

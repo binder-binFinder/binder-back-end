@@ -1,4 +1,5 @@
 package net.binder.api.bookmark.service;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import net.binder.api.admin.service.AdminBinManagementService;
@@ -13,6 +14,7 @@ import net.binder.api.binregistration.entity.BinRegistrationStatus;
 import net.binder.api.binregistration.repository.BinRegistrationRepository;
 import net.binder.api.bookmark.dto.BookmarkResponse;
 import net.binder.api.bookmark.entity.Bookmark;
+import net.binder.api.bookmark.repository.BookmarkRepository;
 import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.common.exception.NotFoundException;
 import net.binder.api.member.entity.Member;
@@ -24,6 +26,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -37,16 +40,10 @@ import static org.assertj.core.api.AssertionsForClassTypes.within;
 class BookmarkServiceTest {
 
     @Autowired
-    private BookmarkService bookmarkService;
-
-    @Autowired
     private BinRepository binRepository;
 
     @Autowired
     private MemberRepository memberRepository;
-
-    @Autowired
-    private BinService binService;
 
     @Autowired
     private BinRegistrationRepository binRegistrationRepository;
@@ -55,7 +52,16 @@ class BookmarkServiceTest {
     private AdminBinRegistrationService adminBinRegistrationService;
 
     @Autowired
+    private BookmarkRepository bookmarkRepository;
+
+    @Autowired
     private AdminBinManagementService adminBinManagementService;
+
+    @Autowired
+    private BookmarkService bookmarkService;
+
+    @Autowired
+    private BinService binService;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -72,7 +78,6 @@ class BookmarkServiceTest {
     private Bin bin3;
 
     private Bin bin4;
-
 
     private final Offset<Double> distanceTolerance = within(0.1);
 
@@ -749,7 +754,7 @@ class BookmarkServiceTest {
 
     @DisplayName("삭제된 쓰레기통은 근처 북마크 목록에 포함되지 않는다.")
     @Test
-    void deleted_bin_in_nearby_bookmark(){
+    void deleted_bin_in_nearby_bookmark() {
 
         Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
@@ -785,7 +790,7 @@ class BookmarkServiceTest {
 
     @DisplayName("삭제된 쓰레기통은 전체 북마크 목록에 포함되지 않는다.")
     @Test
-    void deleted_bin_in_all_bookmark(){
+    void deleted_bin_in_all_bookmark() {
 
         Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
@@ -819,4 +824,24 @@ class BookmarkServiceTest {
 
     }
 
+    @DisplayName("북마크한 쓰레기통이 삭제되면 북마크 숫자도 줄어들어야 한다.")
+    @Test
+    void bookmark_count_deleted_bin() {
+        Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
+        Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
+        memberRepository.saveAll(List.of(admin, user));
+
+        bookmarkService.createBookMark(user.getEmail(), bin1.getId());
+        bookmarkService.createBookMark(user.getEmail(), bin2.getId());
+        bookmarkService.createBookMark(user.getEmail(), bin3.getId());
+        bookmarkService.createBookMark(user.getEmail(), bin4.getId());
+
+        adminBinManagementService.deleteBin("admin@email.com", bin1.getId(), "그냥");
+        adminBinManagementService.deleteBin("admin@email.com", bin2.getId(), "그냥");
+
+        Long bookmarkCount = bookmarkRepository.countByMember(user);
+
+        assertThat(bookmarkCount).isEqualTo(2L);
+
+    }
 }
