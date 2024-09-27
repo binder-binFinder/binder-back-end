@@ -6,6 +6,8 @@ import net.binder.api.admin.dto.BinComplaintDetail;
 import net.binder.api.admin.dto.ComplaintFilter;
 import net.binder.api.admin.dto.TypeCount;
 import net.binder.api.admin.repository.AdminBinComplaintQueryRepository;
+import net.binder.api.bin.entity.Bin;
+import net.binder.api.binregistration.entity.BinRegistration;
 import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.complaint.entity.Complaint;
 import net.binder.api.complaint.entity.ComplaintStatus;
@@ -55,13 +57,22 @@ public class AdminBinComplaintsService {
         Complaint complaint = getComplaint(id);
 
         validateComplaintStatus(complaint);
-        complaint.approve(); // 승인시 Bin을 softDelete
+        // 승인시 Bin을 softDelete
+        complaint.approve();
 
-        List<Member> receivers = adminBinComplaintRepository.findMembers(complaint);
+        // 신고자 목록
+        List<Member> complaintCreators = adminBinComplaintRepository.findMembers(complaint);
 
-        notificationService.sendNotificationForUsers(admin, receivers, complaint.getBin(),
+        // 쓰레기통 등록자가 존재한다면 찾기
+        Member binCreator = getBinCreator(complaint.getBin());
+
+        notificationService.sendNotificationForUsers(admin, complaintCreators, complaint.getBin(),
                 NotificationType.BIN_COMPLAINT_APPROVED, approveReason);
 
+        if (binCreator != null) {
+            notificationService.sendNotification(admin, binCreator, complaint.getBin(), NotificationType.BIN_DELETED,
+                    approveReason);
+        }
     }
 
     public void reject(String email, Long id, String rejectReason) {
@@ -71,9 +82,8 @@ public class AdminBinComplaintsService {
         validateComplaintStatus(complaint);
         complaint.reject();
 
-        List<Member> receivers = adminBinComplaintRepository.findMembers(complaint);
-
-        notificationService.sendNotificationForUsers(admin, receivers, complaint.getBin(),
+        // 유저에게 알림을 전송하지 않고 로그로만 활용
+        notificationService.saveNotificationWithNoReceiver(admin, complaint.getBin(),
                 NotificationType.BIN_COMPLAINT_REJECTED, rejectReason);
     }
 
@@ -86,5 +96,13 @@ public class AdminBinComplaintsService {
         if (!complaint.isPending()) {
             throw new BadRequestException("이미 심사가 완료된 상태입니다.");
         }
+    }
+
+    private Member getBinCreator(Bin bin) {
+        BinRegistration binRegistration = bin.getBinRegistration();
+        if (binRegistration == null) {
+            return null;
+        }
+        return binRegistration.getMember();
     }
 }

@@ -10,6 +10,7 @@ import net.binder.api.bin.entity.Bin;
 import net.binder.api.bin.entity.BinType;
 import net.binder.api.bin.repository.BinRepository;
 import net.binder.api.bin.util.PointUtil;
+import net.binder.api.binregistration.repository.BinRegistrationRepository;
 import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.member.entity.Member;
 import net.binder.api.member.entity.Role;
@@ -46,6 +47,8 @@ class NotificationServiceTest {
     private Member receiver;
 
     private Bin bin;
+    @Autowired
+    private BinRegistrationRepository binRegistrationRepository;
 
     @BeforeEach
     void setUp() {

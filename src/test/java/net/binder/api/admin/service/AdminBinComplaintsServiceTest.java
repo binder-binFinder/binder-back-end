@@ -1,11 +1,14 @@
 package net.binder.api.admin.service;
 
+import static net.binder.api.notification.entity.NotificationType.BIN_COMPLAINT_APPROVED;
+import static net.binder.api.notification.entity.NotificationType.BIN_DELETED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.within;
 
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Objects;
 import net.binder.api.admin.dto.BinComplaintDetail;
 import net.binder.api.admin.dto.ComplaintFilter;
 import net.binder.api.admin.dto.TypeCount;
@@ -13,6 +16,9 @@ import net.binder.api.bin.entity.Bin;
 import net.binder.api.bin.entity.BinType;
 import net.binder.api.bin.repository.BinRepository;
 import net.binder.api.bin.util.PointUtil;
+import net.binder.api.binregistration.entity.BinRegistration;
+import net.binder.api.binregistration.entity.BinRegistrationStatus;
+import net.binder.api.binregistration.repository.BinRegistrationRepository;
 import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.complaint.entity.Complaint;
 import net.binder.api.complaint.entity.ComplaintInfo;
@@ -68,6 +74,8 @@ class AdminBinComplaintsServiceTest {
     private Complaint complaint2;
 
     private Complaint complaint3;
+    @Autowired
+    private BinRegistrationRepository binRegistrationRepository;
 
     @BeforeEach
     void setUp() {
@@ -195,20 +203,24 @@ class AdminBinComplaintsServiceTest {
     }
 
     @Test
-    @DisplayName("신고가 승인되면 쓰레기통이 softDelete되고 status가 APPROVED로 변경되며, 신고를 작성한 모든 사람들에게 알림이 전송된다.")
+    @DisplayName("신고가 승인되면 쓰레기통이 softDelete되고 status가 APPROVED로 변경되며, 신고를 작성한 모든 사람들 및 쓰레기통 등록자에게 알림이 전송된다.")
     void approve() {
         //given
         String adminEmail = "admin@example.com";
         String user1Email = "user1@example.com";
         String user2Email = "user2@example.com";
         String user3Email = "user3@example.com";
+        String user4Email = "user4@example.com";
 
         Member admin = new Member(adminEmail, "admin", Role.ROLE_ADMIN, null);
         Member user1 = new Member(user1Email, "user1", Role.ROLE_USER, null);
         Member user2 = new Member(user2Email, "user2", Role.ROLE_USER, null);
         Member user3 = new Member(user3Email, "user3", Role.ROLE_USER, null);
+        Member user4 = new Member(user4Email, "user4", Role.ROLE_USER, null);
 
-        memberRepository.saveAll(List.of(admin, user1, user2, user3));
+        memberRepository.saveAll(List.of(admin, user1, user2, user3, user4));
+
+        bin.setBinRegistration(new BinRegistration(user4, bin, BinRegistrationStatus.APPROVED));
 
         Complaint complaint = new Complaint(bin, ComplaintStatus.PENDING, 3L);
         complaintRepository.save(complaint);
@@ -227,15 +239,16 @@ class AdminBinComplaintsServiceTest {
         assertThat(complaint.getStatus()).isEqualTo(ComplaintStatus.APPROVED);
 
         List<Notification> notifications = notificationRepository.findAll();
+        assertThat(notifications.size()).isEqualTo(4);
         assertThat(notifications).extracting(Notification::getBin).allMatch(bin -> bin.equals(this.bin));
         assertThat(notifications).extracting(Notification::getType)
-                .allMatch(type -> type == NotificationType.BIN_COMPLAINT_APPROVED);
+                .containsExactly(BIN_COMPLAINT_APPROVED, BIN_COMPLAINT_APPROVED, BIN_COMPLAINT_APPROVED, BIN_DELETED);
         assertThat(notifications).extracting(Notification::getSender).allMatch(member -> member.equals(admin));
-        assertThat(notifications).extracting(Notification::getReceiver).containsExactly(user1, user2, user3);
+        assertThat(notifications).extracting(Notification::getReceiver).containsExactly(user1, user2, user3, user4);
     }
 
     @Test
-    @DisplayName("신고가 거절되면 status가 REJECTED로 변경되며, 신고를 작성한 모든 사람들에게 알림이 전송된다.")
+    @DisplayName("신고가 거절되면 status가 REJECTED로 변경되며, 로그 목적의 알림이 생성된다.")
     void reject() {
         //given
         String adminEmail = "admin@example.com";
@@ -267,11 +280,12 @@ class AdminBinComplaintsServiceTest {
         assertThat(complaint.getStatus()).isEqualTo(ComplaintStatus.REJECTED);
 
         List<Notification> notifications = notificationRepository.findAll();
+        assertThat(notifications.size()).isEqualTo(1);
         assertThat(notifications).extracting(Notification::getBin).allMatch(bin -> bin.equals(this.bin));
         assertThat(notifications).extracting(Notification::getType)
                 .allMatch(type -> type == NotificationType.BIN_COMPLAINT_REJECTED);
         assertThat(notifications).extracting(Notification::getSender).allMatch(member -> member.equals(admin));
-        assertThat(notifications).extracting(Notification::getReceiver).containsExactly(user1, user2, user3);
+        assertThat(notifications).extracting(Notification::getReceiver).allMatch(Objects::isNull);
     }
 
     @Test
@@ -333,5 +347,4 @@ class AdminBinComplaintsServiceTest {
         assertThatThrownBy(() -> adminBinComplaintsService.approve(adminEmail, complaint.getId(), "신고가 적절하지 않습니다."))
                 .isInstanceOf(BadRequestException.class);
     }
-
 }

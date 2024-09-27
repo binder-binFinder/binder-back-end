@@ -11,7 +11,6 @@ import jakarta.persistence.Index;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -60,8 +59,6 @@ public class Bin extends BaseEntityWithSoftDelete {
     @OneToOne(mappedBy = "bin", cascade = CascadeType.ALL)
     private BinRegistration binRegistration;
 
-    private LocalDateTime deletedAt;
-
     @Builder
     public Bin(String title, BinType type, Point point, String address, Long likeCount,
                Long dislikeCount,
@@ -75,15 +72,6 @@ public class Bin extends BaseEntityWithSoftDelete {
         this.bookmarkCount = bookmarkCount;
         this.imageUrl = imageUrl;
         this.binRegistration = binRegistration;
-    }
-
-    public boolean softDelete() {
-        if (deletedAt != null) {
-            return false;
-        }
-        deletedAt = LocalDateTime.now();
-
-        return true;
     }
 
     public void update(String title, BinType type, Point point, String address, String imageUrl) {
@@ -110,15 +98,15 @@ public class Bin extends BaseEntityWithSoftDelete {
         this.dislikeCount--;
     }
 
-    public void increaseBookmark(){
+    public void increaseBookmark() {
         this.bookmarkCount++;
     }
 
-    public void decreaseBookmark(){
-        if(this.bookmarkCount<=0){
+    public void decreaseBookmark() {
+        if (this.bookmarkCount <= 0) {
             return;
         }
-            this.bookmarkCount--;
+        this.bookmarkCount--;
     }
 
     public boolean isOwner(Member member) {

@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import net.binder.api.bin.entity.Bin;
 import net.binder.api.bin.entity.BinType;
+import net.binder.api.binregistration.entity.BinRegistration;
 import net.binder.api.notification.entity.Notification;
 import net.binder.api.notification.entity.NotificationType;
 
@@ -54,5 +55,15 @@ public class NotificationDetail {
                 .isRead(notification.isRead())
                 .createdAt(notification.getCreatedAt())
                 .build();
+    }
+
+    // 알림 수신자가 쓰레기통 주인과 같을 경우 true
+    private static boolean isBinCreator(Bin bin, Notification notification) {
+
+        BinRegistration binRegistration = bin.getBinRegistration();
+        if (binRegistration == null) {
+            return false;
+        }
+        return notification.getReceiver().equals(binRegistration.getMember());
     }
 }
