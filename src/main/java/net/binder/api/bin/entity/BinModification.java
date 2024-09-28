@@ -1,4 +1,4 @@
-package net.binder.api.binmodification.entity;
+package net.binder.api.bin.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -10,8 +10,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import net.binder.api.bin.entity.Bin;
-import net.binder.api.bin.entity.BinType;
 import net.binder.api.common.entity.BaseEntity;
 import net.binder.api.member.entity.Member;
 

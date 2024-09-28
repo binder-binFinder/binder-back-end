@@ -5,8 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.binder.api.bin.entity.BinType;
-import net.binder.api.binmodification.entity.BinModification;
-import net.binder.api.binmodification.entity.BinModificationStatus;
+import net.binder.api.bin.entity.BinModification;
+import net.binder.api.bin.entity.BinModificationStatus;
 
 @Getter
 @RequiredArgsConstructor

@@ -5,7 +5,7 @@ import net.binder.api.bin.dto.BinUpdateRequest;
 import net.binder.api.bin.entity.Bin;
 import net.binder.api.bin.repository.BinRepository;
 import net.binder.api.bin.util.PointUtil;
-import net.binder.api.binregistration.entity.BinRegistration;
+import net.binder.api.bin.entity.BinRegistration;
 import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.member.entity.Member;
 import net.binder.api.member.service.MemberService;

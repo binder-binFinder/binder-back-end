@@ -1,4 +1,4 @@
-package net.binder.api.binmodification.entity;
+package net.binder.api.bin.entity;
 
 public enum BinModificationStatus {
     PENDING, APPROVED, REJECTED

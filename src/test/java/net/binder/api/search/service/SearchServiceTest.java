@@ -7,9 +7,9 @@ import net.binder.api.bin.entity.Bin;
 import net.binder.api.bin.entity.BinType;
 import net.binder.api.bin.repository.BinRepository;
 import net.binder.api.bin.util.PointUtil;
-import net.binder.api.binregistration.entity.BinRegistration;
-import net.binder.api.binregistration.entity.BinRegistrationStatus;
-import net.binder.api.binregistration.repository.BinRegistrationRepository;
+import net.binder.api.bin.entity.BinRegistration;
+import net.binder.api.bin.entity.BinRegistrationStatus;
+import net.binder.api.bin.repository.BinRegistrationRepository;
 import net.binder.api.bookmark.service.BookmarkService;
 import net.binder.api.common.binsetup.dto.PublicBinData;
 import net.binder.api.common.binsetup.repository.BinBatchInsertRepository;
@@ -94,7 +94,8 @@ class SearchServiceTest {
     @DisplayName("모든 타입의 쓰레기통을 검색할 수 있다.")
     @Test
     void all_type_searchByCoordinate() {
-        List<SearchResult> search = searchService.searchByCoordinate(null, 127.027722755059, 37.4956241314633, 200, "dusgh7031@gmail.com");
+        List<SearchResult> search = searchService.searchByCoordinate(null, 127.027722755059, 37.4956241314633, 200,
+                "dusgh7031@gmail.com");
 
         assertThat(search.size()).isEqualTo(8);
         assertThat(search).extracting("address").containsExactly(
@@ -170,7 +171,8 @@ class SearchServiceTest {
     @DisplayName("담배꽁초 쓰레기통을 검색하면 주변에 있는 담배꽁초 쓰레기통을 찾을 수 있다.")
     @Test
     void cigar_bin_searchByCoordinate() {
-        List<SearchResult> search = searchService.searchByCoordinate(BinType.CIGAR, 127.027722755059, 37.4956241314633, 200, "dusgh7031@gmail.com");
+        List<SearchResult> search = searchService.searchByCoordinate(BinType.CIGAR, 127.027722755059, 37.4956241314633,
+                200, "dusgh7031@gmail.com");
 
         assertThat(search.size()).isEqualTo(2);
         assertThat(search).extracting("address").containsExactly("서울 서초구 서초대로78길 24", "서울 서초구 서초대로78길 42");
@@ -204,10 +206,12 @@ class SearchServiceTest {
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin = new Bin("쓰레기통12", BinType.BEVERAGE, PointUtil.getPoint(127.027722755059, 37.4956241314633), "address1", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통12", BinType.BEVERAGE, PointUtil.getPoint(127.027722755059, 37.4956241314633),
+                "address1", 0L, 0L, 0L, null, null);
         binRepository.save(bin);
 
-        Bin bin2 = new Bin("쓰레기통123", BinType.BEVERAGE, PointUtil.getPoint(127.02801011993398, 37.495982934664), "address2", 0L, 0L, 0L, null, null);
+        Bin bin2 = new Bin("쓰레기통123", BinType.BEVERAGE, PointUtil.getPoint(127.02801011993398, 37.495982934664),
+                "address2", 0L, 0L, 0L, null, null);
         binRepository.save(bin2);
 
         BinRegistration binRegistration = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
@@ -217,7 +221,8 @@ class SearchServiceTest {
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration.getId());
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration2.getId());
 
-        List<SearchResult> search = searchService.searchByCoordinate(BinType.BEVERAGE, 127.027722755059, 37.4956241314633, 200, "dusgh7031@gmail.com");
+        List<SearchResult> search = searchService.searchByCoordinate(BinType.BEVERAGE, 127.027722755059,
+                37.4956241314633, 200, "dusgh7031@gmail.com");
 
         assertThat(search.size()).isEqualTo(2);
         assertThat(search).extracting("address").containsExactly("address1", "address2");
@@ -241,14 +246,16 @@ class SearchServiceTest {
     @DisplayName("음료수 수거함 정보가 없을 때 조회되지 않는다.")
     @Test
     void no_beverage_bin_no_result() {
-        List<SearchResult> search = searchService.searchByCoordinate(BinType.BEVERAGE, 127.027722755059, 37.4956241314633, 200, "dusgh7031@gmail.com");
+        List<SearchResult> search = searchService.searchByCoordinate(BinType.BEVERAGE, 127.027722755059,
+                37.4956241314633, 200, "dusgh7031@gmail.com");
         assertThat(search.size()).isEqualTo(0);
     }
 
     @DisplayName("재활용 쓰레기통을 검색하면 재활용 쓰레기통을 찾을 수 있다.")
     @Test
     void search_ByCoordinate_recycle() {
-        List<SearchResult> search = searchService.searchByCoordinate(BinType.RECYCLE, 127.027722755059, 37.4956241314633, 300, "dusgh7031@gmail.com");
+        List<SearchResult> search = searchService.searchByCoordinate(BinType.RECYCLE, 127.027722755059,
+                37.4956241314633, 300, "dusgh7031@gmail.com");
 
         assertThat(search.size()).isEqualTo(4);
         assertThat(search).extracting("address").containsExactly(
@@ -289,7 +296,8 @@ class SearchServiceTest {
     @Test
     void search_ByCoordinate_general() {
 
-        List<SearchResult> search = searchService.searchByCoordinate(BinType.GENERAL, 127.027722755059, 37.4956241314633, 200, "dusgh7031@gmail.com");
+        List<SearchResult> search = searchService.searchByCoordinate(BinType.GENERAL, 127.027722755059,
+                37.4956241314633, 200, "dusgh7031@gmail.com");
 
         assertThat(search.size()).isEqualTo(2);
         assertThat(search).extracting("address").containsExactly(
@@ -316,7 +324,8 @@ class SearchServiceTest {
     @DisplayName("검색 결과의 첫번째 쓰레기통이 현재 위치에서 가장 가까운 쓰레기통이다.")
     @Test
     void search_ByCoordinate_order_by_distance() {
-        List<SearchResult> searchResult = searchService.searchByCoordinate(null, 127.027722755059, 37.4956241314633, 200, "dusgh7031@gmail.com");
+        List<SearchResult> searchResult = searchService.searchByCoordinate(null, 127.027722755059, 37.4956241314633,
+                200, "dusgh7031@gmail.com");
         Double distanceOfFirstBins = searchResult.get(0).getDistance();
 
         for (int i = 0; i < searchResult.size() - 1; i++) {
@@ -332,7 +341,8 @@ class SearchServiceTest {
     @Test
     void search_ByCoordinate_no_result() {
         //일본의 경도, 위도 좌표 예시
-        List<SearchResult> searchResult = searchService.searchByCoordinate(null, 124.11, 35.1, 200, "dusgh7031@gmail.com");
+        List<SearchResult> searchResult = searchService.searchByCoordinate(null, 124.11, 35.1, 200,
+                "dusgh7031@gmail.com");
         assertThat(searchResult.size()).isEqualTo(0);
     }
 
@@ -349,14 +359,16 @@ class SearchServiceTest {
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin = new Bin("쓰레기통12", BinType.GENERAL, PointUtil.getPoint(127.029123181305, 37.497969565176), "address", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통12", BinType.GENERAL, PointUtil.getPoint(127.029123181305, 37.497969565176), "address",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin);
 
         BinRegistration binRegistration = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration);
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration.getId());
 
-        List<SearchResult> search = searchService.searchByCoordinate(null, 127.027722755059, 37.4956241314633, 300, "dusgh7031@gmail.com");
+        List<SearchResult> search = searchService.searchByCoordinate(null, 127.027722755059, 37.4956241314633, 300,
+                "dusgh7031@gmail.com");
         assertThat(search.size()).isEqualTo(9);
         assertThat(search).extracting("address").containsExactly(
                 "서울 서초구 서초대로78길 24",
@@ -436,14 +448,16 @@ class SearchServiceTest {
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin = new Bin("쓰레기통12", BinType.GENERAL, PointUtil.getPoint(127.029123181305, 37.497969565176), "address", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통12", BinType.GENERAL, PointUtil.getPoint(127.029123181305, 37.497969565176), "address",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin);
 
         BinRegistration binRegistration = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration);
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration.getId());
 
-        List<SearchResult> search = searchService.searchByCoordinate(BinType.GENERAL, 127.027722755059, 37.4956241314633, 300, "dusgh7031@gmail.com");
+        List<SearchResult> search = searchService.searchByCoordinate(BinType.GENERAL, 127.027722755059,
+                37.4956241314633, 300, "dusgh7031@gmail.com");
 
         assertThat(search.size()).isEqualTo(3);
         assertThat(search).extracting("address").containsExactly(
@@ -477,14 +491,16 @@ class SearchServiceTest {
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin = new Bin("쓰레기통12", BinType.CIGAR, PointUtil.getPoint(127.025104317477, 37.496636817721), "address", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통12", BinType.CIGAR, PointUtil.getPoint(127.025104317477, 37.496636817721), "address", 0L,
+                0L, 0L, null, null);
         binRepository.save(bin);
 
         BinRegistration binRegistration = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration);
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration.getId());
 
-        List<SearchResult> search = searchService.searchByCoordinate(BinType.CIGAR, 127.027722755059, 37.4956241314633, 300, "dusgh7031@gmail.com");
+        List<SearchResult> search = searchService.searchByCoordinate(BinType.CIGAR, 127.027722755059, 37.4956241314633,
+                300, "dusgh7031@gmail.com");
 
         assertThat(search.size()).isEqualTo(3);
         assertThat(search).extracting("address").containsExactly(
@@ -525,12 +541,14 @@ class SearchServiceTest {
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin = new Bin("쓰레기통12", BinType.CIGAR, PointUtil.getPoint(127.02862705831201, 37.49704867762), "address", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통12", BinType.CIGAR, PointUtil.getPoint(127.02862705831201, 37.49704867762), "address",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin);
         BinRegistration binRegistration = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration);
 
-        List<SearchResult> search = searchService.searchByCoordinate(null, 127.027722755059, 37.4956241314633, 300, "dusgh7031@gmail.com");
+        List<SearchResult> search = searchService.searchByCoordinate(null, 127.027722755059, 37.4956241314633, 300,
+                "dusgh7031@gmail.com");
         assertThat(search.size()).isEqualTo(8);
         assertThat(search).extracting("address").containsExactly(
                 "서울 서초구 서초대로78길 24",
@@ -603,13 +621,15 @@ class SearchServiceTest {
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin = new Bin("쓰레기통12", BinType.CIGAR, PointUtil.getPoint(127.02862705831201, 37.49704867762), "address", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통12", BinType.CIGAR, PointUtil.getPoint(127.02862705831201, 37.49704867762), "address",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin);
 
         BinRegistration binRegistration = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration);
 
-        List<SearchResult> search = searchService.searchByCoordinate(BinType.CIGAR, 127.027722755059, 37.4956241314633, 300, "dusgh7031@gmail.com");
+        List<SearchResult> search = searchService.searchByCoordinate(BinType.CIGAR, 127.027722755059, 37.4956241314633,
+                300, "dusgh7031@gmail.com");
 
         assertThat(search.size()).isEqualTo(2);
 
@@ -644,13 +664,15 @@ class SearchServiceTest {
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin = new Bin("쓰레기통12", BinType.BEVERAGE, PointUtil.getPoint(127.027722755059, 37.4956241314633), "address", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통12", BinType.BEVERAGE, PointUtil.getPoint(127.027722755059, 37.4956241314633), "address",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin);
 
         BinRegistration binRegistration = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration);
 
-        List<SearchResult> search = searchService.searchByCoordinate(BinType.BEVERAGE, 127.027722755059, 37.4956241314633, 300, "dusgh7031@gmail.com");
+        List<SearchResult> search = searchService.searchByCoordinate(BinType.BEVERAGE, 127.027722755059,
+                37.4956241314633, 300, "dusgh7031@gmail.com");
 
         assertThat(search.size()).isEqualTo(0);
     }
@@ -662,13 +684,15 @@ class SearchServiceTest {
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin = new Bin("쓰레기통12", BinType.RECYCLE, PointUtil.getPoint(127.02801011993398, 37.495982934664), "address", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통12", BinType.RECYCLE, PointUtil.getPoint(127.02801011993398, 37.495982934664), "address",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin);
 
         BinRegistration binRegistration = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration);
 
-        List<SearchResult> search = searchService.searchByCoordinate(BinType.RECYCLE, 127.027722755059, 37.4956241314633, 300, "dusgh7031@gmail.com");
+        List<SearchResult> search = searchService.searchByCoordinate(BinType.RECYCLE, 127.027722755059,
+                37.4956241314633, 300, "dusgh7031@gmail.com");
 
         assertThat(search.size()).isEqualTo(4);
         assertThat(search).extracting("address").containsExactly(
@@ -713,13 +737,15 @@ class SearchServiceTest {
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin = new Bin("쓰레기통12", BinType.GENERAL, PointUtil.getPoint(127.02801011993398, 37.495982934664), "address", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통12", BinType.GENERAL, PointUtil.getPoint(127.02801011993398, 37.495982934664), "address",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin);
 
         BinRegistration binRegistration = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration);
 
-        List<SearchResult> search = searchService.searchByCoordinate(BinType.GENERAL, 127.027722755059, 37.4956241314633, 200, "dusgh7031@gmail.com");
+        List<SearchResult> search = searchService.searchByCoordinate(BinType.GENERAL, 127.027722755059,
+                37.4956241314633, 200, "dusgh7031@gmail.com");
 
         assertThat(search.size()).isEqualTo(2);
         assertThat(search).extracting("address").containsExactly(
@@ -754,14 +780,16 @@ class SearchServiceTest {
         Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
-        Bin bin = new Bin("쓰레기통12", BinType.CIGAR, PointUtil.getPoint(127.02862705831201, 37.49704867762), "address", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통12", BinType.CIGAR, PointUtil.getPoint(127.02862705831201, 37.49704867762), "address",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin);
 
         BinRegistration binRegistration = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration);
         adminBinRegistrationService.rejectRegistration("admin@email.com", binRegistration.getId(), "거절 사유");
 
-        List<SearchResult> search = searchService.searchByCoordinate(null, 127.027722755059, 37.4956241314633, 300, "dusgh7031@gmail.com");
+        List<SearchResult> search = searchService.searchByCoordinate(null, 127.027722755059, 37.4956241314633, 300,
+                "dusgh7031@gmail.com");
 
         assertThat(search.size()).isEqualTo(8);
         assertThat(search).extracting("address").containsExactly(
@@ -835,14 +863,16 @@ class SearchServiceTest {
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin = new Bin("쓰레기통12", BinType.CIGAR, PointUtil.getPoint(127.02862705831201, 37.49704867762), "address", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통12", BinType.CIGAR, PointUtil.getPoint(127.02862705831201, 37.49704867762), "address",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin);
 
         BinRegistration binRegistration = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration);
         adminBinRegistrationService.rejectRegistration("admin@email.com", binRegistration.getId(), "거절 사유");
 
-        List<SearchResult> search = searchService.searchByCoordinate(BinType.CIGAR, 127.027722755059, 37.4956241314633, 300, "dusgh7031@gmail.com");
+        List<SearchResult> search = searchService.searchByCoordinate(BinType.CIGAR, 127.027722755059, 37.4956241314633,
+                300, "dusgh7031@gmail.com");
 
         assertThat(search.size()).isEqualTo(2);
         assertThat(search).extracting("address").containsExactly("서울 서초구 서초대로78길 24", "서울 서초구 서초대로78길 42");
@@ -863,7 +893,8 @@ class SearchServiceTest {
                 });
 
         assertThat(search).extracting("distance")
-                .satisfies(distanceList -> assertThat((Double) distanceList.get(0)).isLessThan((Double) distanceList.get(1)));
+                .satisfies(distanceList -> assertThat((Double) distanceList.get(0)).isLessThan(
+                        (Double) distanceList.get(1)));
 
     }
 
@@ -874,14 +905,16 @@ class SearchServiceTest {
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin = new Bin("쓰레기통12", BinType.BEVERAGE, PointUtil.getPoint(127.027722755059, 37.4956241314633), "address", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통12", BinType.BEVERAGE, PointUtil.getPoint(127.027722755059, 37.4956241314633), "address",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin);
 
         BinRegistration binRegistration = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration);
         adminBinRegistrationService.rejectRegistration("admin@email.com", binRegistration.getId(), "거절 사유");
 
-        List<SearchResult> search = searchService.searchByCoordinate(BinType.BEVERAGE, 127.027722755059, 37.4956241314633, 300, "dusgh7031@gmail.com");
+        List<SearchResult> search = searchService.searchByCoordinate(BinType.BEVERAGE, 127.027722755059,
+                37.4956241314633, 300, "dusgh7031@gmail.com");
 
         assertThat(search.size()).isEqualTo(0);
     }
@@ -893,14 +926,16 @@ class SearchServiceTest {
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin = new Bin("쓰레기통12", BinType.RECYCLE, PointUtil.getPoint(127.02801011993398, 37.495982934664), "address", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통12", BinType.RECYCLE, PointUtil.getPoint(127.02801011993398, 37.495982934664), "address",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin);
 
         BinRegistration binRegistration = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration);
         adminBinRegistrationService.rejectRegistration("admin@email.com", binRegistration.getId(), "거절 사유");
 
-        List<SearchResult> search = searchService.searchByCoordinate(BinType.RECYCLE, 127.027722755059, 37.4956241314633, 300, "dusgh7031@gmail.com");
+        List<SearchResult> search = searchService.searchByCoordinate(BinType.RECYCLE, 127.027722755059,
+                37.4956241314633, 300, "dusgh7031@gmail.com");
 
         assertThat(search.size()).isEqualTo(4);
         assertThat(search).extracting("address").containsExactly(
@@ -945,14 +980,16 @@ class SearchServiceTest {
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin = new Bin("쓰레기통12", BinType.GENERAL, PointUtil.getPoint(127.02801011993398, 37.495982934664), "address", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통12", BinType.GENERAL, PointUtil.getPoint(127.02801011993398, 37.495982934664), "address",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin);
 
         BinRegistration binRegistration = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration);
         adminBinRegistrationService.rejectRegistration("admin@email.com", binRegistration.getId(), "거절 사유");
 
-        List<SearchResult> search = searchService.searchByCoordinate(BinType.GENERAL, 127.027722755059, 37.4956241314633, 200, "dusgh7031@gmail.com");
+        List<SearchResult> search = searchService.searchByCoordinate(BinType.GENERAL, 127.027722755059,
+                37.4956241314633, 200, "dusgh7031@gmail.com");
 
         assertThat(search.size()).isEqualTo(2);
         assertThat(search).extracting("address").containsExactly(
@@ -987,13 +1024,17 @@ class SearchServiceTest {
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin = new Bin("쓰레기통12", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통12", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address", 0L,
+                0L, 0L, null, null);
         binRepository.save(bin);
-        Bin bin2 = new Bin("쓰레기통123", BinType.BEVERAGE, PointUtil.getPoint(127.026692446306, 37.498775008377), "address2", 0L, 0L, 0L, null, null);
+        Bin bin2 = new Bin("쓰레기통123", BinType.BEVERAGE, PointUtil.getPoint(127.026692446306, 37.498775008377),
+                "address2", 0L, 0L, 0L, null, null);
         binRepository.save(bin2);
-        Bin bin3 = new Bin("500M이상1", BinType.GENERAL, PointUtil.getPoint(127.031062762603, 37.499416177304), "address3", 0L, 0L, 0L, null, null);
+        Bin bin3 = new Bin("500M이상1", BinType.GENERAL, PointUtil.getPoint(127.031062762603, 37.499416177304),
+                "address3", 0L, 0L, 0L, null, null);
         binRepository.save(bin3);
-        Bin bin4 = new Bin("500M이상2", BinType.RECYCLE, PointUtil.getPoint(127.031062762603, 37.499416177304), "address4", 0L, 0L, 0L, null, null);
+        Bin bin4 = new Bin("500M이상2", BinType.RECYCLE, PointUtil.getPoint(127.031062762603, 37.499416177304),
+                "address4", 0L, 0L, 0L, null, null);
         binRepository.save(bin4);
 
         BinRegistration binRegistration1 = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
@@ -1010,7 +1051,8 @@ class SearchServiceTest {
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration3.getId());
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration4.getId());
 
-        List<SearchResult> search = searchService.searchByCoordinate(null, 127.027722755059, 37.4956241314633, 1000, "dusgh7031@gmail.com");
+        List<SearchResult> search = searchService.searchByCoordinate(null, 127.027722755059, 37.4956241314633, 1000,
+                "dusgh7031@gmail.com");
         assertThat(search.size()).isEqualTo(10);
         assertThat(search).extracting("address").containsExactly(
                 "서울 서초구 서초대로78길 24",
@@ -1090,7 +1132,6 @@ class SearchServiceTest {
                     assertThat(yList.get(9)).isEqualTo(37.498775008377, yTolerance);
                 });
 
-
         assertThat(search).extracting("distance")
                 .satisfies(distanceList -> {
                     assertThat((Double) distanceList.get(0)).isLessThanOrEqualTo(500.0);
@@ -1113,13 +1154,17 @@ class SearchServiceTest {
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin = new Bin("쓰레기통12", BinType.CIGAR, PointUtil.getPoint(127.025104317477, 37.496636817721), "address", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통12", BinType.CIGAR, PointUtil.getPoint(127.025104317477, 37.496636817721), "address", 0L,
+                0L, 0L, null, null);
         binRepository.save(bin);
-        Bin bin2 = new Bin("쓰레기통123", BinType.CIGAR, PointUtil.getPoint(127.027400362129, 37.499975707358), "address2", 0L, 0L, 0L, null, null);
+        Bin bin2 = new Bin("쓰레기통123", BinType.CIGAR, PointUtil.getPoint(127.027400362129, 37.499975707358), "address2",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin2);
-        Bin bin3 = new Bin("500M이상1", BinType.CIGAR, PointUtil.getPoint(127.025700266315, 37.505196066016), "address3", 0L, 0L, 0L, null, null);
+        Bin bin3 = new Bin("500M이상1", BinType.CIGAR, PointUtil.getPoint(127.025700266315, 37.505196066016), "address3",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin3);
-        Bin bin4 = new Bin("500M이상2", BinType.CIGAR, PointUtil.getPoint(127.025700266315, 37.505196066016), "address4", 0L, 0L, 0L, null, null);
+        Bin bin4 = new Bin("500M이상2", BinType.CIGAR, PointUtil.getPoint(127.025700266315, 37.505196066016), "address4",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin4);
 
         BinRegistration binRegistration1 = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
@@ -1136,7 +1181,8 @@ class SearchServiceTest {
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration3.getId());
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration4.getId());
 
-        List<SearchResult> search = searchService.searchByCoordinate(BinType.CIGAR, 127.027722755059, 37.4956241314633, 1000, "dusgh7031@gmail.com");
+        List<SearchResult> search = searchService.searchByCoordinate(BinType.CIGAR, 127.027722755059, 37.4956241314633,
+                1000, "dusgh7031@gmail.com");
 
         assertThat(search.size()).isEqualTo(4);
 
@@ -1186,7 +1232,8 @@ class SearchServiceTest {
     @Test
     void test_over_minimum_radius() {
 
-        List<SearchResult> search = searchService.searchByCoordinate(null, 127.027722755059, 37.4956241314633, 10, "dusgh7031@gmail.com");
+        List<SearchResult> search = searchService.searchByCoordinate(null, 127.027722755059, 37.4956241314633, 10,
+                "dusgh7031@gmail.com");
         assertThat(search.size()).isEqualTo(4);
         assertThat(search).extracting("address").containsExactly(
                 "서울 서초구 서초대로78길 24",
@@ -1235,7 +1282,8 @@ class SearchServiceTest {
     @Test
     void test_over_minimum_radius_with_cigar_bins() {
 
-        List<SearchResult> search = searchService.searchByCoordinate(BinType.CIGAR, 127.027722755059, 37.4956241314633, 10, "dusgh7031@gmail.com");
+        List<SearchResult> search = searchService.searchByCoordinate(BinType.CIGAR, 127.027722755059, 37.4956241314633,
+                10, "dusgh7031@gmail.com");
         assertThat(search.size()).isEqualTo(1);
         assertThat(search).extracting("address").containsExactly(
                 "서울 서초구 서초대로78길 24"
@@ -1268,13 +1316,15 @@ class SearchServiceTest {
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin = new Bin("쓰레기통12", BinType.CIGAR, PointUtil.getPoint(127.029588346617, 37.492625668276), "address", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통12", BinType.CIGAR, PointUtil.getPoint(127.029588346617, 37.492625668276), "address", 0L,
+                0L, 0L, null, null);
         binRepository.save(bin);
         BinRegistration binRegistration1 = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration1);
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration1.getId());
 
-        List<SearchResult> search = searchService.searchByCoordinate(null, 127.027722755059, 37.4956241314633, 200, "dusgh7031@gmail.com");
+        List<SearchResult> search = searchService.searchByCoordinate(null, 127.027722755059, 37.4956241314633, 200,
+                "dusgh7031@gmail.com");
 
         assertThat(search.size()).isEqualTo(8);
         assertThat(search).extracting("address").containsExactly(
@@ -1362,7 +1412,8 @@ class SearchServiceTest {
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin = new Bin("쓰레기통12", BinType.CIGAR, PointUtil.getPoint(127.025104317477, 37.496636817721), "address", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통12", BinType.CIGAR, PointUtil.getPoint(127.025104317477, 37.496636817721), "address", 0L,
+                0L, 0L, null, null);
         binRepository.save(bin);
 
         BinRegistration binRegistration1 = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
@@ -1370,7 +1421,8 @@ class SearchServiceTest {
 
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration1.getId());
 
-        List<SearchResult> search = searchService.searchByCoordinate(BinType.CIGAR, 127.027722755059, 37.4956241314633, 200, "dusgh7031@gmail.com");
+        List<SearchResult> search = searchService.searchByCoordinate(BinType.CIGAR, 127.027722755059, 37.4956241314633,
+                200, "dusgh7031@gmail.com");
 
         assertThat(search.size()).isEqualTo(2);
         assertThat(search).extracting("address").containsExactly("서울 서초구 서초대로78길 24", "서울 서초구 서초대로78길 42");
@@ -1404,50 +1456,67 @@ class SearchServiceTest {
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin = new Bin("쓰레기통1", BinType.CIGAR, PointUtil.getPoint(127.029382413368, 37.498065728468), "address1", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통1", BinType.CIGAR, PointUtil.getPoint(127.029382413368, 37.498065728468), "address1", 0L,
+                0L, 0L, null, null);
         binRepository.save(bin);
-        Bin bin2 = new Bin("쓰레기통2", BinType.CIGAR, PointUtil.getPoint(127.029382413368, 37.498065728468), "address2", 0L, 0L, 0L, null, null);
+        Bin bin2 = new Bin("쓰레기통2", BinType.CIGAR, PointUtil.getPoint(127.029382413368, 37.498065728468), "address2",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin2);
-        Bin bin3 = new Bin("쓰레기통3", BinType.BEVERAGE, PointUtil.getPoint(127.025519919597, 37.493029367378), "address3", 0L, 0L, 0L, null, null);
+        Bin bin3 = new Bin("쓰레기통3", BinType.BEVERAGE, PointUtil.getPoint(127.025519919597, 37.493029367378), "address3",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin3);
-        Bin bin4 = new Bin("쓰레기통4", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address4", 0L, 0L, 0L, null, null);
+        Bin bin4 = new Bin("쓰레기통4", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address4",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin4);
-        Bin bin5 = new Bin("쓰레기통5", BinType.BEVERAGE, PointUtil.getPoint(127.028754000454, 37.498681360529), "address5", 0L, 0L, 0L, null, null);
+        Bin bin5 = new Bin("쓰레기통5", BinType.BEVERAGE, PointUtil.getPoint(127.028754000454, 37.498681360529), "address5",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin5);
-        Bin bin6 = new Bin("쓰레기통6", BinType.GENERAL, PointUtil.getPoint(127.026692446306, 37.498775008377), "address6", 0L, 0L, 0L, null, null);
+        Bin bin6 = new Bin("쓰레기통6", BinType.GENERAL, PointUtil.getPoint(127.026692446306, 37.498775008377), "address6",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin6);
-        Bin bin7 = new Bin("쓰레기통7", BinType.RECYCLE, PointUtil.getPoint(127.029588346617, 37.492625668276), "address7", 0L, 0L, 0L, null, null);
+        Bin bin7 = new Bin("쓰레기통7", BinType.RECYCLE, PointUtil.getPoint(127.029588346617, 37.492625668276), "address7",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin7);
-        Bin bin8 = new Bin("쓰레기통8", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539), "address8", 0L, 0L, 0L, null, null);
+        Bin bin8 = new Bin("쓰레기통8", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539), "address8",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin8);
-        Bin bin9 = new Bin("쓰레기통9", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539), "address9", 0L, 0L, 0L, null, null);
+        Bin bin9 = new Bin("쓰레기통9", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539), "address9",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin9);
-        Bin bin10 = new Bin("쓰레기통10", BinType.RECYCLE, PointUtil.getPoint(127.02953329109899, 37.498978139947), "address10", 0L, 0L, 0L, null, null);
+        Bin bin10 = new Bin("쓰레기통10", BinType.RECYCLE, PointUtil.getPoint(127.02953329109899, 37.498978139947),
+                "address10", 0L, 0L, 0L, null, null);
         binRepository.save(bin10);
 
-
-        Bin bin11 = new Bin("쓰레기통11", BinType.BEVERAGE, PointUtil.getPoint(127.029382413368, 37.498065728468), "address11", 0L, 0L, 0L, null, null);
+        Bin bin11 = new Bin("쓰레기통11", BinType.BEVERAGE, PointUtil.getPoint(127.029382413368, 37.498065728468),
+                "address11", 0L, 0L, 0L, null, null);
         binRepository.save(bin11);
-        Bin bin12 = new Bin("쓰레기통12", BinType.BEVERAGE, PointUtil.getPoint(127.029382413368, 37.498065728468), "address12", 0L, 0L, 0L, null, null);
+        Bin bin12 = new Bin("쓰레기통12", BinType.BEVERAGE, PointUtil.getPoint(127.029382413368, 37.498065728468),
+                "address12", 0L, 0L, 0L, null, null);
         binRepository.save(bin12);
-        Bin bin13 = new Bin("쓰레기통13", BinType.CIGAR, PointUtil.getPoint(127.025519919597, 37.493029367378), "address13", 0L, 0L, 0L, null, null);
+        Bin bin13 = new Bin("쓰레기통13", BinType.CIGAR, PointUtil.getPoint(127.025519919597, 37.493029367378), "address13",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin13);
-        Bin bin14 = new Bin("쓰레기통14", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address14", 0L, 0L, 0L, null, null);
+        Bin bin14 = new Bin("쓰레기통14", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address14",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin14);
-        Bin bin15 = new Bin("쓰레기통15", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address15", 0L, 0L, 0L, null, null);
+        Bin bin15 = new Bin("쓰레기통15", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address15",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin15);
-        Bin bin16 = new Bin("쓰레기통16", BinType.CIGAR, PointUtil.getPoint(127.026692446306, 37.498775008377), "address16", 0L, 0L, 0L, null, null);
+        Bin bin16 = new Bin("쓰레기통16", BinType.CIGAR, PointUtil.getPoint(127.026692446306, 37.498775008377), "address16",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin16);
-        Bin bin17 = new Bin("쓰레기통17", BinType.CIGAR, PointUtil.getPoint(127.029588346617, 37.492625668276), "address17", 0L, 0L, 0L, null, null);
+        Bin bin17 = new Bin("쓰레기통17", BinType.CIGAR, PointUtil.getPoint(127.029588346617, 37.492625668276), "address17",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin17);
-        Bin bin18 = new Bin("쓰레기통18", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539), "address18", 0L, 0L, 0L, null, null);
+        Bin bin18 = new Bin("쓰레기통18", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539),
+                "address18", 0L, 0L, 0L, null, null);
         binRepository.save(bin18);
-        Bin bin19 = new Bin("쓰레기통19", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539), "address19", 0L, 0L, 0L, null, null);
+        Bin bin19 = new Bin("쓰레기통19", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539),
+                "address19", 0L, 0L, 0L, null, null);
         binRepository.save(bin19);
-        Bin bin20 = new Bin("쓰레기통20", BinType.CIGAR, PointUtil.getPoint(127.02953329109899, 37.498978139947), "address20", 0L, 0L, 0L, null, null);
+        Bin bin20 = new Bin("쓰레기통20", BinType.CIGAR, PointUtil.getPoint(127.02953329109899, 37.498978139947),
+                "address20", 0L, 0L, 0L, null, null);
         binRepository.save(bin20);
-
-
 
         BinRegistration binRegistration1 = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration1);
@@ -1472,7 +1541,6 @@ class SearchServiceTest {
         BinRegistration binRegistration10 = new BinRegistration(user, bin10, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration10);
 
-
         BinRegistration binRegistration11 = new BinRegistration(user, bin11, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration11);
         BinRegistration binRegistration12 = new BinRegistration(user, bin12, BinRegistrationStatus.PENDING);
@@ -1496,8 +1564,6 @@ class SearchServiceTest {
         BinRegistration binRegistration20 = new BinRegistration(user, bin20, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration20);
 
-
-
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration1.getId());
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration2.getId());
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration3.getId());
@@ -1520,7 +1586,8 @@ class SearchServiceTest {
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration19.getId());
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration20.getId());
 
-        List<SearchResult> search = searchService.searchByCoordinate(null, 127.027722755059, 37.4956241314633, 500, "dusgh7031@gmail.com");
+        List<SearchResult> search = searchService.searchByCoordinate(null, 127.027722755059, 37.4956241314633, 500,
+                "dusgh7031@gmail.com");
 
         assertThat(search.size()).isEqualTo(20);
     }
@@ -1532,50 +1599,67 @@ class SearchServiceTest {
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin = new Bin("쓰레기통1", BinType.CIGAR, PointUtil.getPoint(127.029382413368, 37.498065728468), "address1", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통1", BinType.CIGAR, PointUtil.getPoint(127.029382413368, 37.498065728468), "address1", 0L,
+                0L, 0L, null, null);
         binRepository.save(bin);
-        Bin bin2 = new Bin("쓰레기통2", BinType.CIGAR, PointUtil.getPoint(127.029382413368, 37.498065728468), "address2", 0L, 0L, 0L, null, null);
+        Bin bin2 = new Bin("쓰레기통2", BinType.CIGAR, PointUtil.getPoint(127.029382413368, 37.498065728468), "address2",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin2);
-        Bin bin3 = new Bin("쓰레기통3", BinType.CIGAR, PointUtil.getPoint(127.025519919597, 37.493029367378), "address3", 0L, 0L, 0L, null, null);
+        Bin bin3 = new Bin("쓰레기통3", BinType.CIGAR, PointUtil.getPoint(127.025519919597, 37.493029367378), "address3",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin3);
-        Bin bin4 = new Bin("쓰레기통4", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address4", 0L, 0L, 0L, null, null);
+        Bin bin4 = new Bin("쓰레기통4", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address4",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin4);
-        Bin bin5 = new Bin("쓰레기통5", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address5", 0L, 0L, 0L, null, null);
+        Bin bin5 = new Bin("쓰레기통5", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address5",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin5);
-        Bin bin6 = new Bin("쓰레기통6", BinType.CIGAR, PointUtil.getPoint(127.026692446306, 37.498775008377), "address6", 0L, 0L, 0L, null, null);
+        Bin bin6 = new Bin("쓰레기통6", BinType.CIGAR, PointUtil.getPoint(127.026692446306, 37.498775008377), "address6",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin6);
-        Bin bin7 = new Bin("쓰레기통7", BinType.CIGAR, PointUtil.getPoint(127.029588346617, 37.492625668276), "address7", 0L, 0L, 0L, null, null);
+        Bin bin7 = new Bin("쓰레기통7", BinType.CIGAR, PointUtil.getPoint(127.029588346617, 37.492625668276), "address7",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin7);
-        Bin bin8 = new Bin("쓰레기통8", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539), "address8", 0L, 0L, 0L, null, null);
+        Bin bin8 = new Bin("쓰레기통8", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539), "address8",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin8);
-        Bin bin9 = new Bin("쓰레기통9", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539), "address9", 0L, 0L, 0L, null, null);
+        Bin bin9 = new Bin("쓰레기통9", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539), "address9",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin9);
-        Bin bin10 = new Bin("쓰레기통10", BinType.CIGAR, PointUtil.getPoint(127.02953329109899, 37.498978139947), "address10", 0L, 0L, 0L, null, null);
+        Bin bin10 = new Bin("쓰레기통10", BinType.CIGAR, PointUtil.getPoint(127.02953329109899, 37.498978139947),
+                "address10", 0L, 0L, 0L, null, null);
         binRepository.save(bin10);
 
-
-        Bin bin11 = new Bin("쓰레기통11", BinType.CIGAR, PointUtil.getPoint(127.029382413368, 37.498065728468), "address11", 0L, 0L, 0L, null, null);
+        Bin bin11 = new Bin("쓰레기통11", BinType.CIGAR, PointUtil.getPoint(127.029382413368, 37.498065728468), "address11",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin11);
-        Bin bin12 = new Bin("쓰레기통12", BinType.CIGAR, PointUtil.getPoint(127.029382413368, 37.498065728468), "address12", 0L, 0L, 0L, null, null);
+        Bin bin12 = new Bin("쓰레기통12", BinType.CIGAR, PointUtil.getPoint(127.029382413368, 37.498065728468), "address12",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin12);
-        Bin bin13 = new Bin("쓰레기통13", BinType.CIGAR, PointUtil.getPoint(127.025519919597, 37.493029367378), "address13", 0L, 0L, 0L, null, null);
+        Bin bin13 = new Bin("쓰레기통13", BinType.CIGAR, PointUtil.getPoint(127.025519919597, 37.493029367378), "address13",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin13);
-        Bin bin14 = new Bin("쓰레기통14", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address14", 0L, 0L, 0L, null, null);
+        Bin bin14 = new Bin("쓰레기통14", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address14",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin14);
-        Bin bin15 = new Bin("쓰레기통15", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address15", 0L, 0L, 0L, null, null);
+        Bin bin15 = new Bin("쓰레기통15", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address15",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin15);
-        Bin bin16 = new Bin("쓰레기통16", BinType.CIGAR, PointUtil.getPoint(127.026692446306, 37.498775008377), "address16", 0L, 0L, 0L, null, null);
+        Bin bin16 = new Bin("쓰레기통16", BinType.CIGAR, PointUtil.getPoint(127.026692446306, 37.498775008377), "address16",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin16);
-        Bin bin17 = new Bin("쓰레기통17", BinType.CIGAR, PointUtil.getPoint(127.029588346617, 37.492625668276), "address17", 0L, 0L, 0L, null, null);
+        Bin bin17 = new Bin("쓰레기통17", BinType.CIGAR, PointUtil.getPoint(127.029588346617, 37.492625668276), "address17",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin17);
-        Bin bin18 = new Bin("쓰레기통18", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539), "address18", 0L, 0L, 0L, null, null);
+        Bin bin18 = new Bin("쓰레기통18", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539),
+                "address18", 0L, 0L, 0L, null, null);
         binRepository.save(bin18);
-        Bin bin19 = new Bin("쓰레기통19", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539), "address19", 0L, 0L, 0L, null, null);
+        Bin bin19 = new Bin("쓰레기통19", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539),
+                "address19", 0L, 0L, 0L, null, null);
         binRepository.save(bin19);
-        Bin bin20 = new Bin("쓰레기통20", BinType.CIGAR, PointUtil.getPoint(127.02953329109899, 37.498978139947), "address20", 0L, 0L, 0L, null, null);
+        Bin bin20 = new Bin("쓰레기통20", BinType.CIGAR, PointUtil.getPoint(127.02953329109899, 37.498978139947),
+                "address20", 0L, 0L, 0L, null, null);
         binRepository.save(bin20);
-
-
 
         BinRegistration binRegistration1 = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration1);
@@ -1600,7 +1684,6 @@ class SearchServiceTest {
         BinRegistration binRegistration10 = new BinRegistration(user, bin10, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration10);
 
-
         BinRegistration binRegistration11 = new BinRegistration(user, bin11, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration11);
         BinRegistration binRegistration12 = new BinRegistration(user, bin12, BinRegistrationStatus.PENDING);
@@ -1624,8 +1707,6 @@ class SearchServiceTest {
         BinRegistration binRegistration20 = new BinRegistration(user, bin20, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration20);
 
-
-
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration1.getId());
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration2.getId());
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration3.getId());
@@ -1648,7 +1729,8 @@ class SearchServiceTest {
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration19.getId());
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration20.getId());
 
-        List<SearchResult> search = searchService.searchByCoordinate(BinType.CIGAR, 127.027722755059, 37.4956241314633, 5000, "dusgh7031@gmail.com");
+        List<SearchResult> search = searchService.searchByCoordinate(BinType.CIGAR, 127.027722755059, 37.4956241314633,
+                5000, "dusgh7031@gmail.com");
 
         assertThat(search.size()).isEqualTo(20);
     }
@@ -1657,7 +1739,8 @@ class SearchServiceTest {
     @Test
     void search_ByCoordinate_for_no_login_user() {
 
-        List<SearchResult> search = searchService.searchByCoordinate(BinType.CIGAR, 127.027722755059, 37.4956241314633, 200, null);
+        List<SearchResult> search = searchService.searchByCoordinate(BinType.CIGAR, 127.027722755059, 37.4956241314633,
+                200, null);
         assertThat(search.size()).isEqualTo(2);
         assertThat(search).extracting("address").containsExactly("서울 서초구 서초대로78길 24", "서울 서초구 서초대로78길 42");
         assertThat(search).extracting("title").containsExactly("서초동 1327-5", "서초동 1330-18");
@@ -1685,10 +1768,12 @@ class SearchServiceTest {
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin = new Bin("쓰레기통1", BinType.CIGAR, PointUtil.getPoint(127.029382413368, 37.498065728468), "address1", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통1", BinType.CIGAR, PointUtil.getPoint(127.029382413368, 37.498065728468), "address1", 0L,
+                0L, 0L, null, null);
         Bin savedBin = binRepository.save(bin);
 
-        Bin bin2 = new Bin("쓰레기통2", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address2", 0L, 0L, 0L, null, null);
+        Bin bin2 = new Bin("쓰레기통2", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address2",
+                0L, 0L, 0L, null, null);
         Bin savedBin2 = binRepository.save(bin2);
 
         BinRegistration binRegistration1 = new BinRegistration(user, savedBin, BinRegistrationStatus.PENDING);
@@ -1701,7 +1786,8 @@ class SearchServiceTest {
         bookMarkService.createBookMark(user.getEmail(), savedBin.getId());
         bookMarkService.createBookMark(user.getEmail(), savedBin2.getId());
 
-        List<SearchResult> search = searchService.searchByCoordinate(null, 127.027722755059, 37.4956241314633, 500, "user@email.com");
+        List<SearchResult> search = searchService.searchByCoordinate(null, 127.027722755059, 37.4956241314633, 500,
+                "user@email.com");
 
         assertThat(search.size()).isEqualTo(10);
         assertThat(search).extracting("address").containsExactly(
@@ -1861,30 +1947,30 @@ class SearchServiceTest {
     @Test
     void test_with_wrong_radius() {
         assertThatThrownBy(() ->
-                searchService.searchByCoordinate(BinType.CIGAR, 127.027722755059, 37.495544565616, -23, "dusgh7031@gmail.com"))
+                searchService.searchByCoordinate(BinType.CIGAR, 127.027722755059, 37.495544565616, -23,
+                        "dusgh7031@gmail.com"))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage("잘못된 반경 설정입니다.");
     }
 
     @DisplayName("삭제된 쓰레기통은 검색에 포함되지 않는다.")
     @Test
-    void deleted_bin2(){
-
+    void deleted_bin2() {
 
         Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin = new Bin("쓰레기통1", BinType.CIGAR, PointUtil.getPoint(126.874538741651, 37.547287215885), "address1", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통1", BinType.CIGAR, PointUtil.getPoint(126.874538741651, 37.547287215885), "address1", 0L,
+                0L, 0L, null, null);
         Bin savedBin = binRepository.save(bin);
-        Bin bin2 = new Bin("쓰레기통2", BinType.CIGAR, PointUtil.getPoint(126.874538741651, 37.547287215885), "address2", 0L, 0L, 0L, null, null);
+        Bin bin2 = new Bin("쓰레기통2", BinType.CIGAR, PointUtil.getPoint(126.874538741651, 37.547287215885), "address2",
+                0L, 0L, 0L, null, null);
         Bin savedBin2 = binRepository.save(bin2);
-
 
         BinRegistration binRegistration1 = new BinRegistration(user, savedBin, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration1);
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration1.getId());
-
 
         BinRegistration binRegistration2 = new BinRegistration(user, savedBin2, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration2);
@@ -1892,7 +1978,8 @@ class SearchServiceTest {
 
         adminBinManagementService.deleteBin("admin@email.com", bin.getId(), "그냥");
 
-        List<SearchResult> searchResults = searchService.searchByCoordinate(null, 126.874538741651, 37.547287215885, 100,   null);
+        List<SearchResult> searchResults = searchService.searchByCoordinate(null, 126.874538741651, 37.547287215885,
+                100, null);
 
         assertThat(searchResults).hasSize(1);
         assertThat(searchResults).extracting("address").containsExactly("address2");
@@ -1902,25 +1989,26 @@ class SearchServiceTest {
 
     }
 
-
     //키워드 검색 테스트
 
     @DisplayName("키워드로 검색하면 검색 결과가 나온다.")
     @Test
-    void search_by_keyword(){
+    void search_by_keyword() {
 
         Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin = new Bin("쓰레기통1", BinType.CIGAR, PointUtil.getPoint(127.029588346617, 37.492625668276), "address1", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통1", BinType.CIGAR, PointUtil.getPoint(127.029588346617, 37.492625668276), "address1", 0L,
+                0L, 0L, null, null);
         Bin savedBin = binRepository.save(bin);
 
         BinRegistration binRegistration1 = new BinRegistration(user, savedBin, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration1);
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration1.getId());
 
-        List<SearchResult> searchResults = searchService.searchByKeyword(127.027752353367, 37.495544565616, 127.031360322259, 37.489194715316, "키워드1", "주소1", null);
+        List<SearchResult> searchResults = searchService.searchByKeyword(127.027752353367, 37.495544565616,
+                127.031360322259, 37.489194715316, "키워드1", "주소1", null);
 
         assertThat(searchResults).hasSize(1);
         assertThat(searchResults).extracting("address").containsExactly("address1");
@@ -1931,19 +2019,21 @@ class SearchServiceTest {
 
     @DisplayName("키워드로 검색하면 검색 결과에는 현재 위치에서 얼마나 떨어져있는지 거리가 계산된다.")
     @Test
-    void search_by_keyword_with_distance(){
+    void search_by_keyword_with_distance() {
 
         Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin = new Bin("쓰레기통1", BinType.CIGAR, PointUtil.getPoint(127.029588346617, 37.492625668276), "address1", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통1", BinType.CIGAR, PointUtil.getPoint(127.029588346617, 37.492625668276), "address1", 0L,
+                0L, 0L, null, null);
         Bin savedBin = binRepository.save(bin);
-        Bin bin2 = new Bin("쓰레기통2", BinType.CIGAR, PointUtil.getPoint(127.03034053027, 37.491751140026), "address2", 0L, 0L, 0L, null, null);
+        Bin bin2 = new Bin("쓰레기통2", BinType.CIGAR, PointUtil.getPoint(127.03034053027, 37.491751140026), "address2", 0L,
+                0L, 0L, null, null);
         Bin savedBin2 = binRepository.save(bin2);
-        Bin bin3 = new Bin("쓰레기통3", BinType.CIGAR, PointUtil.getPoint(127.030921234166, 37.492427285546), "address3", 0L, 0L, 0L, null, null);
+        Bin bin3 = new Bin("쓰레기통3", BinType.CIGAR, PointUtil.getPoint(127.030921234166, 37.492427285546), "address3",
+                0L, 0L, 0L, null, null);
         Bin savedBin3 = binRepository.save(bin3);
-
 
         BinRegistration binRegistration1 = new BinRegistration(user, savedBin, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration1);
@@ -1957,12 +2047,14 @@ class SearchServiceTest {
         binRegistrationRepository.save(binRegistration3);
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration3.getId());
 
-        List<SearchResult> searchResults = searchService.searchByKeyword(127.027752353367, 37.495544565616, 127.031360322259, 37.489194715316, "키워드1", "주소1", null);
+        List<SearchResult> searchResults = searchService.searchByKeyword(127.027752353367, 37.495544565616,
+                127.031360322259, 37.489194715316, "키워드1", "주소1", null);
 
         assertThat(searchResults).hasSize(3);
         assertThat(searchResults).extracting("address").containsExactly("address1", "address3", "address2");
-        assertThat(searchResults).extracting("title").contains("쓰레기통1","쓰레기통3", "쓰레기통2");
-        assertThat(searchResults).extracting("type").containsExactlyInAnyOrder(BinType.CIGAR, BinType.CIGAR, BinType.CIGAR);
+        assertThat(searchResults).extracting("title").contains("쓰레기통1", "쓰레기통3", "쓰레기통2");
+        assertThat(searchResults).extracting("type")
+                .containsExactlyInAnyOrder(BinType.CIGAR, BinType.CIGAR, BinType.CIGAR);
         assertThat(searchResults).extracting("isBookMarked").containsExactly(false, false, false);
 
         assertThat(searchResults).extracting(SearchResult::getDistance)
@@ -1975,55 +2067,72 @@ class SearchServiceTest {
 
     @DisplayName("키워드로 검색하면 검색 결과는 20개까지만 나온다.")
     @Test
-    void search_by_keyword_limit(){
+    void search_by_keyword_limit() {
 
         Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
-        Bin bin = new Bin("쓰레기통1", BinType.CIGAR, PointUtil.getPoint(127.029382413368, 37.498065728468), "address1", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통1", BinType.CIGAR, PointUtil.getPoint(127.029382413368, 37.498065728468), "address1", 0L,
+                0L, 0L, null, null);
         binRepository.save(bin);
-        Bin bin2 = new Bin("쓰레기통2", BinType.CIGAR, PointUtil.getPoint(127.029382413368, 37.498065728468), "address2", 0L, 0L, 0L, null, null);
+        Bin bin2 = new Bin("쓰레기통2", BinType.CIGAR, PointUtil.getPoint(127.029382413368, 37.498065728468), "address2",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin2);
-        Bin bin3 = new Bin("쓰레기통3", BinType.CIGAR, PointUtil.getPoint(127.025519919597, 37.493029367378), "address3", 0L, 0L, 0L, null, null);
+        Bin bin3 = new Bin("쓰레기통3", BinType.CIGAR, PointUtil.getPoint(127.025519919597, 37.493029367378), "address3",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin3);
-        Bin bin4 = new Bin("쓰레기통4", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address4", 0L, 0L, 0L, null, null);
+        Bin bin4 = new Bin("쓰레기통4", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address4",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin4);
-        Bin bin5 = new Bin("쓰레기통5", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address5", 0L, 0L, 0L, null, null);
+        Bin bin5 = new Bin("쓰레기통5", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address5",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin5);
-        Bin bin6 = new Bin("쓰레기통6", BinType.CIGAR, PointUtil.getPoint(127.026692446306, 37.498775008377), "address6", 0L, 0L, 0L, null, null);
+        Bin bin6 = new Bin("쓰레기통6", BinType.CIGAR, PointUtil.getPoint(127.026692446306, 37.498775008377), "address6",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin6);
-        Bin bin7 = new Bin("쓰레기통7", BinType.CIGAR, PointUtil.getPoint(127.029588346617, 37.492625668276), "address7", 0L, 0L, 0L, null, null);
+        Bin bin7 = new Bin("쓰레기통7", BinType.CIGAR, PointUtil.getPoint(127.029588346617, 37.492625668276), "address7",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin7);
-        Bin bin8 = new Bin("쓰레기통8", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539), "address8", 0L, 0L, 0L, null, null);
+        Bin bin8 = new Bin("쓰레기통8", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539), "address8",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin8);
-        Bin bin9 = new Bin("쓰레기통9", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539), "address9", 0L, 0L, 0L, null, null);
+        Bin bin9 = new Bin("쓰레기통9", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539), "address9",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin9);
-        Bin bin10 = new Bin("쓰레기통10", BinType.CIGAR, PointUtil.getPoint(127.02953329109899, 37.498978139947), "address10", 0L, 0L, 0L, null, null);
+        Bin bin10 = new Bin("쓰레기통10", BinType.CIGAR, PointUtil.getPoint(127.02953329109899, 37.498978139947),
+                "address10", 0L, 0L, 0L, null, null);
         binRepository.save(bin10);
 
-
-        Bin bin11 = new Bin("쓰레기통11", BinType.CIGAR, PointUtil.getPoint(127.029382413368, 37.498065728468), "address11", 0L, 0L, 0L, null, null);
+        Bin bin11 = new Bin("쓰레기통11", BinType.CIGAR, PointUtil.getPoint(127.029382413368, 37.498065728468), "address11",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin11);
-        Bin bin12 = new Bin("쓰레기통12", BinType.CIGAR, PointUtil.getPoint(127.029382413368, 37.498065728468), "address12", 0L, 0L, 0L, null, null);
+        Bin bin12 = new Bin("쓰레기통12", BinType.CIGAR, PointUtil.getPoint(127.029382413368, 37.498065728468), "address12",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin12);
-        Bin bin13 = new Bin("쓰레기통13", BinType.CIGAR, PointUtil.getPoint(127.025519919597, 37.493029367378), "address13", 0L, 0L, 0L, null, null);
+        Bin bin13 = new Bin("쓰레기통13", BinType.CIGAR, PointUtil.getPoint(127.025519919597, 37.493029367378), "address13",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin13);
-        Bin bin14 = new Bin("쓰레기통14", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address14", 0L, 0L, 0L, null, null);
+        Bin bin14 = new Bin("쓰레기통14", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address14",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin14);
-        Bin bin15 = new Bin("쓰레기통15", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address15", 0L, 0L, 0L, null, null);
+        Bin bin15 = new Bin("쓰레기통15", BinType.CIGAR, PointUtil.getPoint(127.028754000454, 37.498681360529), "address15",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin15);
-        Bin bin16 = new Bin("쓰레기통16", BinType.CIGAR, PointUtil.getPoint(127.026692446306, 37.498775008377), "address16", 0L, 0L, 0L, null, null);
+        Bin bin16 = new Bin("쓰레기통16", BinType.CIGAR, PointUtil.getPoint(127.026692446306, 37.498775008377), "address16",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin16);
-        Bin bin17 = new Bin("쓰레기통17", BinType.CIGAR, PointUtil.getPoint(127.029588346617, 37.492625668276), "address17", 0L, 0L, 0L, null, null);
+        Bin bin17 = new Bin("쓰레기통17", BinType.CIGAR, PointUtil.getPoint(127.029588346617, 37.492625668276), "address17",
+                0L, 0L, 0L, null, null);
         binRepository.save(bin17);
-        Bin bin18 = new Bin("쓰레기통18", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539), "address18", 0L, 0L, 0L, null, null);
+        Bin bin18 = new Bin("쓰레기통18", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539),
+                "address18", 0L, 0L, 0L, null, null);
         binRepository.save(bin18);
-        Bin bin19 = new Bin("쓰레기통19", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539), "address19", 0L, 0L, 0L, null, null);
+        Bin bin19 = new Bin("쓰레기통19", BinType.CIGAR, PointUtil.getPoint(127.02754201132602, 37.499218198539),
+                "address19", 0L, 0L, 0L, null, null);
         binRepository.save(bin19);
-        Bin bin20 = new Bin("쓰레기통20", BinType.CIGAR, PointUtil.getPoint(127.02953329109899, 37.498978139947), "address20", 0L, 0L, 0L, null, null);
+        Bin bin20 = new Bin("쓰레기통20", BinType.CIGAR, PointUtil.getPoint(127.02953329109899, 37.498978139947),
+                "address20", 0L, 0L, 0L, null, null);
         binRepository.save(bin20);
-
-
 
         BinRegistration binRegistration1 = new BinRegistration(user, bin, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration1);
@@ -2048,7 +2157,6 @@ class SearchServiceTest {
         BinRegistration binRegistration10 = new BinRegistration(user, bin10, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration10);
 
-
         BinRegistration binRegistration11 = new BinRegistration(user, bin11, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration11);
         BinRegistration binRegistration12 = new BinRegistration(user, bin12, BinRegistrationStatus.PENDING);
@@ -2072,8 +2180,6 @@ class SearchServiceTest {
         BinRegistration binRegistration20 = new BinRegistration(user, bin20, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration20);
 
-
-
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration1.getId());
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration2.getId());
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration3.getId());
@@ -2096,31 +2202,33 @@ class SearchServiceTest {
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration19.getId());
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration20.getId());
 
-        List<SearchResult> searchResults = searchService.searchByKeyword(127.027752353367, 37.495544565616, 127.027722755059, 37.4956241314633, "키워드1", "주소1", null);
+        List<SearchResult> searchResults = searchService.searchByKeyword(127.027752353367, 37.495544565616,
+                127.027722755059, 37.4956241314633, "키워드1", "주소1", null);
 
         assertThat(searchResults).hasSize(20);
     }
 
     @DisplayName("키워드로 검색하면 좋아요를 누른 쓰레기통이 표시된다.")
     @Test
-    void search_by_keyword_with_bookmark(){
+    void search_by_keyword_with_bookmark() {
 
         Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin = new Bin("쓰레기통1", BinType.CIGAR, PointUtil.getPoint(127.029588346617, 37.492625668276), "address1", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통1", BinType.CIGAR, PointUtil.getPoint(127.029588346617, 37.492625668276), "address1", 0L,
+                0L, 0L, null, null);
         Bin savedBin = binRepository.save(bin);
-        Bin bin2 = new Bin("쓰레기통2", BinType.CIGAR, PointUtil.getPoint(127.03034053027, 37.491751140026), "address2", 0L, 0L, 0L, null, null);
+        Bin bin2 = new Bin("쓰레기통2", BinType.CIGAR, PointUtil.getPoint(127.03034053027, 37.491751140026), "address2", 0L,
+                0L, 0L, null, null);
         Bin savedBin2 = binRepository.save(bin2);
-        Bin bin3 = new Bin("쓰레기통3", BinType.CIGAR, PointUtil.getPoint(127.030921234166, 37.492427285546), "address3", 0L, 0L, 0L, null, null);
+        Bin bin3 = new Bin("쓰레기통3", BinType.CIGAR, PointUtil.getPoint(127.030921234166, 37.492427285546), "address3",
+                0L, 0L, 0L, null, null);
         Bin savedBin3 = binRepository.save(bin3);
-
 
         BinRegistration binRegistration1 = new BinRegistration(user, savedBin, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration1);
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration1.getId());
-
 
         BinRegistration binRegistration2 = new BinRegistration(user, savedBin2, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration2);
@@ -2132,12 +2240,14 @@ class SearchServiceTest {
 
         bookMarkService.createBookMark("user@email.com", bin.getId());
 
-        List<SearchResult> searchResults = searchService.searchByKeyword(127.027752353367, 37.495544565616, 127.031360322259, 37.489194715316, "키워드1", "주소1", "user@email.com");
+        List<SearchResult> searchResults = searchService.searchByKeyword(127.027752353367, 37.495544565616,
+                127.031360322259, 37.489194715316, "키워드1", "주소1", "user@email.com");
 
         assertThat(searchResults).hasSize(3);
         assertThat(searchResults).extracting("address").containsExactly("address1", "address3", "address2");
-        assertThat(searchResults).extracting("title").contains("쓰레기통1","쓰레기통3", "쓰레기통2");
-        assertThat(searchResults).extracting("type").containsExactlyInAnyOrder(BinType.CIGAR, BinType.CIGAR, BinType.CIGAR);
+        assertThat(searchResults).extracting("title").contains("쓰레기통1", "쓰레기통3", "쓰레기통2");
+        assertThat(searchResults).extracting("type")
+                .containsExactlyInAnyOrder(BinType.CIGAR, BinType.CIGAR, BinType.CIGAR);
         assertThat(searchResults).extracting("isBookMarked").containsExactly(true, false, false);
 
         assertThat(searchResults).extracting(SearchResult::getDistance)
@@ -2150,24 +2260,25 @@ class SearchServiceTest {
 
     @DisplayName("키워드 검색시 검색 결과는 500m 반경에 있는 것들로만 나온다.")
     @Test
-    void search_by_keyword_with_distance_limit(){
+    void search_by_keyword_with_distance_limit() {
 
         Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin = new Bin("쓰레기통1", BinType.CIGAR, PointUtil.getPoint(127.029588346617, 37.492625668276), "address1", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통1", BinType.CIGAR, PointUtil.getPoint(127.029588346617, 37.492625668276), "address1", 0L,
+                0L, 0L, null, null);
         Bin savedBin = binRepository.save(bin);
-        Bin bin2 = new Bin("쓰레기통2", BinType.CIGAR, PointUtil.getPoint(127.032367803374, 37.49993264406), "address2", 0L, 0L, 0L, null, null);
+        Bin bin2 = new Bin("쓰레기통2", BinType.CIGAR, PointUtil.getPoint(127.032367803374, 37.49993264406), "address2", 0L,
+                0L, 0L, null, null);
         Bin savedBin2 = binRepository.save(bin2);
-        Bin bin3 = new Bin("쓰레기통3", BinType.CIGAR, PointUtil.getPoint(127.030921234166, 37.492427285546), "address3", 0L, 0L, 0L, null, null);
+        Bin bin3 = new Bin("쓰레기통3", BinType.CIGAR, PointUtil.getPoint(127.030921234166, 37.492427285546), "address3",
+                0L, 0L, 0L, null, null);
         Bin savedBin3 = binRepository.save(bin3);
-
 
         BinRegistration binRegistration1 = new BinRegistration(user, savedBin, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration1);
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration1.getId());
-
 
         BinRegistration binRegistration2 = new BinRegistration(user, savedBin2, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration2);
@@ -2179,11 +2290,12 @@ class SearchServiceTest {
 
         bookMarkService.createBookMark("user@email.com", bin.getId());
 
-        List<SearchResult> searchResults = searchService.searchByKeyword(127.027752353367, 37.495544565616, 127.031360322259, 37.489194715316, "키워드1", "주소1", null);
+        List<SearchResult> searchResults = searchService.searchByKeyword(127.027752353367, 37.495544565616,
+                127.031360322259, 37.489194715316, "키워드1", "주소1", null);
 
         assertThat(searchResults).hasSize(2);
         assertThat(searchResults).extracting("address").containsExactly("address1", "address3");
-        assertThat(searchResults).extracting("title").contains("쓰레기통1","쓰레기통3");
+        assertThat(searchResults).extracting("title").contains("쓰레기통1", "쓰레기통3");
         assertThat(searchResults).extracting("type").containsExactlyInAnyOrder(BinType.CIGAR, BinType.CIGAR);
         assertThat(searchResults).extracting("isBookMarked").containsExactly(false, false);
 
@@ -2197,22 +2309,22 @@ class SearchServiceTest {
 
     @DisplayName("삭제된 쓰레기통은 키워드 검색에 포함되지 않는다.")
     @Test
-    void deleted_bi_in_keyword_search(){
+    void deleted_bi_in_keyword_search() {
 
         Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin = new Bin("쓰레기통1", BinType.CIGAR, PointUtil.getPoint(126.874538741651, 37.547287215885), "address1", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통1", BinType.CIGAR, PointUtil.getPoint(126.874538741651, 37.547287215885), "address1", 0L,
+                0L, 0L, null, null);
         Bin savedBin = binRepository.save(bin);
-        Bin bin2 = new Bin("쓰레기통2", BinType.CIGAR, PointUtil.getPoint(126.874538741651, 37.547287215885), "address2", 0L, 0L, 0L, null, null);
+        Bin bin2 = new Bin("쓰레기통2", BinType.CIGAR, PointUtil.getPoint(126.874538741651, 37.547287215885), "address2",
+                0L, 0L, 0L, null, null);
         Bin savedBin2 = binRepository.save(bin2);
-
 
         BinRegistration binRegistration1 = new BinRegistration(user, savedBin, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration1);
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration1.getId());
-
 
         BinRegistration binRegistration2 = new BinRegistration(user, savedBin2, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration2);
@@ -2220,8 +2332,8 @@ class SearchServiceTest {
 
         adminBinManagementService.deleteBin("admin@email.com", bin.getId(), "그냥");
 
-        
-        List<SearchResult> searchResults = searchService.searchByKeyword(126.874538741651, 37.547287215885, 126.874538741651, 37.547287215885, "키워드1", "주소1", null);
+        List<SearchResult> searchResults = searchService.searchByKeyword(126.874538741651, 37.547287215885,
+                126.874538741651, 37.547287215885, "키워드1", "주소1", null);
 
         assertThat(searchResults).hasSize(1);
         assertThat(searchResults).extracting("address").containsExactly("address2");

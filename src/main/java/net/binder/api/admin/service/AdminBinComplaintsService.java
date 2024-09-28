@@ -7,7 +7,7 @@ import net.binder.api.admin.dto.ComplaintFilter;
 import net.binder.api.admin.dto.TypeCount;
 import net.binder.api.admin.repository.AdminBinComplaintQueryRepository;
 import net.binder.api.bin.entity.Bin;
-import net.binder.api.binregistration.entity.BinRegistration;
+import net.binder.api.bin.entity.BinRegistration;
 import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.complaint.entity.Complaint;
 import net.binder.api.complaint.entity.ComplaintStatus;
