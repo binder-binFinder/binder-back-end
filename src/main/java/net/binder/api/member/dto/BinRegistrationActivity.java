@@ -5,8 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import net.binder.api.bin.entity.Bin;
 import net.binder.api.bin.entity.BinType;
-import net.binder.api.binregistration.entity.BinRegistration;
-import net.binder.api.binregistration.entity.BinRegistrationStatus;
+import net.binder.api.bin.entity.BinRegistration;
+import net.binder.api.bin.entity.BinRegistrationStatus;
 
 @Getter
 public class BinRegistrationActivity {

@@ -1,6 +1,6 @@
 package net.binder.api.bin.entity;
 
-import static net.binder.api.binregistration.entity.BinRegistrationStatus.PENDING;
+import static net.binder.api.bin.entity.BinRegistrationStatus.PENDING;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -16,7 +16,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import net.binder.api.binregistration.entity.BinRegistration;
 import net.binder.api.common.entity.BaseEntityWithSoftDelete;
 import net.binder.api.member.entity.Member;
 import org.locationtech.jts.geom.Point;

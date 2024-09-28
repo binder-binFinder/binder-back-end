@@ -1,4 +1,4 @@
-package net.binder.api.binregistration.entity;
+package net.binder.api.bin.entity;
 
 public enum BinRegistrationStatus {
     PENDING, APPROVED, REJECTED

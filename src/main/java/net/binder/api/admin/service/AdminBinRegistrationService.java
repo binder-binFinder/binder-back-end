@@ -1,6 +1,6 @@
 package net.binder.api.admin.service;
 
-import static net.binder.api.binregistration.entity.BinRegistrationStatus.PENDING;
+import static net.binder.api.bin.entity.BinRegistrationStatus.PENDING;
 import static net.binder.api.notification.entity.NotificationType.BIN_REGISTRATION_APPROVED;
 import static net.binder.api.notification.entity.NotificationType.BIN_REGISTRATION_REJECTED;
 
@@ -9,8 +9,8 @@ import lombok.RequiredArgsConstructor;
 import net.binder.api.admin.dto.BinRegistrationDetail;
 import net.binder.api.admin.dto.RegistrationFilter;
 import net.binder.api.admin.repository.AdminBinRegistrationQueryRepository;
-import net.binder.api.binregistration.entity.BinRegistration;
-import net.binder.api.binregistration.repository.BinRegistrationRepository;
+import net.binder.api.bin.entity.BinRegistration;
+import net.binder.api.bin.repository.BinRegistrationRepository;
 import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.common.exception.NotFoundException;
 import net.binder.api.member.entity.Member;

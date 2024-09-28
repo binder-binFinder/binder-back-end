@@ -3,8 +3,8 @@ package net.binder.api.member.service;
 import java.util.List;
 import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
-import net.binder.api.binregistration.entity.BinRegistration;
-import net.binder.api.binregistration.repository.BinRegistrationRepository;
+import net.binder.api.bin.entity.BinRegistration;
+import net.binder.api.bin.service.BinRegistrationReader;
 import net.binder.api.bookmark.repository.BookmarkRepository;
 import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.common.exception.NotFoundException;
@@ -20,11 +20,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class MemberService {
 
+    private static final int TIMELINE_PAGE_SIZE = 20;
+
     private final MemberRepository memberRepository;
 
     private final BookmarkRepository bookmarkRepository;
 
-    private final BinRegistrationRepository binRegistrationRepository;
+    private final BinRegistrationReader binRegistrationReader;
 
     @Transactional(readOnly = true)
     public MemberProfile getProfile(String email) {
@@ -59,9 +61,10 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    public List<BinRegistrationActivity> getRegistrationActivities(String email) {
+    public List<BinRegistrationActivity> getRegistrationActivities(String email, Long lastBinId) {
         Member member = findByEmail(email);
-        List<BinRegistration> binRegistrations = binRegistrationRepository.findAllByMember(member);
+        List<BinRegistration> binRegistrations = binRegistrationReader.readAll(member.getId(), lastBinId,
+                TIMELINE_PAGE_SIZE);
 
         return binRegistrations.stream()
                 .map(BinRegistrationActivity::from)

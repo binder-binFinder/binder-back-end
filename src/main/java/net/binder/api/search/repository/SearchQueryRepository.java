@@ -1,5 +1,9 @@
 package net.binder.api.search.repository;
 
+import static net.binder.api.bin.entity.QBin.bin;
+import static net.binder.api.bin.entity.QBinRegistration.binRegistration;
+import static net.binder.api.bookmark.entity.QBookmark.bookmark;
+
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
@@ -7,17 +11,12 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
-import net.binder.api.binregistration.entity.BinRegistrationStatus;
+import net.binder.api.bin.entity.BinRegistrationStatus;
 import net.binder.api.search.dto.SearchDto;
 import net.binder.api.search.dto.SearchResult;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-
-import static net.binder.api.bin.entity.QBin.bin;
-import static net.binder.api.binregistration.entity.QBinRegistration.binRegistration;
-import static net.binder.api.bookmark.entity.QBookmark.bookmark;
 
 @Repository
 @RequiredArgsConstructor
@@ -62,8 +61,9 @@ public class SearchQueryRepository {
                 .where(booleanBuilder.and(
                         Expressions.booleanTemplate(geoFunction, point, searchDto.getRadius()
                                 )
-                                .and(binRegistration.isNull().or(binRegistration.status.eq(BinRegistrationStatus.APPROVED)
-                                )).and(bin.deletedAt.isNull())))
+                                .and(binRegistration.isNull()
+                                        .or(binRegistration.status.eq(BinRegistrationStatus.APPROVED)
+                                        )).and(bin.deletedAt.isNull())))
                 .orderBy(Expressions.numberTemplate(Double.class,
                         "ST_Distance({0}, ST_GeomFromText({1}, 4326))",
                         bin.point, point).asc())
@@ -110,8 +110,9 @@ public class SearchQueryRepository {
                 .where(booleanBuilder.and(
                         Expressions.booleanTemplate(geoFunction, targetPoint, RADIS_FOR_KEYWORD_SEARCH
                                 )
-                                .and(binRegistration.isNull().or(binRegistration.status.eq(BinRegistrationStatus.APPROVED)
-                                )).and(bin.deletedAt.isNull())))
+                                .and(binRegistration.isNull()
+                                        .or(binRegistration.status.eq(BinRegistrationStatus.APPROVED)
+                                        )).and(bin.deletedAt.isNull())))
                 .orderBy(Expressions.numberTemplate(Double.class,
                         "ST_Distance({0}, ST_GeomFromText({1}, 4326))",
                         bin.point, currentPoint).asc())

@@ -3,7 +3,7 @@ package net.binder.api.memberlikebin.service;
 import lombok.RequiredArgsConstructor;
 import net.binder.api.bin.entity.Bin;
 import net.binder.api.bin.service.BinService;
-import net.binder.api.binregistration.entity.BinRegistration;
+import net.binder.api.bin.entity.BinRegistration;
 import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.member.entity.Member;
 import net.binder.api.member.service.MemberService;

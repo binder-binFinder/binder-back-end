@@ -3,14 +3,16 @@ package net.binder.api.member.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.util.ArrayList;
 import java.util.List;
 import net.binder.api.bin.entity.Bin;
+import net.binder.api.bin.entity.BinRegistration;
+import net.binder.api.bin.entity.BinRegistrationStatus;
 import net.binder.api.bin.entity.BinType;
+import net.binder.api.bin.repository.BinRegistrationRepository;
 import net.binder.api.bin.repository.BinRepository;
 import net.binder.api.bin.util.PointUtil;
-import net.binder.api.binregistration.entity.BinRegistration;
-import net.binder.api.binregistration.entity.BinRegistrationStatus;
-import net.binder.api.binregistration.repository.BinRegistrationRepository;
+import net.binder.api.common.entity.BaseEntityWithSoftDelete;
 import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.common.exception.NotFoundException;
 import net.binder.api.member.dto.BinRegistrationActivity;
@@ -201,13 +203,44 @@ class MemberServiceTest {
         binRegistrationRepository.saveAll(List.of(br1, br2, brDeleted));
 
         // When
-        List<BinRegistrationActivity> result = memberService.getRegistrationActivities("test@example.com");
+        List<BinRegistrationActivity> result = memberService.getRegistrationActivities("test@example.com", null);
 
         // Then
         assertThat(result).hasSize(3);
         assertThat(result).extracting("title").containsExactly("Bin3", "Bin2", "Bin1");
         assertThat(result).extracting("bookmarkCount").containsExactly(15L, 10L, 5L);
         assertThat(result).extracting(BinRegistrationActivity::getIsDeleted).containsExactly(true, false, false);
+    }
+
+    @Test
+    @DisplayName("사용자가 작성한 쓰레기통 목록을 페이지네이션할 수 있다.")
+    void findTimeLines_pagination() {
+        // Given
+
+        List<Bin> bins = new ArrayList<>();
+        for (int i = 0; i < 25; i++) {
+            Bin bin = getBin("Bin" + i, BinType.GENERAL, "Address" + i, 5L, "image1", 127.1, 37.4);
+            BinRegistration br = new BinRegistration(testMember, bin, BinRegistrationStatus.APPROVED);
+            bin.setBinRegistration(br);
+            binRepository.save(bin);
+            bins.add(bin);
+        }
+
+        bins.sort((bin1, bin2) -> Long.compare(bin2.getId(), bin1.getId()));
+
+        // When
+        List<BinRegistrationActivity> result1 = memberService.getRegistrationActivities(testMember.getEmail(), null);
+        List<BinRegistrationActivity> result2 = memberService.getRegistrationActivities(
+                testMember.getEmail(), result1.get(result1.size() - 1).getBinId());
+
+        // Then
+        assertThat(result1.size()).isEqualTo(20);
+        assertThat(result2.size()).isEqualTo(5);
+        assertThat(result1).extracting(BinRegistrationActivity::getBinId)
+                .containsExactlyElementsOf(bins.subList(0, 20).stream().map(BaseEntityWithSoftDelete::getId).toList());
+        assertThat(result2).extracting(BinRegistrationActivity::getBinId)
+                .containsExactlyElementsOf(bins.subList(20, 25).stream().map(BaseEntityWithSoftDelete::getId).toList());
+
     }
 
     private Bin getBin(String title, BinType type, String address, Long bookmarkCount, String imageUrl,
