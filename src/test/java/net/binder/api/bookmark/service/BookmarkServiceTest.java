@@ -9,9 +9,9 @@ import net.binder.api.bin.entity.BinType;
 import net.binder.api.bin.repository.BinRepository;
 import net.binder.api.bin.service.BinService;
 import net.binder.api.bin.util.PointUtil;
-import net.binder.api.binregistration.entity.BinRegistration;
-import net.binder.api.binregistration.entity.BinRegistrationStatus;
-import net.binder.api.binregistration.repository.BinRegistrationRepository;
+import net.binder.api.bin.entity.BinRegistration;
+import net.binder.api.bin.entity.BinRegistrationStatus;
+import net.binder.api.bin.repository.BinRegistrationRepository;
 import net.binder.api.bookmark.dto.BookmarkResponse;
 import net.binder.api.bookmark.entity.Bookmark;
 import net.binder.api.bookmark.repository.BookmarkRepository;
@@ -26,7 +26,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -88,10 +87,14 @@ class BookmarkServiceTest {
         memberRepository.save(testMember);
         memberRepository.save(testMember2);
 
-        bin1 = new Bin("title1", BinType.CIGAR, PointUtil.getPoint(126.971969841012, 37.578567094578), "address1", 0L, 0L, 0L, null, null);
-        bin2 = new Bin("title2", BinType.GENERAL, PointUtil.getPoint(126.971968136353, 37.577376610574), "address2", 0L, 0L, 0L, null, null);
-        bin3 = new Bin("title3", BinType.BEVERAGE, PointUtil.getPoint(126.971968136353, 37.577376610574), "address3", 0L, 0L, 0L, null, null);
-        bin4 = new Bin("title4", BinType.BEVERAGE, PointUtil.getPoint(126.97154998287, 37.579971733838), "address4", 0L, 0L, 0L, null, null);
+        bin1 = new Bin("title1", BinType.CIGAR, PointUtil.getPoint(126.971969841012, 37.578567094578), "address1", 0L,
+                0L, 0L, null, null);
+        bin2 = new Bin("title2", BinType.GENERAL, PointUtil.getPoint(126.971968136353, 37.577376610574), "address2", 0L,
+                0L, 0L, null, null);
+        bin3 = new Bin("title3", BinType.BEVERAGE, PointUtil.getPoint(126.971968136353, 37.577376610574), "address3",
+                0L, 0L, 0L, null, null);
+        bin4 = new Bin("title4", BinType.BEVERAGE, PointUtil.getPoint(126.97154998287, 37.579971733838), "address4", 0L,
+                0L, 0L, null, null);
 
         binRepository.save(bin1);
         binRepository.save(bin2);
@@ -105,7 +108,8 @@ class BookmarkServiceTest {
 
         bookmarkService.createBookMark("dusgh7031@gmail.com", bin1.getId());
         bookmarkService.createBookMark("dusgh7031@gmail.com", bin3.getId());
-        List<BookmarkResponse> bookmarks = bookmarkService.getNearByBookmarks("dusgh7031@gmail.com", 126.971969841012, 37.578567094578, 300);
+        List<BookmarkResponse> bookmarks = bookmarkService.getNearByBookmarks("dusgh7031@gmail.com", 126.971969841012,
+                37.578567094578, 300);
 
         assertThat(bookmarks).extracting("binId").containsExactly(bin1.getId(), bin3.getId());
         assertThat(bookmarks).extracting("address").containsExactly("address1", "address3");
@@ -124,7 +128,8 @@ class BookmarkServiceTest {
     @Test
     void no_bookmarks() {
 
-        List<BookmarkResponse> bookmarks = bookmarkService.getNearByBookmarks("dusgh7031@gmail.com", 126.971969841012, 37.578567094578, 300);
+        List<BookmarkResponse> bookmarks = bookmarkService.getNearByBookmarks("dusgh7031@gmail.com", 126.971969841012,
+                37.578567094578, 300);
         assertThat(bookmarks.size()).isEqualTo(0);
     }
 
@@ -138,8 +143,8 @@ class BookmarkServiceTest {
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage("이미 북마크를 한 쓰레기통입니다.");
 
-
-        List<BookmarkResponse> bookmarks = bookmarkService.getNearByBookmarks("dusgh7031@gmail.com", 126.971969841012, 37.578567094578, 300);
+        List<BookmarkResponse> bookmarks = bookmarkService.getNearByBookmarks("dusgh7031@gmail.com", 126.971969841012,
+                37.578567094578, 300);
         Bin bin = binService.findById(bin1.getId());
         assertThat(bookmarks).extracting("binId").containsExactly(bin1.getId());
         assertThat(bookmarks).extracting("address").containsExactly("address1");
@@ -155,7 +160,8 @@ class BookmarkServiceTest {
 
         bookmarkService.createBookMark("dusgh7031@gmail.com", bin1.getId());
 
-        List<BookmarkResponse> bookmarks = bookmarkService.getNearByBookmarks("dusgh7031@gmail.com", 126.971969841012, 37.578567094578, 300);
+        List<BookmarkResponse> bookmarks = bookmarkService.getNearByBookmarks("dusgh7031@gmail.com", 126.971969841012,
+                37.578567094578, 300);
         Bin bin = binService.findById(bin1.getId());
 
         assertThat(bookmarks).extracting("binId").containsExactly(bin1.getId());
@@ -165,7 +171,8 @@ class BookmarkServiceTest {
         assertThat(bin).extracting("bookmarkCount").isEqualTo(1L);
 
         bookmarkService.deleteBookMark("dusgh7031@gmail.com", bin1.getId());
-        List<BookmarkResponse> bookmarksList = bookmarkService.getNearByBookmarks("dusgh7031@gmail.com", 126.971969841012, 37.578567094578, 300);
+        List<BookmarkResponse> bookmarksList = bookmarkService.getNearByBookmarks("dusgh7031@gmail.com",
+                126.971969841012, 37.578567094578, 300);
         Bin b = binService.findById(bin1.getId());
 
         assertThat(bookmarksList.size()).isEqualTo(0);
@@ -189,9 +196,9 @@ class BookmarkServiceTest {
         bookmarkService.createBookMark("dusgh7031@gmail.com", bin1.getId());
         bookmarkService.createBookMark("dusgh70312@gmail.com", bin1.getId());
 
-        List<BookmarkResponse> bookmarks = bookmarkService.getNearByBookmarks("dusgh7031@gmail.com", 126.971969841012, 37.578567094578, 300);
+        List<BookmarkResponse> bookmarks = bookmarkService.getNearByBookmarks("dusgh7031@gmail.com", 126.971969841012,
+                37.578567094578, 300);
         Bin bin = binService.findById(bin1.getId());
-
 
         assertThat(bookmarks).extracting("binId").containsExactly(bin1.getId());
         assertThat(bookmarks).extracting("address").containsExactly("address1");
@@ -207,7 +214,8 @@ class BookmarkServiceTest {
         bookmarkService.createBookMark("dusgh7031@gmail.com", bin1.getId());
         bookmarkService.createBookMark("dusgh70312@gmail.com", bin1.getId());
 
-        List<BookmarkResponse> bookmarks = bookmarkService.getNearByBookmarks("dusgh7031@gmail.com", 126.971969841012, 37.578567094578, 300);
+        List<BookmarkResponse> bookmarks = bookmarkService.getNearByBookmarks("dusgh7031@gmail.com", 126.971969841012,
+                37.578567094578, 300);
         Bin bin = binService.findById(bin1.getId());
 
         assertThat(bookmarks).extracting("binId").containsExactly(bin1.getId());
@@ -219,8 +227,10 @@ class BookmarkServiceTest {
         bookmarkService.deleteBookMark("dusgh7031@gmail.com", bin1.getId());
         bookmarkService.deleteBookMark("dusgh70312@gmail.com", bin1.getId());
 
-        List<BookmarkResponse> bookmarks2 = bookmarkService.getAllBookmarks("dusgh7031@gmail.com", 126.971969841012, 37.578567094578, null);
-        List<BookmarkResponse> bookmarks3 = bookmarkService.getAllBookmarks("dusgh70312@gmail.com", 126.971969841012, 37.578567094578, null);
+        List<BookmarkResponse> bookmarks2 = bookmarkService.getAllBookmarks("dusgh7031@gmail.com", 126.971969841012,
+                37.578567094578, null);
+        List<BookmarkResponse> bookmarks3 = bookmarkService.getAllBookmarks("dusgh70312@gmail.com", 126.971969841012,
+                37.578567094578, null);
 
         Bin bin2 = binService.findById(bin1.getId());
 
@@ -238,13 +248,15 @@ class BookmarkServiceTest {
         bookmarkService.createBookMark("dusgh70312@gmail.com", bin3.getId());
         bookmarkService.createBookMark("dusgh70312@gmail.com", bin4.getId());
 
-        List<BookmarkResponse> bookmarks = bookmarkService.getNearByBookmarks("dusgh70312@gmail.com", 126.971969841012, 37.578567094578, 300);
+        List<BookmarkResponse> bookmarks = bookmarkService.getNearByBookmarks("dusgh70312@gmail.com", 126.971969841012,
+                37.578567094578, 300);
         Bin b1 = binService.findById(bin1.getId());
         Bin b2 = binService.findById(bin2.getId());
         Bin b3 = binService.findById(bin3.getId());
         Bin b4 = binService.findById(bin4.getId());
 
-        assertThat(bookmarks).extracting("binId").containsExactly(bin1.getId(), bin2.getId(), bin3.getId(), bin4.getId());
+        assertThat(bookmarks).extracting("binId")
+                .containsExactly(bin1.getId(), bin2.getId(), bin3.getId(), bin4.getId());
         assertThat(bookmarks).extracting("address").containsExactly(
                 "address1",
                 "address2",
@@ -284,19 +296,23 @@ class BookmarkServiceTest {
         memberRepository.saveAll(List.of(admin, user));
 
         //132.13127520524972
-        Bin binA = new Bin("쓰1", BinType.CIGAR, PointUtil.getPoint(126.971968136353, 37.577376610574), "a1", 0L, 0L, 0L, null, null);
+        Bin binA = new Bin("쓰1", BinType.CIGAR, PointUtil.getPoint(126.971968136353, 37.577376610574), "a1", 0L, 0L, 0L,
+                null, null);
         binRepository.save(binA);
 
         //135.19185992924142
-        Bin binB = new Bin("쓰2", BinType.CIGAR, PointUtil.getPoint(126.971100692714, 37.579569691324), "a2", 0L, 0L, 0L, null, null);
+        Bin binB = new Bin("쓰2", BinType.CIGAR, PointUtil.getPoint(126.971100692714, 37.579569691324), "a2", 0L, 0L, 0L,
+                null, null);
         binRepository.save(binB);
 
         //'170.78071202343938'
-        Bin binC = new Bin("쓰3", BinType.CIGAR, PointUtil.getPoint(126.972105810775, 37.57703219307), "a3", 0L, 0L, 0L, null, null);
+        Bin binC = new Bin("쓰3", BinType.CIGAR, PointUtil.getPoint(126.972105810775, 37.57703219307), "a3", 0L, 0L, 0L,
+                null, null);
         binRepository.save(binC);
 
         //160.2506317060672
-        Bin binD = new Bin("쓰4", BinType.CIGAR, PointUtil.getPoint(126.97154998287, 37.579971733838), "a4", 0L, 0L, 0L, null, null);
+        Bin binD = new Bin("쓰4", BinType.CIGAR, PointUtil.getPoint(126.97154998287, 37.579971733838), "a4", 0L, 0L, 0L,
+                null, null);
         binRepository.save(binD);
 
         BinRegistration binRegistration1 = new BinRegistration(user, binA, BinRegistrationStatus.PENDING);
@@ -318,7 +334,8 @@ class BookmarkServiceTest {
         bookmarkService.createBookMark("dusgh70312@gmail.com", binC.getId());
         bookmarkService.createBookMark("dusgh70312@gmail.com", binD.getId());
 
-        List<BookmarkResponse> bookmarks = bookmarkService.getNearByBookmarks("dusgh70312@gmail.com", 126.971969841012, 37.578567094578, 300);
+        List<BookmarkResponse> bookmarks = bookmarkService.getNearByBookmarks("dusgh70312@gmail.com", 126.971969841012,
+                37.578567094578, 300);
         assertThat(bookmarks).hasSize(4);
 
         assertThat(bookmarks).extracting("address").containsExactly(
@@ -347,30 +364,38 @@ class BookmarkServiceTest {
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin binA = new Bin("쓰1", BinType.CIGAR, PointUtil.getPoint(126.970393335988, 37.576479015967), "a1", 0L, 0L, 0L, null, null);
+        Bin binA = new Bin("쓰1", BinType.CIGAR, PointUtil.getPoint(126.970393335988, 37.576479015967), "a1", 0L, 0L, 0L,
+                null, null);
         binRepository.save(binA);
 
-        Bin binB = new Bin("쓰2", BinType.CIGAR, PointUtil.getPoint(126.970393335988, 37.576479015967), "a2", 0L, 0L, 0L, null, null);
+        Bin binB = new Bin("쓰2", BinType.CIGAR, PointUtil.getPoint(126.970393335988, 37.576479015967), "a2", 0L, 0L, 0L,
+                null, null);
         binRepository.save(binB);
-        Bin binC = new Bin("쓰3", BinType.CIGAR, PointUtil.getPoint(126.970393335988, 37.576479015967), "a3", 0L, 0L, 0L, null, null);
+        Bin binC = new Bin("쓰3", BinType.CIGAR, PointUtil.getPoint(126.970393335988, 37.576479015967), "a3", 0L, 0L, 0L,
+                null, null);
         binRepository.save(binC);
 
-        Bin binD = new Bin("쓰4", BinType.CIGAR, PointUtil.getPoint(126.970393335988, 37.576479015967), "a4", 0L, 0L, 0L, null, null);
+        Bin binD = new Bin("쓰4", BinType.CIGAR, PointUtil.getPoint(126.970393335988, 37.576479015967), "a4", 0L, 0L, 0L,
+                null, null);
         binRepository.save(binD);
 
-        Bin binE = new Bin("쓰5", BinType.CIGAR, PointUtil.getPoint(126.970393335988, 37.576479015967), "a5", 0L, 0L, 0L, null, null);
+        Bin binE = new Bin("쓰5", BinType.CIGAR, PointUtil.getPoint(126.970393335988, 37.576479015967), "a5", 0L, 0L, 0L,
+                null, null);
         binRepository.save(binE);
-        Bin binF = new Bin("쓰6", BinType.CIGAR, PointUtil.getPoint(126.970393335988, 37.576479015967), "a6", 0L, 0L, 0L, null, null);
+        Bin binF = new Bin("쓰6", BinType.CIGAR, PointUtil.getPoint(126.970393335988, 37.576479015967), "a6", 0L, 0L, 0L,
+                null, null);
         binRepository.save(binF);
 
-        Bin binG = new Bin("쓰7", BinType.CIGAR, PointUtil.getPoint(126.970393335988, 37.576479015967), "a7", 0L, 0L, 0L, null, null);
+        Bin binG = new Bin("쓰7", BinType.CIGAR, PointUtil.getPoint(126.970393335988, 37.576479015967), "a7", 0L, 0L, 0L,
+                null, null);
         binRepository.save(binG);
 
-        Bin binH = new Bin("쓰8", BinType.CIGAR, PointUtil.getPoint(126.970393335988, 37.576479015967), "a8", 0L, 0L, 0L, null, null);
+        Bin binH = new Bin("쓰8", BinType.CIGAR, PointUtil.getPoint(126.970393335988, 37.576479015967), "a8", 0L, 0L, 0L,
+                null, null);
         binRepository.save(binH);
-        Bin binI = new Bin("쓰9", BinType.CIGAR, PointUtil.getPoint(126.970393335988, 37.576479015967), "a9", 0L, 0L, 0L, null, null);
+        Bin binI = new Bin("쓰9", BinType.CIGAR, PointUtil.getPoint(126.970393335988, 37.576479015967), "a9", 0L, 0L, 0L,
+                null, null);
         binRepository.save(binI);
-
 
         BinRegistration binRegistration1 = new BinRegistration(user, binA, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration1);
@@ -422,8 +447,8 @@ class BookmarkServiceTest {
         bookmarkService.createBookMark("dusgh70312@gmail.com", binH.getId());
         bookmarkService.createBookMark("dusgh70312@gmail.com", binI.getId());
 
-
-        List<BookmarkResponse> bookmarks = bookmarkService.getNearByBookmarks("dusgh70312@gmail.com", 126.971969841012, 37.578567094578, 500);
+        List<BookmarkResponse> bookmarks = bookmarkService.getNearByBookmarks("dusgh70312@gmail.com", 126.971969841012,
+                37.578567094578, 500);
 
         assertThat(bookmarks).hasSize(10);
     }
@@ -434,9 +459,9 @@ class BookmarkServiceTest {
         Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
-        Bin binA = new Bin("쓰1", BinType.CIGAR, PointUtil.getPoint(126.970931592059, 37.582100721394), "a1", 0L, 0L, 0L, null, null);
+        Bin binA = new Bin("쓰1", BinType.CIGAR, PointUtil.getPoint(126.970931592059, 37.582100721394), "a1", 0L, 0L, 0L,
+                null, null);
         binRepository.save(binA);
-
 
         BinRegistration binRegistration1 = new BinRegistration(user, binA, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration1);
@@ -445,7 +470,8 @@ class BookmarkServiceTest {
 
         bookmarkService.createBookMark("dusgh70312@gmail.com", binA.getId());
 
-        List<BookmarkResponse> bookmarks = bookmarkService.getNearByBookmarks("dusgh70312@gmail.com", 126.971969841012, 37.578567094578, 300);
+        List<BookmarkResponse> bookmarks = bookmarkService.getNearByBookmarks("dusgh70312@gmail.com", 126.971969841012,
+                37.578567094578, 300);
         assertThat(bookmarks).hasSize(0);
     }
 
@@ -457,22 +483,30 @@ class BookmarkServiceTest {
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin binA = new Bin("쓰1", BinType.CIGAR, PointUtil.getPoint(126.971100692714, 37.579569691324), "a1", 0L, 0L, 0L, null, null);
+        Bin binA = new Bin("쓰1", BinType.CIGAR, PointUtil.getPoint(126.971100692714, 37.579569691324), "a1", 0L, 0L, 0L,
+                null, null);
         binRepository.save(binA);
-        Bin binB = new Bin("쓰2", BinType.CIGAR, PointUtil.getPoint(126.972105810775, 37.57703219307), "a2", 0L, 0L, 0L, null, null);
+        Bin binB = new Bin("쓰2", BinType.CIGAR, PointUtil.getPoint(126.972105810775, 37.57703219307), "a2", 0L, 0L, 0L,
+                null, null);
         binRepository.save(binB);
-        Bin binC = new Bin("쓰3", BinType.CIGAR, PointUtil.getPoint(126.97174802679, 37.576573141464), "a3", 0L, 0L, 0L, null, null);
+        Bin binC = new Bin("쓰3", BinType.CIGAR, PointUtil.getPoint(126.97174802679, 37.576573141464), "a3", 0L, 0L, 0L,
+                null, null);
         binRepository.save(binC);
-        Bin binD = new Bin("쓰4", BinType.CIGAR, PointUtil.getPoint(126.972759712192, 37.576346238559), "a4", 0L, 0L, 0L, null, null);
+        Bin binD = new Bin("쓰4", BinType.CIGAR, PointUtil.getPoint(126.972759712192, 37.576346238559), "a4", 0L, 0L, 0L,
+                null, null);
         binRepository.save(binD);
 
-        Bin binE = new Bin("쓰5", BinType.CIGAR, PointUtil.getPoint(126.973059283309, 37.582544875368), "a5", 0L, 0L, 0L, null, null);
+        Bin binE = new Bin("쓰5", BinType.CIGAR, PointUtil.getPoint(126.973059283309, 37.582544875368), "a5", 0L, 0L, 0L,
+                null, null);
         binRepository.save(binE);
-        Bin binF = new Bin("쓰6", BinType.CIGAR, PointUtil.getPoint(126.974635535622, 37.572958646195), "a6", 0L, 0L, 0L, null, null);
+        Bin binF = new Bin("쓰6", BinType.CIGAR, PointUtil.getPoint(126.974635535622, 37.572958646195), "a6", 0L, 0L, 0L,
+                null, null);
         binRepository.save(binF);
-        Bin binG = new Bin("쓰7", BinType.CIGAR, PointUtil.getPoint(126.978983502911, 37.573902932048), "a7", 0L, 0L, 0L, null, null);
+        Bin binG = new Bin("쓰7", BinType.CIGAR, PointUtil.getPoint(126.978983502911, 37.573902932048), "a7", 0L, 0L, 0L,
+                null, null);
         binRepository.save(binG);
-        Bin binH = new Bin("쓰8", BinType.CIGAR, PointUtil.getPoint(126.97579707969, 37.570158957488), "a8", 0L, 0L, 0L, null, null);
+        Bin binH = new Bin("쓰8", BinType.CIGAR, PointUtil.getPoint(126.97579707969, 37.570158957488), "a8", 0L, 0L, 0L,
+                null, null);
         binRepository.save(binH);
 
         BinRegistration binRegistration1 = new BinRegistration(user, binA, BinRegistrationStatus.PENDING);
@@ -518,7 +552,8 @@ class BookmarkServiceTest {
         bookmarkService.createBookMark("dusgh70312@gmail.com", binG.getId());
         bookmarkService.createBookMark("dusgh70312@gmail.com", binH.getId());
 
-        List<BookmarkResponse> bookmarks = bookmarkService.getAllBookmarks("dusgh70312@gmail.com", 126.971969841012, 37.578567094578, null);
+        List<BookmarkResponse> bookmarks = bookmarkService.getAllBookmarks("dusgh70312@gmail.com", 126.971969841012,
+                37.578567094578, null);
 
         assertThat(bookmarks).hasSize(10);
         Bin b = binService.findById(bin1.getId());
@@ -598,22 +633,30 @@ class BookmarkServiceTest {
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin binA = new Bin("쓰1", BinType.CIGAR, PointUtil.getPoint(126.971100692714, 37.579569691324), "a1", 0L, 0L, 0L, null, null);
+        Bin binA = new Bin("쓰1", BinType.CIGAR, PointUtil.getPoint(126.971100692714, 37.579569691324), "a1", 0L, 0L, 0L,
+                null, null);
         binRepository.save(binA);
-        Bin binB = new Bin("쓰2", BinType.CIGAR, PointUtil.getPoint(126.972105810775, 37.57703219307), "a2", 0L, 0L, 0L, null, null);
+        Bin binB = new Bin("쓰2", BinType.CIGAR, PointUtil.getPoint(126.972105810775, 37.57703219307), "a2", 0L, 0L, 0L,
+                null, null);
         binRepository.save(binB);
-        Bin binC = new Bin("쓰3", BinType.CIGAR, PointUtil.getPoint(126.97174802679, 37.576573141464), "a3", 0L, 0L, 0L, null, null);
+        Bin binC = new Bin("쓰3", BinType.CIGAR, PointUtil.getPoint(126.97174802679, 37.576573141464), "a3", 0L, 0L, 0L,
+                null, null);
         binRepository.save(binC);
-        Bin binD = new Bin("쓰4", BinType.CIGAR, PointUtil.getPoint(126.972759712192, 37.576346238559), "a4", 0L, 0L, 0L, null, null);
+        Bin binD = new Bin("쓰4", BinType.CIGAR, PointUtil.getPoint(126.972759712192, 37.576346238559), "a4", 0L, 0L, 0L,
+                null, null);
         binRepository.save(binD);
 
-        Bin binE = new Bin("쓰5", BinType.CIGAR, PointUtil.getPoint(126.973059283309, 37.582544875368), "a5", 0L, 0L, 0L, null, null);
+        Bin binE = new Bin("쓰5", BinType.CIGAR, PointUtil.getPoint(126.973059283309, 37.582544875368), "a5", 0L, 0L, 0L,
+                null, null);
         binRepository.save(binE);
-        Bin binF = new Bin("쓰6", BinType.CIGAR, PointUtil.getPoint(126.974635535622, 37.572958646195), "a6", 0L, 0L, 0L, null, null);
+        Bin binF = new Bin("쓰6", BinType.CIGAR, PointUtil.getPoint(126.974635535622, 37.572958646195), "a6", 0L, 0L, 0L,
+                null, null);
         binRepository.save(binF);
-        Bin binG = new Bin("쓰7", BinType.CIGAR, PointUtil.getPoint(126.978983502911, 37.573902932048), "a7", 0L, 0L, 0L, null, null);
+        Bin binG = new Bin("쓰7", BinType.CIGAR, PointUtil.getPoint(126.978983502911, 37.573902932048), "a7", 0L, 0L, 0L,
+                null, null);
         binRepository.save(binG);
-        Bin binH = new Bin("쓰8", BinType.CIGAR, PointUtil.getPoint(126.97579707969, 37.570158957488), "a8", 0L, 0L, 0L, null, null);
+        Bin binH = new Bin("쓰8", BinType.CIGAR, PointUtil.getPoint(126.97579707969, 37.570158957488), "a8", 0L, 0L, 0L,
+                null, null);
         binRepository.save(binH);
 
         BinRegistration binRegistration1 = new BinRegistration(user, binA, BinRegistrationStatus.PENDING);
@@ -644,7 +687,6 @@ class BookmarkServiceTest {
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration7.getId());
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration8.getId());
 
-
         Bookmark bookMark = bookmarkService.createBookMark("dusgh70312@gmail.com", bin1.getId());
         bookmarkService.createBookMark("dusgh70312@gmail.com", bin2.getId());
         bookmarkService.createBookMark("dusgh70312@gmail.com", bin3.getId());
@@ -660,7 +702,8 @@ class BookmarkServiceTest {
         bookmarkService.createBookMark("dusgh70312@gmail.com", binG.getId());
         bookmarkService.createBookMark("dusgh70312@gmail.com", binH.getId());
 
-        List<BookmarkResponse> bookmarks = bookmarkService.getAllBookmarks("dusgh70312@gmail.com", 126.971969841012, 37.578567094578, bookMark.getId());
+        List<BookmarkResponse> bookmarks = bookmarkService.getAllBookmarks("dusgh70312@gmail.com", 126.971969841012,
+                37.578567094578, bookMark.getId());
 
         assertThat(bookmarks).hasSize(10);
         Bin b1 = binService.findById(bin2.getId());
@@ -760,16 +803,16 @@ class BookmarkServiceTest {
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin = new Bin("쓰레기통1", BinType.CIGAR, PointUtil.getPoint(126.874538741651, 37.547287215885), "address1", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통1", BinType.CIGAR, PointUtil.getPoint(126.874538741651, 37.547287215885), "address1", 0L,
+                0L, 0L, null, null);
         Bin savedBin = binRepository.save(bin);
-        Bin bin2 = new Bin("쓰레기통2", BinType.CIGAR, PointUtil.getPoint(126.874538741651, 37.547287215885), "address2", 0L, 0L, 0L, null, null);
+        Bin bin2 = new Bin("쓰레기통2", BinType.CIGAR, PointUtil.getPoint(126.874538741651, 37.547287215885), "address2",
+                0L, 0L, 0L, null, null);
         Bin savedBin2 = binRepository.save(bin2);
-
 
         BinRegistration binRegistration1 = new BinRegistration(user, savedBin, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration1);
         adminBinRegistrationService.approveRegistration("admin@email.com", binRegistration1.getId());
-
 
         BinRegistration binRegistration2 = new BinRegistration(user, savedBin2, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration2);
@@ -778,8 +821,8 @@ class BookmarkServiceTest {
         bookmarkService.createBookMark("user@email.com", bin1.getId());
         bookmarkService.createBookMark("user@email.com", bin2.getId());
         adminBinManagementService.deleteBin("admin@email.com", bin.getId(), "그냥");
-        List<BookmarkResponse> nearByBookmarks = bookmarkService.getNearByBookmarks("user@email.com", 126.874538741651, 37.547287215885, 300);
-
+        List<BookmarkResponse> nearByBookmarks = bookmarkService.getNearByBookmarks("user@email.com", 126.874538741651,
+                37.547287215885, 300);
 
         assertThat(nearByBookmarks).hasSize(1);
         assertThat(nearByBookmarks).extracting("address").containsExactly("address2");
@@ -796,11 +839,12 @@ class BookmarkServiceTest {
         Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
         memberRepository.saveAll(List.of(admin, user));
 
-        Bin bin = new Bin("쓰레기통1", BinType.CIGAR, PointUtil.getPoint(126.874538741651, 37.547287215885), "address1", 0L, 0L, 0L, null, null);
+        Bin bin = new Bin("쓰레기통1", BinType.CIGAR, PointUtil.getPoint(126.874538741651, 37.547287215885), "address1", 0L,
+                0L, 0L, null, null);
         Bin savedBin = binRepository.save(bin);
-        Bin bin2 = new Bin("쓰레기통2", BinType.CIGAR, PointUtil.getPoint(126.874538741651, 37.547287215885), "address2", 0L, 0L, 0L, null, null);
+        Bin bin2 = new Bin("쓰레기통2", BinType.CIGAR, PointUtil.getPoint(126.874538741651, 37.547287215885), "address2",
+                0L, 0L, 0L, null, null);
         Bin savedBin2 = binRepository.save(bin2);
-
 
         BinRegistration binRegistration1 = new BinRegistration(user, savedBin, BinRegistrationStatus.PENDING);
         binRegistrationRepository.save(binRegistration1);
@@ -814,8 +858,8 @@ class BookmarkServiceTest {
         bookmarkService.createBookMark("user@email.com", bin2.getId());
         adminBinManagementService.deleteBin("admin@email.com", bin.getId(), "그냥");
 
-        List<BookmarkResponse> nearByBookmarks = bookmarkService.getAllBookmarks("user@email.com", 126.874538741651, 37.547287215885, null);
-
+        List<BookmarkResponse> nearByBookmarks = bookmarkService.getAllBookmarks("user@email.com", 126.874538741651,
+                37.547287215885, null);
 
         assertThat(nearByBookmarks).hasSize(1);
         assertThat(nearByBookmarks).extracting("address").containsExactly("address2");

@@ -9,9 +9,9 @@ import net.binder.api.bin.entity.Bin;
 import net.binder.api.bin.entity.BinType;
 import net.binder.api.bin.repository.BinRepository;
 import net.binder.api.bin.util.PointUtil;
-import net.binder.api.binregistration.entity.BinRegistration;
-import net.binder.api.binregistration.entity.BinRegistrationStatus;
-import net.binder.api.binregistration.repository.BinRegistrationRepository;
+import net.binder.api.bin.entity.BinRegistration;
+import net.binder.api.bin.entity.BinRegistrationStatus;
+import net.binder.api.bin.repository.BinRegistrationRepository;
 import net.binder.api.member.entity.Member;
 import net.binder.api.member.entity.Role;
 import net.binder.api.member.repository.MemberRepository;
@@ -106,7 +106,8 @@ class AdminBinRegistrationServiceTest {
     @DisplayName("등록 요청 전체를 최근순으로 조회할 수 있다.")
     void getBinRegistrationDetails_ENTIRE() {
         //given
-        Bin bin2 = new Bin("title2", BinType.RECYCLE, PointUtil.getPoint(127.2, 37.5), "address2", 0L, 0L, 0L, null, null);
+        Bin bin2 = new Bin("title2", BinType.RECYCLE, PointUtil.getPoint(127.2, 37.5), "address2", 0L, 0L, 0L, null,
+                null);
         binRepository.save(bin2);
 
         BinRegistration binRegistration2 = new BinRegistration(user, bin2, BinRegistrationStatus.APPROVED);
@@ -126,13 +127,15 @@ class AdminBinRegistrationServiceTest {
     @DisplayName("처리되지 않은 등록 요청을 최근순으로 조회할 수 있다.")
     void getBinRegistrationDetails_PENDING() {
         //given
-        Bin bin2 = new Bin("title2", BinType.RECYCLE, PointUtil.getPoint(127.2, 37.5), "address2", 0L, 0L, 0L, null, null);
+        Bin bin2 = new Bin("title2", BinType.RECYCLE, PointUtil.getPoint(127.2, 37.5), "address2", 0L, 0L, 0L, null,
+                null);
         binRepository.save(bin2);
 
         BinRegistration binRegistration2 = new BinRegistration(user, bin2, BinRegistrationStatus.APPROVED);
         binRegistrationRepository.save(binRegistration2);
 
-        Bin bin3 = new Bin("title3", BinType.RECYCLE, PointUtil.getPoint(127.2, 37.5), "address3", 0L, 0L, 0L, null, null);
+        Bin bin3 = new Bin("title3", BinType.RECYCLE, PointUtil.getPoint(127.2, 37.5), "address3", 0L, 0L, 0L, null,
+                null);
         binRepository.save(bin3);
 
         BinRegistration binRegistration3 = new BinRegistration(user, bin3, BinRegistrationStatus.PENDING);
@@ -152,13 +155,15 @@ class AdminBinRegistrationServiceTest {
     @DisplayName("처리완료된 등록 요청을 최근순으로 조회할 수 있다.")
     void getBinRegistrationDetails_FINISHED() {
         //given
-        Bin bin2 = new Bin("title2", BinType.RECYCLE, PointUtil.getPoint(127.2, 37.5), "address2", 0L, 0L, 0L, null, null);
+        Bin bin2 = new Bin("title2", BinType.RECYCLE, PointUtil.getPoint(127.2, 37.5), "address2", 0L, 0L, 0L, null,
+                null);
         binRepository.save(bin2);
 
         BinRegistration binRegistration2 = new BinRegistration(user, bin2, BinRegistrationStatus.APPROVED);
         binRegistrationRepository.save(binRegistration2);
 
-        Bin bin3 = new Bin("title3", BinType.RECYCLE, PointUtil.getPoint(127.2, 37.5), "address3", 0L, 0L, 0L, null, null);
+        Bin bin3 = new Bin("title3", BinType.RECYCLE, PointUtil.getPoint(127.2, 37.5), "address3", 0L, 0L, 0L, null,
+                null);
         binRepository.save(bin3);
 
         BinRegistration binRegistration3 = new BinRegistration(user, bin3, BinRegistrationStatus.REJECTED);

@@ -1,15 +1,15 @@
 package net.binder.api.admin.repository;
 
 import static net.binder.api.admin.dto.RegistrationFilter.ENTIRE;
-import static net.binder.api.binregistration.entity.QBinRegistration.binRegistration;
+import static net.binder.api.bin.entity.QBinRegistration.binRegistration;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import net.binder.api.admin.dto.RegistrationFilter;
-import net.binder.api.binregistration.entity.BinRegistration;
-import net.binder.api.binregistration.entity.BinRegistrationStatus;
+import net.binder.api.bin.entity.BinRegistration;
+import net.binder.api.bin.entity.BinRegistrationStatus;
 import org.springframework.stereotype.Repository;
 
 @Repository

@@ -1,14 +1,15 @@
 package net.binder.api.admin.repository;
 
-import static net.binder.api.binmodification.entity.QBinModification.binModification;
+
+import static net.binder.api.bin.entity.QBinModification.binModification;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import net.binder.api.admin.dto.ModificationFilter;
-import net.binder.api.binmodification.entity.BinModification;
-import net.binder.api.binmodification.entity.BinModificationStatus;
+import net.binder.api.bin.entity.BinModification;
+import net.binder.api.bin.entity.BinModificationStatus;
 import org.springframework.stereotype.Repository;
 
 @Repository

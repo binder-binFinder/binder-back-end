@@ -1,18 +1,11 @@
 package net.binder.api.bookmark.repository;
 
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.jpa.JPAExpressions;
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import net.binder.api.bin.entity.BinType;
-import net.binder.api.binregistration.entity.BinRegistrationStatus;
 import net.binder.api.bookmark.dto.BookmarkResponse;
-import net.binder.api.search.dto.SearchResult;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -32,11 +25,11 @@ public class BookmarkQueryRepository {
             String email,
             Double longitude,
             Double latitude,
-            Long bookmarkId){
+            Long bookmarkId) {
 
         BooleanBuilder builder = new BooleanBuilder();
 
-        if(bookmarkId !=null){
+        if (bookmarkId != null) {
             builder.and(bookmark.id.gt(bookmarkId));
         }
 
@@ -62,10 +55,6 @@ public class BookmarkQueryRepository {
 
         return Optional.of(result);
     }
-
-
-
-
 
 
 }

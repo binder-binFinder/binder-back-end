@@ -1,8 +1,8 @@
-package net.binder.api.binregistration.entity;
+package net.binder.api.bin.entity;
 
-import static net.binder.api.binregistration.entity.BinRegistrationStatus.APPROVED;
-import static net.binder.api.binregistration.entity.BinRegistrationStatus.PENDING;
-import static net.binder.api.binregistration.entity.BinRegistrationStatus.REJECTED;
+import static net.binder.api.bin.entity.BinRegistrationStatus.APPROVED;
+import static net.binder.api.bin.entity.BinRegistrationStatus.PENDING;
+import static net.binder.api.bin.entity.BinRegistrationStatus.REJECTED;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -15,7 +15,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import net.binder.api.bin.entity.Bin;
 import net.binder.api.common.entity.BaseEntity;
 import net.binder.api.member.entity.Member;
 
