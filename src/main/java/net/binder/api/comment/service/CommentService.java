@@ -1,5 +1,6 @@
 package net.binder.api.comment.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import net.binder.api.bin.entity.Bin;
@@ -14,6 +15,8 @@ import net.binder.api.comment.repository.CommentRepository;
 import net.binder.api.comment.repository.CommentSort;
 import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.common.exception.NotFoundException;
+import net.binder.api.filtering.dto.CurseCheckResult;
+import net.binder.api.filtering.service.FilteringManager;
 import net.binder.api.member.entity.Member;
 import net.binder.api.member.service.MemberService;
 import org.springframework.stereotype.Service;
@@ -36,11 +39,15 @@ public class CommentService {
 
     private final CommentDislikeRepository commentDislikeRepository;
 
-    public Long createComment(String email, Long binId, String content) {
+    private final FilteringManager filteringManager;
+
+    public Long createComment(String email, Long binId, String content) throws JsonProcessingException {
         Member member = memberService.findByEmail(email);
         Bin bin = binService.findById(binId);
 
-        Comment comment = new Comment(member, bin, content);
+        Comment comment = new Comment(member, bin, content); // 60자 이내인지 검사
+
+        validateIsCurse(content);
 
         commentRepository.save(comment);
 
@@ -210,6 +217,13 @@ public class CommentService {
     private void validateIsNotDisliked(Comment comment, Member member) {
         if (!commentDislikeRepository.existsByCommentIdAndMemberId(comment.getId(), member.getId())) {
             throw new BadRequestException("싫어요를 한 내역이 없습니다.");
+        }
+    }
+
+    private void validateIsCurse(String content) throws JsonProcessingException {
+        CurseCheckResult curseCheckResult = filteringManager.checkCurse(content);
+        if (curseCheckResult.getIsCurse()) {
+            throw new BadRequestException("댓글 내용에 비속어가 포함되어 있습니다.");
         }
     }
 }

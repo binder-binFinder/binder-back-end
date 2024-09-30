@@ -1,5 +1,6 @@
 package net.binder.api.comment.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -36,7 +37,8 @@ public class CommentController {
     @Operation(summary = "쓰레기통 댓글 작성")
     @PostMapping
     public CreateCommentResponse createComment(@CurrentUser String email,
-                                               @Valid @RequestBody CreateCommentRequest request) {
+                                               @Valid @RequestBody CreateCommentRequest request)
+            throws JsonProcessingException {
 
         Long commentId = commentService.createComment(email, request.getBinId(), request.getContent());
 

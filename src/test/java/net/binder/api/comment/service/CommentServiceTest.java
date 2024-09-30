@@ -3,6 +3,7 @@ package net.binder.api.comment.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -81,7 +82,7 @@ class CommentServiceTest {
 
     @Test
     @DisplayName("댓글이 생성되면 댓글 id를 반환한다.")
-    void createComment_success() {
+    void createComment_success() throws JsonProcessingException {
         //when
         Long commentId = commentService.createComment(member.getEmail(), bin.getId(), "댓글");
 
@@ -747,6 +748,16 @@ class CommentServiceTest {
 
         //when & then
         assertThatThrownBy(() -> commentService.deleteCommentDislike(member.getEmail(), comment.getId()))
+                .isInstanceOf(BadRequestException.class);
+
+    }
+
+    @Test
+    @DisplayName("댓글 내용에 욕설이 포함되어 있으면 예외가 발생한다.")
+    void createComment_fail_isCurse() {
+        //when & then
+        assertThatThrownBy(() -> commentService.createComment(member.getEmail(), bin.getId()
+                , "시1발 쓰레기통 위치가 안 맞잖아"))
                 .isInstanceOf(BadRequestException.class);
 
     }
