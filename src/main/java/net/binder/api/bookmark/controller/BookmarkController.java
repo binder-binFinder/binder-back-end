@@ -32,23 +32,14 @@ public class BookmarkController {
         bookMarkService.deleteBookMark(email, id);
     }
 
-    @Operation(summary = "가까운 쓰레기통 북마크 목록 조회")
-    @GetMapping("/nearby")
-    public List<BookmarkResponse> getNearByBookmarks(@CurrentUser String email,
-                                                     @RequestParam Double longitude,
-                                                     @RequestParam Double latitude,
-                                                     @RequestParam int radius) {
-
-        return bookMarkService.getNearByBookmarks(email, longitude, latitude, radius);
-    }
-
     @Operation(summary = "쓰레기통 북마크 전체 목록 조회")
     @GetMapping("/all")
     public List<BookmarkResponse> getAllBookmarks(@CurrentUser String email,
                                                   @RequestParam Double longitude,
                                                   @RequestParam Double latitude,
-                                                  @RequestParam(required = false) Long lastId) {
+                                                  @RequestParam(required = false) Long lastId,
+                                                  @RequestParam(required = false)Double lastDistance) {
 
-        return bookMarkService.getAllBookmarks(email, longitude, latitude, lastId);
+        return bookMarkService.getAllBookmarks(email, longitude, latitude, lastId, lastDistance);
     }
 }
