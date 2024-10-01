@@ -5,15 +5,18 @@ import lombok.RequiredArgsConstructor;
 import net.binder.api.admin.dto.BinModificationDetail;
 import net.binder.api.admin.dto.ModificationFilter;
 import net.binder.api.admin.repository.AdminBinModificationQueryRepository;
+import net.binder.api.bin.entity.Bin;
 import net.binder.api.bin.entity.BinModification;
 import net.binder.api.bin.entity.BinModificationStatus;
 import net.binder.api.bin.repository.BinModificationRepository;
+import net.binder.api.bin.util.PointUtil;
 import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.common.exception.NotFoundException;
 import net.binder.api.member.entity.Member;
 import net.binder.api.member.service.MemberService;
 import net.binder.api.notification.entity.NotificationType;
 import net.binder.api.notification.service.NotificationService;
+import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,6 +52,13 @@ public class AdminBinModificationService {
         BinModification binModification = findModificationOrThrow(id);
 
         validateModificationStatus(binModification);
+
+        Bin target = binModification.getBin();
+
+        Point newPoint = PointUtil.getPoint(binModification.getLongitude(), binModification.getLatitude());
+
+        target.update(binModification.getTitle(), binModification.getType(), newPoint, binModification.getAddress(),
+                binModification.getImageUrl());
 
         binModification.approve();
 
