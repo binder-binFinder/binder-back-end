@@ -158,6 +158,7 @@ class SearchLogServiceTest {
     @DisplayName("검색 결과는 마지막으로 본 검색기록 이후의 10개를 추가로 요청할 수 있다.")
     @Test
     void searchlog_with_pagination(){
+
         List<SearchResult> searchResults1 = searchService.searchByKeyword(126.971969841012, 37.578567094578, 126.971969841012, 37.578567094578, "키워드1", "주소1", "dusgh70312@gmail.com");
         List<SearchResult> searchResults2 = searchService.searchByKeyword(126.871969841012, 37.478567094578, 126.871969841012, 37.478567094578, "키워드2", "주소2", "dusgh70312@gmail.com");
         List<SearchResult> searchResults3 = searchService.searchByKeyword(126.971969841012, 37.578567094578, 126.971969841012, 37.578567094578, "키워드3", "주소3", "dusgh70312@gmail.com");
@@ -257,7 +258,7 @@ class SearchLogServiceTest {
 
         List<SearchLogItem> searchLogItems = searchLogService.getSearchLog("dusgh70312@gmail.com", null);
         assertThatThrownBy(()->searchLogService.deleteSearchLog("dusgh7031@gmail.com", searchLogItems.get(0).getId()))
-                .isInstanceOf(BadRequestException.class).hasMessage("해당 회원의 검색 기록이 아닙니다");
+                .isInstanceOf(BadRequestException.class).hasMessage("해당 회원의 검색 기록이 아닙니다.");
     }
 
 }

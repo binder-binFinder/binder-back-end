@@ -20,11 +20,7 @@ public class SearchLogQueryRepository {
             String email,
             Long lastSearchLogId){
 
-        BooleanBuilder builder = createBaseCondition(email);
-         if (lastSearchLogId != null ) {
-            builder.and(searchLog.id.gt(lastSearchLogId));
-        }
-
+        BooleanBuilder builder = createBaseCondition(email, lastSearchLogId);
         return jpaQueryFactory
                 .select(Projections.constructor(SearchLogItem.class,
                         searchLog.id,
@@ -39,9 +35,13 @@ public class SearchLogQueryRepository {
                 .fetch();
     }
 
-    private BooleanBuilder createBaseCondition(String email) {
-        return new BooleanBuilder()
+    private BooleanBuilder createBaseCondition(String email, Long lastSearchLogId) {
+        BooleanBuilder builder = new BooleanBuilder()
                 .and(searchLog.member.email.eq(email))
                 .and(searchLog.deletedAt.isNull());
+        if (lastSearchLogId != null ) {
+            builder.and(searchLog.id.gt(lastSearchLogId));
+        }
+        return builder;
     }
 }
