@@ -2,6 +2,7 @@ package net.binder.api.comment.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import net.binder.api.bin.entity.Bin;
 import net.binder.api.bin.service.BinService;
@@ -223,7 +224,15 @@ public class CommentService {
     private void validateIsCurse(String content) throws JsonProcessingException {
         CurseCheckResult curseCheckResult = filteringManager.checkCurse(content);
         if (curseCheckResult.getIsCurse()) {
-            throw new BadRequestException("댓글 내용에 비속어가 포함되어 있습니다.");
+            String words = extractCurseWords(curseCheckResult);
+
+            throw new BadRequestException("댓글 내용에 비속어가 포함되어 있습니다. " + words);
         }
+    }
+
+    private String extractCurseWords(CurseCheckResult curseCheckResult) {
+        return curseCheckResult.getWords()
+                .stream()
+                .collect(Collectors.joining(", ", "(", ")"));
     }
 }
