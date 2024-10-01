@@ -5,9 +5,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.binder.api.bin.entity.Bin;
-import net.binder.api.bin.entity.BinType;
 import net.binder.api.bin.entity.BinRegistration;
 import net.binder.api.bin.entity.BinRegistrationStatus;
+import net.binder.api.bin.entity.BinType;
 
 @Getter
 @RequiredArgsConstructor
@@ -21,6 +21,10 @@ public class BinRegistrationDetail {
     private final String title;
 
     private final String address;
+
+    private final Double longitude;
+
+    private final Double latitude;
 
     private final String nickname;
 
@@ -41,6 +45,8 @@ public class BinRegistrationDetail {
                 .binId(bin.getId())
                 .title(bin.getTitle())
                 .address(bin.getAddress())
+                .longitude(bin.getPoint().getX())
+                .latitude(bin.getPoint().getY())
                 .nickname(binRegistration.getMember().getNickname())
                 .type(bin.getType())
                 .status(binRegistration.getStatus())
