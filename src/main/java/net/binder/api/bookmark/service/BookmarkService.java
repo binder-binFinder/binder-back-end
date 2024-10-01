@@ -38,8 +38,6 @@ public class BookmarkService {
     @Autowired
     private BookmarkQueryRepository bookmarkQueryRepository;
 
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Bookmark createBookMark(String email, Long binId){
        if(bookmarkRepository.existsByMember_EmailAndBin_Id(email, binId)){
             throw new BadRequestException("이미 북마크를 한 쓰레기통입니다.");
