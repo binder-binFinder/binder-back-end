@@ -26,21 +26,8 @@ public class SearchLogService {
             Member member,
             String keyword,
             String address,
-            List<SearchResult> searchResults
-    ) {
-
-        boolean hasBinsNearBy = !searchResults.isEmpty();
-        boolean hasBookmarkedBin = searchResults.stream()
-                .anyMatch(SearchResult::getIsBookMarked);
-
-        SearchLog searchLog = SearchLog.builder()
-                .member(member)
-                .keyword(keyword)
-                .address(address)
-                .hasBinsNearby(hasBinsNearBy)
-                .hasBookmarkedBin(hasBookmarkedBin)
-                .build();
-
+            List<SearchResult> searchResults) {
+        SearchLog searchLog = buildSearchLog(member, keyword, address, searchResults);
         searchLogRepository.save(searchLog);
     }
 
@@ -54,9 +41,23 @@ public class SearchLogService {
                 () -> new BadRequestException("존재하지 않는 검색 기록입니다.")
         );
 
-        if (!searchLog.isOwnedBy(email)) {
-            throw new BadRequestException("해당 회원의 검색 기록이 아닙니다");
-        }
+        validateSearchLogOwnership(email, searchLog);
         searchLog.softDelete();
+    }
+
+    private SearchLog buildSearchLog(Member member, String keyword, String address, List<SearchResult> searchResults) {
+        return SearchLog.builder()
+                .member(member)
+                .keyword(keyword)
+                .address(address)
+                .hasBinsNearby(!searchResults.isEmpty())
+                .hasBookmarkedBin(searchResults.stream().anyMatch(SearchResult::getIsBookMarked))
+                .build();
+    }
+
+    private void validateSearchLogOwnership(String email, SearchLog searchLog) {
+        if (!searchLog.isOwnedBy(email)) {
+            throw new BadRequestException("해당 회원의 검색 기록이 아닙니다.");
+        }
     }
 }
