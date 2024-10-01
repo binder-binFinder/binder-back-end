@@ -29,4 +29,8 @@ public class BinUpdateRequest {
 
     @NotBlank
     private final String modificationReason;
+
+    private final Long registrationId;
+
+    private final Long modificationId;
 }
