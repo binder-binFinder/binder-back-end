@@ -6,12 +6,12 @@ import java.util.List;
 import net.binder.api.admin.dto.BinModificationDetail;
 import net.binder.api.admin.dto.ModificationFilter;
 import net.binder.api.bin.entity.Bin;
-import net.binder.api.bin.entity.BinType;
-import net.binder.api.bin.repository.BinRepository;
-import net.binder.api.bin.util.PointUtil;
 import net.binder.api.bin.entity.BinModification;
 import net.binder.api.bin.entity.BinModificationStatus;
+import net.binder.api.bin.entity.BinType;
 import net.binder.api.bin.repository.BinModificationRepository;
+import net.binder.api.bin.repository.BinRepository;
+import net.binder.api.bin.util.PointUtil;
 import net.binder.api.member.entity.Member;
 import net.binder.api.member.entity.Role;
 import net.binder.api.member.repository.MemberRepository;
@@ -63,18 +63,25 @@ class AdminBinModificationServiceTest {
         bin = new Bin("title", BinType.BEVERAGE, PointUtil.getPoint(127.2, 37.5), "address", 0L, 0L, 0L, null, null);
         binRepository.save(bin);
 
-        binModification = new BinModification(user, bin, "title", "adress", BinType.BEVERAGE, null, 0, 10,
+        binModification = new BinModification(user, bin, "newTitle", "newAddress", BinType.GENERAL, null, 0, 10,
                 BinModificationStatus.PENDING, "reason1");
         binModificationRepository.save(binModification);
     }
 
     @Test
-    @DisplayName("쓰레기통 수정 요청을 승인하면 상태가 approved로 변경되고 알림이 전송된다.")
+    @DisplayName("쓰레기통 수정 요청을 승인하면 상태가 approved로 변경되고, 수정 사항이 적용되며 알림이 전송된다.")
     void approveModification() {
         //when
         adminBinModificationService.approveModification(email, binModification.getId());
 
         //then
+        assertThat(bin.getTitle()).isEqualTo(binModification.getTitle());
+        assertThat(bin.getAddress()).isEqualTo(binModification.getAddress());
+        assertThat(bin.getImageUrl()).isEqualTo(binModification.getImageUrl());
+        assertThat(bin.getType()).isEqualTo(binModification.getType());
+        assertThat(bin.getPoint()).isEqualTo(
+                PointUtil.getPoint(binModification.getLongitude(), binModification.getLatitude()));
+
         assertThat(binModification.getStatus()).isEqualTo(BinModificationStatus.APPROVED);
         assertThat(binModification.getBin().getDeletedAt()).isNull();
         assertThat(notificationRepository.findAll().size()).isEqualTo(1);
