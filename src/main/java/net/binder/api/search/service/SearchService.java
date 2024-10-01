@@ -8,6 +8,7 @@ import net.binder.api.member.service.MemberService;
 import net.binder.api.search.dto.SearchDto;
 import net.binder.api.search.dto.SearchResult;
 import net.binder.api.search.repository.SearchQueryRepository;
+import net.binder.api.searchlog.service.SearchLogService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +18,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional
 public class SearchService {
+
+    private final SearchLogService searchLogService;
 
     private final SearchQueryRepository searchQueryRepository;
 
@@ -55,6 +58,7 @@ public class SearchService {
         }
 
         Member member = memberService.findByEmail(email);
+
         return searchQueryRepository.findBins(searchDto, member.getId());
     }
 
@@ -86,13 +90,15 @@ public class SearchService {
         }
 
         Member member = memberService.findByEmail(email);
-        //keyword와 addreess를 통해서 검색 로그 저장하기
-
-        return searchQueryRepository.findBinsByKeyword(
+        List<SearchResult> results = searchQueryRepository.findBinsByKeyword(
                 longitude,
                 latitude,
                 targetLongitude,
                 targetLatitude,
                 member.getId());
+        searchLogService.createSearchLog(member, keyword, address, results);
+
+        return results;
+
     }
 }
