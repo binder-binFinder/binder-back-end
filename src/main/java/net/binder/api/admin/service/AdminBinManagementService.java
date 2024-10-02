@@ -1,7 +1,7 @@
 package net.binder.api.admin.service;
 
 import lombok.RequiredArgsConstructor;
-import net.binder.api.bin.dto.BinUpdateRequest;
+import net.binder.api.admin.dto.AdminBinUpdateRequest;
 import net.binder.api.bin.entity.Bin;
 import net.binder.api.bin.entity.BinModification;
 import net.binder.api.bin.entity.BinRegistration;
@@ -40,12 +40,13 @@ public class AdminBinManagementService {
 
     private final NotificationService notificationService;
 
-    public void updateBin(String email, Long binId, BinUpdateRequest request) {
+    public void updateBin(String email, Long binId, AdminBinUpdateRequest request) {
         Member admin = memberService.findByEmail(email);
 
         Bin bin = binReader.readOne(binId);
 
-        binManager.update(bin, request);
+        binManager.update(bin, request.getTitle(), request.getType(), request.getAddress(), request.getLongitude(),
+                request.getLatitude(), request.getImageUrl());
 
         notificationService.sendNotification(admin, getReceiver(bin), bin, NotificationType.BIN_MODIFIED,
                 request.getModificationReason());
@@ -78,7 +79,7 @@ public class AdminBinManagementService {
         return binRegistration.getMember();
     }
 
-    private void approveRegistrationIfExists(BinUpdateRequest request, Member admin) {
+    private void approveRegistrationIfExists(AdminBinUpdateRequest request, Member admin) {
         if (request.getRegistrationId() != null) {
             BinRegistration binRegistration = binRegistrationReader.readOne(request.getRegistrationId());
             binRegistrationManager.approve(binRegistration);
@@ -87,7 +88,7 @@ public class AdminBinManagementService {
         }
     }
 
-    private void approveModificationIfExists(BinUpdateRequest request, Member admin, Bin bin) {
+    private void approveModificationIfExists(AdminBinUpdateRequest request, Member admin, Bin bin) {
         if (request.getModificationId() != null) {
             BinModification binModification = binModificationReader.readOne(request.getModificationId());
             binModificationManager.approve(binModification);

@@ -6,7 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.binder.api.bin.dto.BinCreateRequest;
 import net.binder.api.bin.dto.BinDetailResponse;
-import net.binder.api.bin.dto.BinUpdateRequest;
+import net.binder.api.bin.dto.UserBinUpdateRequest;
 import net.binder.api.bin.service.BinService;
 import net.binder.api.common.annotation.CurrentUser;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,7 +41,7 @@ public class BinController {
     @Operation(summary = "쓰레기통 수정 요청")
     @PatchMapping("/{id}")
     public void requestBinModification(@CurrentUser String email, @PathVariable("id") Long id,
-                                       @Valid @RequestBody BinUpdateRequest binUpdateRequest) {
-        binService.requestBinModification(email, id, binUpdateRequest);
+                                       @Valid @RequestBody UserBinUpdateRequest userBinUpdateRequest) {
+        binService.requestBinModification(email, id, userBinUpdateRequest);
     }
 }
