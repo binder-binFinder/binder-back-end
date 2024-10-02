@@ -28,7 +28,6 @@ public class BookmarkQueryRepository {
             Long lastBookmarkId,
             Double lastDistance){
 
-
         BooleanBuilder builder = createBaseCondition(email);
         NumberExpression<Double> distance = calculateDistance(latitude, longitude);
 
@@ -43,6 +42,8 @@ public class BookmarkQueryRepository {
                         bin.address,
                         bin.title,
                         bin.type.as("binType"),
+                        Expressions.numberTemplate(Double.class, "ST_Y({0})", bin.point),
+                        Expressions.numberTemplate(Double.class, "ST_X({0})", bin.point),
                         distance.as("distance")))
                 .from(bookmark)
                 .leftJoin(bookmark.bin, bin)

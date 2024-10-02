@@ -14,7 +14,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import net.binder.api.bin.entity.BinRegistrationStatus;
-import net.binder.api.search.dto.SearchDto;
+import net.binder.api.search.dto.SearchRequest;
 import net.binder.api.search.dto.SearchResult;
 import org.springframework.stereotype.Repository;
 
@@ -27,12 +27,12 @@ public class SearchQueryRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    public List<SearchResult> findBins(SearchDto searchDto, Long memberId) {
+    public List<SearchResult> findBins(SearchRequest searchRequest, Long memberId) {
         BooleanBuilder booleanBuilder = new BooleanBuilder();
-        if (searchDto.getType() != null) {
-            booleanBuilder.and(bin.type.eq(searchDto.getType()));
+        if (searchRequest.getType() != null) {
+            booleanBuilder.and(bin.type.eq(searchRequest.getType()));
         }
-        String point = String.format("POINT(%.12f %.12f)", searchDto.getLongitude(), searchDto.getLatitude());
+        String point = String.format("POINT(%.12f %.12f)", searchRequest.getLongitude(), searchRequest.getLatitude());
         String geoFunction = "ST_CONTAINS(ST_BUFFER(ST_GeomFromText({0}, 4326), {1}), point)";
         JPAQuery<SearchResult> query = jpaQueryFactory
                 .select(Projections.constructor(SearchResult.class,
@@ -59,7 +59,7 @@ public class SearchQueryRepository {
                 .from(bin)
                 .leftJoin(bin.binRegistration, binRegistration)
                 .where(booleanBuilder.and(
-                        Expressions.booleanTemplate(geoFunction, point, searchDto.getRadius()
+                        Expressions.booleanTemplate(geoFunction, point, searchRequest.getRadius()
                                 )
                                 .and(binRegistration.isNull()
                                         .or(binRegistration.status.eq(BinRegistrationStatus.APPROVED)

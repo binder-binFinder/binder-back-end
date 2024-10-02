@@ -479,6 +479,26 @@ class BookmarkServiceTest {
                 "쓰5");
     }
 
+
+    @DisplayName("페이지네이션을 할 때 마지막 북마크의 id와 distance를 보내야 한다.")
+    @Test
+    void bookmark_pagination_lastId_lastDistance() {
+        Member admin = new Member("admin@email.com", "admin", Role.ROLE_ADMIN, null);
+        Member user = new Member("user@email.com", "user", Role.ROLE_USER, null);
+        memberRepository.saveAll(List.of(admin, user));
+
+        bookmarkService.createBookMark(user.getEmail(), bin1.getId());
+
+        assertThatThrownBy(()->
+                bookmarkService.getAllBookmarks("dusgh70312@gmail.com", 127.027722755059, 37.4956241314633, bin1.getId(), null))
+                .isInstanceOf(BadRequestException.class).hasMessage("마지막 북마크 id와 거리를 함께 보내주셔야 합니다.");
+
+        assertThatThrownBy(()->
+                bookmarkService.getAllBookmarks("dusgh70312@gmail.com", 127.027722755059, 37.4956241314633, null, 23.2))
+                .isInstanceOf(BadRequestException.class).hasMessage("마지막 북마크 id와 거리를 함께 보내주셔야 합니다.");
+    }
+
+
     @DisplayName("존재하지 않는 회원 아이디로 북마크를 하면 북마크가 되지 않는다.")
     @Test
     void no_member() {
@@ -541,7 +561,6 @@ class BookmarkServiceTest {
         assertThat(bookmarkCount).isEqualTo(2L);
 
     }
-
 
     private Bin saveBin(Member user, String title, BinType binType, Double longitude, Double latitude, String address) {
         Bin bin = new Bin(title, binType, PointUtil.getPoint(longitude, latitude), address, 0L, 0L, 0L, null, null);
