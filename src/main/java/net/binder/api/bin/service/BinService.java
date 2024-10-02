@@ -3,16 +3,16 @@ package net.binder.api.bin.service;
 import lombok.RequiredArgsConstructor;
 import net.binder.api.bin.dto.BinCreateRequest;
 import net.binder.api.bin.dto.BinDetailResponse;
-import net.binder.api.bin.dto.BinUpdateRequest;
+import net.binder.api.bin.dto.UserBinUpdateRequest;
 import net.binder.api.bin.entity.Bin;
 import net.binder.api.bin.entity.BinDetailProjection;
-import net.binder.api.bin.repository.BinRepository;
 import net.binder.api.bin.entity.BinModification;
 import net.binder.api.bin.entity.BinModificationStatus;
-import net.binder.api.bin.repository.BinModificationRepository;
 import net.binder.api.bin.entity.BinRegistration;
 import net.binder.api.bin.entity.BinRegistrationStatus;
+import net.binder.api.bin.repository.BinModificationRepository;
 import net.binder.api.bin.repository.BinRegistrationRepository;
+import net.binder.api.bin.repository.BinRepository;
 import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.common.exception.NotFoundException;
 import net.binder.api.complaint.service.ComplaintCountReader;
@@ -87,14 +87,14 @@ public class BinService {
                         new NotFoundException("존재하지 않는 쓰레기통입니다."));
     }
 
-    public void requestBinModification(String email, Long binId, BinUpdateRequest binUpdateRequest) {
+    public void requestBinModification(String email, Long binId, UserBinUpdateRequest userBinUpdateRequest) {
         Member member = memberService.findByEmail(email);
         Bin bin = findById(binId);
 
         validateBinStatus(bin);
         validatePendingModification(bin);
 
-        BinModification binModification = getBinModification(binUpdateRequest, member, bin);
+        BinModification binModification = getBinModification(userBinUpdateRequest, member, bin);
 
         binModificationRepository.save(binModification);
     }
@@ -134,18 +134,18 @@ public class BinService {
         }
     }
 
-    private BinModification getBinModification(BinUpdateRequest binUpdateRequest, Member member, Bin bin) {
+    private BinModification getBinModification(UserBinUpdateRequest userBinUpdateRequest, Member member, Bin bin) {
         return BinModification.builder()
                 .member(member)
                 .bin(bin)
-                .title(binUpdateRequest.getTitle())
-                .address(binUpdateRequest.getAddress())
-                .type(binUpdateRequest.getType())
-                .imageUrl(binUpdateRequest.getImageUrl())
-                .latitude(binUpdateRequest.getLatitude())
-                .longitude(binUpdateRequest.getLongitude())
+                .title(userBinUpdateRequest.getTitle())
+                .address(userBinUpdateRequest.getAddress())
+                .type(userBinUpdateRequest.getType())
+                .imageUrl(userBinUpdateRequest.getImageUrl())
+                .latitude(userBinUpdateRequest.getLatitude())
+                .longitude(userBinUpdateRequest.getLongitude())
                 .status(BinModificationStatus.PENDING)
-                .modificationReason(binUpdateRequest.getModificationReason())
+                .modificationReason(userBinUpdateRequest.getModificationReason())
                 .build();
     }
 

@@ -6,6 +6,7 @@ import net.binder.api.admin.dto.BinModificationDetail;
 import net.binder.api.admin.dto.ModificationFilter;
 import net.binder.api.bin.entity.BinModification;
 import net.binder.api.bin.entity.BinModificationStatus;
+import net.binder.api.bin.service.BinManager;
 import net.binder.api.bin.service.BinModificationManager;
 import net.binder.api.bin.service.BinModificationReader;
 import net.binder.api.member.entity.Member;
@@ -25,6 +26,8 @@ public class AdminBinModificationService {
     private final BinModificationReader binModificationReader;
 
     private final BinModificationManager binModificationManager;
+
+    private final BinManager binManager;
 
     private final MemberService memberService;
 
@@ -46,6 +49,10 @@ public class AdminBinModificationService {
         Member admin = memberService.findByEmail(email);
 
         BinModification binModification = binModificationReader.readOne(modificationId);
+
+        binManager.update(binModification.getBin(), binModification.getTitle(), binModification.getType()
+                , binModification.getAddress(), binModification.getLongitude(), binModification.getLatitude(),
+                binModification.getImageUrl());
 
         binModificationManager.approve(binModification);
 

@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import jakarta.persistence.EntityManager;
 import java.util.List;
-import net.binder.api.bin.dto.BinUpdateRequest;
+import net.binder.api.admin.dto.AdminBinUpdateRequest;
 import net.binder.api.bin.entity.Bin;
 import net.binder.api.bin.entity.BinModification;
 import net.binder.api.bin.entity.BinModificationStatus;
@@ -63,19 +63,20 @@ class AdminBinManagementServiceTest {
         binRepository.save(bin);
 
         //when
-        BinUpdateRequest binUpdateRequest = new BinUpdateRequest("title2", "address2", BinType.CIGAR, "url", 100d, 20d,
+        AdminBinUpdateRequest adminBinUpdateRequest = new AdminBinUpdateRequest("title2", "address2", BinType.CIGAR,
+                "url", 100d, 20d,
                 "수정", null, null);
-        adminBinManagementService.updateBin(admin.getEmail(), bin.getId(), binUpdateRequest);
+        adminBinManagementService.updateBin(admin.getEmail(), bin.getId(), adminBinUpdateRequest);
 
         //then
         Bin modified = binRepository.findById(bin.getId()).get();
 
-        assertThat(modified.getTitle()).isEqualTo(binUpdateRequest.getTitle());
-        assertThat(modified.getPoint().getX()).isEqualTo(binUpdateRequest.getLongitude());
-        assertThat(modified.getPoint().getY()).isEqualTo(binUpdateRequest.getLatitude());
-        assertThat(modified.getAddress()).isEqualTo(binUpdateRequest.getAddress());
-        assertThat(modified.getType()).isEqualTo(binUpdateRequest.getType());
-        assertThat(modified.getImageUrl()).isEqualTo(binUpdateRequest.getImageUrl());
+        assertThat(modified.getTitle()).isEqualTo(adminBinUpdateRequest.getTitle());
+        assertThat(modified.getPoint().getX()).isEqualTo(adminBinUpdateRequest.getLongitude());
+        assertThat(modified.getPoint().getY()).isEqualTo(adminBinUpdateRequest.getLatitude());
+        assertThat(modified.getAddress()).isEqualTo(adminBinUpdateRequest.getAddress());
+        assertThat(modified.getType()).isEqualTo(adminBinUpdateRequest.getType());
+        assertThat(modified.getImageUrl()).isEqualTo(adminBinUpdateRequest.getImageUrl());
         assertThat(modified.getModifiedAt()).isNotNull();
 
         List<Notification> notifications = notificationRepository.findAll();
@@ -85,7 +86,7 @@ class AdminBinManagementServiceTest {
 
         assertThat(notification.getSender()).isEqualTo(admin);
         assertThat(notification.getReceiver()).isEqualTo(user);
-        assertThat(notification.getAdditionalInfo()).isEqualTo(binUpdateRequest.getModificationReason());
+        assertThat(notification.getAdditionalInfo()).isEqualTo(adminBinUpdateRequest.getModificationReason());
         assertThat(notification.getType()).isEqualTo(NotificationType.BIN_MODIFIED);
     }
 
@@ -105,21 +106,22 @@ class AdminBinManagementServiceTest {
         binRepository.save(bin);
 
         //when
-        BinUpdateRequest binUpdateRequest = new BinUpdateRequest("title2", "address2", BinType.CIGAR, "url", 100d, 20d,
+        AdminBinUpdateRequest adminBinUpdateRequest = new AdminBinUpdateRequest("title2", "address2", BinType.CIGAR,
+                "url", 100d, 20d,
                 "수정", binRegistration.getId(), null);
-        adminBinManagementService.updateBin(admin.getEmail(), bin.getId(), binUpdateRequest);
+        adminBinManagementService.updateBin(admin.getEmail(), bin.getId(), adminBinUpdateRequest);
 
         //then
         assertThat(binRegistration.getStatus()).isEqualTo(BinRegistrationStatus.APPROVED);
 
         Bin modified = binRepository.findById(bin.getId()).get();
 
-        assertThat(modified.getTitle()).isEqualTo(binUpdateRequest.getTitle());
-        assertThat(modified.getPoint().getX()).isEqualTo(binUpdateRequest.getLongitude());
-        assertThat(modified.getPoint().getY()).isEqualTo(binUpdateRequest.getLatitude());
-        assertThat(modified.getAddress()).isEqualTo(binUpdateRequest.getAddress());
-        assertThat(modified.getType()).isEqualTo(binUpdateRequest.getType());
-        assertThat(modified.getImageUrl()).isEqualTo(binUpdateRequest.getImageUrl());
+        assertThat(modified.getTitle()).isEqualTo(adminBinUpdateRequest.getTitle());
+        assertThat(modified.getPoint().getX()).isEqualTo(adminBinUpdateRequest.getLongitude());
+        assertThat(modified.getPoint().getY()).isEqualTo(adminBinUpdateRequest.getLatitude());
+        assertThat(modified.getAddress()).isEqualTo(adminBinUpdateRequest.getAddress());
+        assertThat(modified.getType()).isEqualTo(adminBinUpdateRequest.getType());
+        assertThat(modified.getImageUrl()).isEqualTo(adminBinUpdateRequest.getImageUrl());
         assertThat(modified.getModifiedAt()).isNotNull();
 
         List<Notification> notifications = notificationRepository.findAll();
@@ -129,7 +131,7 @@ class AdminBinManagementServiceTest {
 
         assertThat(notification1.getSender()).isEqualTo(admin);
         assertThat(notification1.getReceiver()).isEqualTo(user);
-        assertThat(notification1.getAdditionalInfo()).isEqualTo(binUpdateRequest.getModificationReason());
+        assertThat(notification1.getAdditionalInfo()).isEqualTo(adminBinUpdateRequest.getModificationReason());
         assertThat(notification1.getType()).isEqualTo(NotificationType.BIN_MODIFIED);
 
         Notification notification2 = notifications.get(1);
@@ -159,21 +161,22 @@ class AdminBinManagementServiceTest {
         binModificationRepository.save(binModification);
 
         //when
-        BinUpdateRequest binUpdateRequest = new BinUpdateRequest("title2", "address2", BinType.CIGAR, "url", 100d, 20d,
+        AdminBinUpdateRequest adminBinUpdateRequest = new AdminBinUpdateRequest("title2", "address2", BinType.CIGAR,
+                "url", 100d, 20d,
                 "수정", null, binModification.getId());
-        adminBinManagementService.updateBin(admin.getEmail(), bin.getId(), binUpdateRequest);
+        adminBinManagementService.updateBin(admin.getEmail(), bin.getId(), adminBinUpdateRequest);
 
         //then
         assertThat(binModification.getStatus()).isEqualTo(BinModificationStatus.APPROVED);
 
         Bin modified = binRepository.findById(bin.getId()).get();
 
-        assertThat(modified.getTitle()).isEqualTo(binUpdateRequest.getTitle());
-        assertThat(modified.getPoint().getX()).isEqualTo(binUpdateRequest.getLongitude());
-        assertThat(modified.getPoint().getY()).isEqualTo(binUpdateRequest.getLatitude());
-        assertThat(modified.getAddress()).isEqualTo(binUpdateRequest.getAddress());
-        assertThat(modified.getType()).isEqualTo(binUpdateRequest.getType());
-        assertThat(modified.getImageUrl()).isEqualTo(binUpdateRequest.getImageUrl());
+        assertThat(modified.getTitle()).isEqualTo(adminBinUpdateRequest.getTitle());
+        assertThat(modified.getPoint().getX()).isEqualTo(adminBinUpdateRequest.getLongitude());
+        assertThat(modified.getPoint().getY()).isEqualTo(adminBinUpdateRequest.getLatitude());
+        assertThat(modified.getAddress()).isEqualTo(adminBinUpdateRequest.getAddress());
+        assertThat(modified.getType()).isEqualTo(adminBinUpdateRequest.getType());
+        assertThat(modified.getImageUrl()).isEqualTo(adminBinUpdateRequest.getImageUrl());
         assertThat(modified.getModifiedAt()).isNotNull();
 
         List<Notification> notifications = notificationRepository.findAll();
@@ -183,7 +186,7 @@ class AdminBinManagementServiceTest {
 
         assertThat(notification1.getSender()).isEqualTo(admin);
         assertThat(notification1.getReceiver()).isEqualTo(user);
-        assertThat(notification1.getAdditionalInfo()).isEqualTo(binUpdateRequest.getModificationReason());
+        assertThat(notification1.getAdditionalInfo()).isEqualTo(adminBinUpdateRequest.getModificationReason());
         assertThat(notification1.getType()).isEqualTo(NotificationType.BIN_MODIFIED);
 
         Notification notification2 = notifications.get(1);

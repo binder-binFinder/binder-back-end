@@ -8,7 +8,7 @@ import net.binder.api.bin.entity.BinType;
 
 @Getter
 @RequiredArgsConstructor
-public class BinUpdateRequest {
+public class UserBinUpdateRequest {
 
     @NotBlank
     private final String title;
@@ -29,8 +29,4 @@ public class BinUpdateRequest {
 
     @NotBlank
     private final String modificationReason;
-
-    private final Long registrationId;
-
-    private final Long modificationId;
 }
