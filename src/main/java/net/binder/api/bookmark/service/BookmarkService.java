@@ -9,11 +9,9 @@ import net.binder.api.bookmark.repository.BookmarkQueryRepository;
 import net.binder.api.bookmark.repository.BookmarkRepository;
 import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.member.entity.Member;
-import net.binder.api.member.repository.MemberRepository;
 import net.binder.api.member.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -22,9 +20,6 @@ import java.util.List;
 @Transactional
 @RequiredArgsConstructor
 public class BookmarkService {
-
-    @Autowired
-    private MemberRepository memberRepository;
 
     @Autowired
     private BinService binService;
@@ -73,6 +68,10 @@ public class BookmarkService {
         if (longitude < 124 || longitude > 133 || latitude < 33 || latitude > 44) {
             throw new BadRequestException("잘못된 좌표입니다.");
         }
+        if(bookmarkId != null && lastDistance == null || bookmarkId==null && lastDistance !=null ){
+            throw new BadRequestException("마지막 북마크 id와 거리를 함께 보내주셔야 합니다.");
+        }
+
         return bookmarkQueryRepository.findBookmarksByMember(email, longitude, latitude, bookmarkId, lastDistance)
                 .orElseThrow(() -> new BadRequestException("북마크 내역이 존재하지 않습니다."));
     }
