@@ -4,32 +4,25 @@ import lombok.*;
 import net.binder.api.bin.entity.BinType;
 
 
-@AllArgsConstructor
 @Builder
 @Getter
-@NoArgsConstructor
+@RequiredArgsConstructor
 public class BookmarkResponse {
 
-    private Long bookmarkId;
+    private final Long bookmarkId;
 
-    private Long binId;
+    private final Long binId;
 
-    private String address;
+    private final String address;
 
-    private String title;
+    private final String title;
 
-    private BinType binType;
+    private final BinType binType;
 
-    private Double distance;
+    private final Double longitude;
 
-    public static BookmarkResponse from(BookmarkProjection projection) {
-        return BookmarkResponse.builder()
-                .bookmarkId(projection.getBookmarkId())
-                .binId(projection.getBinId())
-                .address(projection.getAddress())
-                .title(projection.getTitle())
-                .binType(projection.getBinType())
-                .distance(projection.getDistance())
-                .build();
-    }
+    private final Double latitude;
+
+    private final Double distance;
+
 }

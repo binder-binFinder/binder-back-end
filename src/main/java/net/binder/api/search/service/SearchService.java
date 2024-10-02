@@ -5,7 +5,7 @@ import net.binder.api.bin.entity.BinType;
 import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.member.entity.Member;
 import net.binder.api.member.service.MemberService;
-import net.binder.api.search.dto.SearchDto;
+import net.binder.api.search.dto.SearchRequest;
 import net.binder.api.search.dto.SearchResult;
 import net.binder.api.search.repository.SearchQueryRepository;
 import net.binder.api.searchlog.service.SearchLogService;
@@ -51,15 +51,15 @@ public class SearchService {
             radiusToUse = 500;
         }
 
-        SearchDto searchDto = new SearchDto(bintype, longitude, latitude, radiusToUse);
+        SearchRequest searchRequest = new SearchRequest(bintype, longitude, latitude, radiusToUse);
 
         if (email == null) {
-            return searchQueryRepository.findBins(searchDto, null);
+            return searchQueryRepository.findBins(searchRequest, null);
         }
 
         Member member = memberService.findByEmail(email);
 
-        return searchQueryRepository.findBins(searchDto, member.getId());
+        return searchQueryRepository.findBins(searchRequest, member.getId());
     }
 
     public List<SearchResult> searchByKeyword(
