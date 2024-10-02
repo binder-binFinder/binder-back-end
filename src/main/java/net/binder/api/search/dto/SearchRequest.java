@@ -1,13 +1,12 @@
 package net.binder.api.search.dto;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.binder.api.bin.entity.BinType;
 
 @Getter
 @RequiredArgsConstructor
-public class SearchDto {
+public class SearchRequest {
 
     private final BinType type;
 
