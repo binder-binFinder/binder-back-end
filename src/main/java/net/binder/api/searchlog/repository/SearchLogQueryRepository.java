@@ -26,11 +26,11 @@ public class SearchLogQueryRepository {
                         searchLog.id,
                         searchLog.keyword,
                         searchLog.address,
-                        searchLog.hasBookmarkedBin,
-                        searchLog.hasBinsNearby))
+                        searchLog.hasBinsNearby,
+                        searchLog.createdAt))
                 .from(searchLog)
                 .where(builder)
-                .orderBy(searchLog.id.asc())
+                .orderBy(searchLog.id.desc())
                 .limit(10)
                 .fetch();
     }
@@ -40,7 +40,7 @@ public class SearchLogQueryRepository {
                 .and(searchLog.member.email.eq(email))
                 .and(searchLog.deletedAt.isNull());
         if (lastSearchLogId != null ) {
-            builder.and(searchLog.id.gt(lastSearchLogId));
+            builder.and(searchLog.id.lt(lastSearchLogId));
         }
         return builder;
     }

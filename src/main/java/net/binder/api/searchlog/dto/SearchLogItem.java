@@ -3,6 +3,8 @@ package net.binder.api.searchlog.dto;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Getter
 @RequiredArgsConstructor
 public class SearchLogItem {
@@ -13,8 +15,8 @@ public class SearchLogItem {
 
     private final String address;
 
-    private final boolean hasBookmarkedBin;
-
     private final boolean hasBinsNearby;
+
+    private final LocalDateTime createdAt;
 
 }
