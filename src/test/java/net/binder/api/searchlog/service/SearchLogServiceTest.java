@@ -39,9 +39,6 @@ class SearchLogServiceTest {
     private MemberRepository memberRepository;
 
     @Autowired
-    private BookmarkService bookmarkService;
-
-    @Autowired
     private BinRepository binRepository;
 
     @Autowired
@@ -86,7 +83,6 @@ class SearchLogServiceTest {
         assertThat(searchLogItems).hasSize(1);
         assertThat(searchLogItems).extracting("keyword").containsExactly("키워드1");
         assertThat(searchLogItems).extracting("address").containsExactly("주소1");
-        assertThat(searchLogItems).extracting("hasBookmarkedBin").containsExactly(false);
         assertThat(searchLogItems).extracting("hasBinsNearby").containsExactly(true);
 
         searchService.searchByKeyword(126.971969841012, 37.578567094578,126.971969841012, 37.578567094578, "키워드1", "주소1", "dusgh70312@gmail.com");
@@ -95,7 +91,6 @@ class SearchLogServiceTest {
         assertThat(searchLogItems2).hasSize(2);
         assertThat(searchLogItems2).extracting("keyword").containsExactly("키워드1", "키워드1");
         assertThat(searchLogItems2).extracting("address").containsExactly("주소1", "주소1");
-        assertThat(searchLogItems2).extracting("hasBookmarkedBin").containsExactly(false, false);
         assertThat(searchLogItems2).extracting("hasBinsNearby").containsExactly(true, true);
 
     }
@@ -119,25 +114,10 @@ class SearchLogServiceTest {
 
         List<SearchLogItem> searchLogItems2 = searchLogService.getSearchLog("dusgh70312@gmail.com", null);
         assertThat(searchLogItems2).hasSize(1);
-        assertThat(searchLogItems2).extracting("keyword").containsExactly("키워드2");
-        assertThat(searchLogItems2).extracting("address").containsExactly("주소2");
-        assertThat(searchLogItems2).extracting("hasBookmarkedBin").containsExactly( false);
+        assertThat(searchLogItems2).extracting("keyword").containsExactly("키워드1");
+        assertThat(searchLogItems2).extracting("address").containsExactly("주소1");
         assertThat(searchLogItems2).extracting("hasBinsNearby").containsExactly(true);
 
-    }
-
-    @DisplayName("검색 결과에 북마크한 쓰레기통이 있으면 북마크 표시가 뜬다.")
-    @Test
-    void searchlog_with_bookmark(){
-        Bookmark bookMark = bookmarkService.createBookMark("dusgh70312@gmail.com", bin1.getId());
-        searchService.searchByKeyword(126.971969841012, 37.578567094578,126.971969841012, 37.578567094578, "키워드1", "주소1", "dusgh70312@gmail.com");
-        List<SearchResult> searchResults = searchService.searchByKeyword(126.871969841012, 37.478567094578, 126.871969841012, 37.478567094578, "키워드2", "주소2", "dusgh70312@gmail.com");
-
-        List<SearchLogItem> searchLogItems = searchLogService.getSearchLog("dusgh70312@gmail.com", null);
-        assertThat(searchLogItems).hasSize(2);
-        assertThat(searchLogItems).extracting("keyword").containsExactly("키워드1", "키워드2");
-        assertThat(searchLogItems).extracting("address").containsExactly("주소1", "주소2");
-        assertThat(searchLogItems).extracting("hasBookmarkedBin").containsExactly( true, false);
     }
 
     @DisplayName("검색 결과가 있으면 검색결과가 있다고 표시된다.")
@@ -150,9 +130,9 @@ class SearchLogServiceTest {
         assertThat(searchResults1.isEmpty()).isTrue();
         List<SearchLogItem> searchLogItems = searchLogService.getSearchLog("dusgh70312@gmail.com", null);
         assertThat(searchLogItems).hasSize(2);
-        assertThat(searchLogItems).extracting("keyword").containsExactly("키워드1", "키워드2");
-        assertThat(searchLogItems).extracting("address").containsExactly("주소1", "주소2");
-        assertThat(searchLogItems).extracting("hasBinsNearby").containsExactly( true, false);
+        assertThat(searchLogItems).extracting("keyword").containsExactly("키워드2", "키워드1");
+        assertThat(searchLogItems).extracting("address").containsExactly("주소2", "주소1");
+        assertThat(searchLogItems).extracting("hasBinsNearby").containsExactly( false, true);
     }
 
     @DisplayName("검색 결과는 마지막으로 본 검색기록 이후의 10개를 추가로 요청할 수 있다.")
@@ -179,76 +159,76 @@ class SearchLogServiceTest {
         List<SearchLogItem> logs = searchLogService.getSearchLog("dusgh70312@gmail.com", null);
         assertThat(logs).hasSize(10);
         assertThat(logs).extracting("keyword").containsExactly(
-                "키워드1",
-                "키워드2",
-                "키워드3",
-                "키워드4",
-                "키워드5",
-                "키워드6",
-                "키워드7",
-                "키워드8",
+                "키워드16",
+                "키워드15",
+                "키워드14",
+                "키워드13",
+                "키워드12",
+                "키워드11",
+                "키워드10",
                 "키워드9",
-                "키워드10");
+                "키워드8",
+                "키워드7");
         assertThat(logs).extracting("address").containsExactly(
-                "주소1",
-                "주소2",
-                "주소3",
-                "주소4",
-                "주소5",
-                "주소6",
-                "주소7",
-                "주소8",
+                "주소16",
+                "주소15",
+                "주소14",
+                "주소13",
+                "주소12",
+                "주소11",
+                "주소10",
                 "주소9",
-                "주소10");
+                "주소8",
+                "주소7");
         List<SearchLogItem> logs2 = searchLogService.getSearchLog("dusgh70312@gmail.com", logs.get(0).getId());
         assertThat(logs2).hasSize(10);
         assertThat(logs2).extracting("keyword").containsExactly(
-                "키워드2",
-                "키워드3",
-                "키워드4",
-                "키워드5",
-                "키워드6",
-                "키워드7",
-                "키워드8",
-                "키워드9",
+                "키워드15",
+                "키워드14",
+                "키워드13",
+                "키워드12",
+                "키워드11",
                 "키워드10",
-                "키워드11");
+                "키워드9",
+                "키워드8",
+                "키워드7",
+                "키워드6");
         assertThat(logs2).extracting("address").containsExactly(
-                "주소2",
-                "주소3",
-                "주소4",
-                "주소5",
-                "주소6",
-                "주소7",
-                "주소8",
-                "주소9",
+                "주소15",
+                "주소14",
+                "주소13",
+                "주소12",
+                "주소11",
                 "주소10",
-                "주소11");
+                "주소9",
+                "주소8",
+                "주소7",
+                "주소6");
 
         List<SearchLogItem> logs3 = searchLogService.getSearchLog("dusgh70312@gmail.com", logs2.get(0).getId());
         assertThat(logs3).hasSize(10);
         assertThat(logs3).extracting("keyword").containsExactly(
-                "키워드3",
-                "키워드4",
-                "키워드5",
-                "키워드6",
-                "키워드7",
-                "키워드8",
-                "키워드9",
-                "키워드10",
+                "키워드14",
+                "키워드13",
+                "키워드12",
                 "키워드11",
-                "키워드12");
+                "키워드10",
+                "키워드9",
+                "키워드8",
+                "키워드7",
+                "키워드6",
+                "키워드5");
         assertThat(logs3).extracting("address").containsExactly(
-                "주소3",
-                "주소4",
-                "주소5",
-                "주소6",
-                "주소7",
-                "주소8",
-                "주소9",
-                "주소10",
+                "주소14",
+                "주소13",
+                "주소12",
                 "주소11",
-                "주소12");
+                "주소10",
+                "주소9",
+                "주소8",
+                "주소7",
+                "주소6",
+                "주소5");
     }
 
     @DisplayName("다른 회원의 검색 로그를 지우려고 하면 실패한다.")
