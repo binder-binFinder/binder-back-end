@@ -215,7 +215,7 @@ class CommentServiceTest {
 
     @Test
     @DisplayName("작성자 본인이라면 댓글 내용을 수정할 수 있다.")
-    void modifyComment_success() {
+    void modifyComment_success() throws JsonProcessingException {
         //given
         Comment comment = commentRepository.save(new Comment(member, bin, "댓글"));
 
@@ -224,6 +224,17 @@ class CommentServiceTest {
 
         //then
         assertThat(comment.getContent()).isEqualTo("수정");
+    }
+
+    @Test
+    @DisplayName("댓글 수정시 욕설이 포함되어 있으면 예외가 발생한다.")
+    void modifyComment_fail_hasCurse() throws JsonProcessingException {
+        //given
+        Comment comment = commentRepository.save(new Comment(member, bin, "댓글"));
+
+        //when
+        assertThatThrownBy(() -> commentService.modifyComment(member.getEmail(), comment.getId(), "시1발"))
+                .isInstanceOf(BadRequestException.class);
     }
 
     @Test
