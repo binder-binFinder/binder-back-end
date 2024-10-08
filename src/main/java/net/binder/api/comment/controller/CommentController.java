@@ -57,7 +57,7 @@ public class CommentController {
     @Operation(summary = "쓰레기통 댓글 수정", description = "작성자 본인이 아닐 경우 예외가 발생합니다.")
     @PatchMapping("/{id}")
     public void modifyComment(@CurrentUser String email, @PathVariable Long id,
-                              @Valid @RequestBody ModifyCommentRequest request) {
+                              @Valid @RequestBody ModifyCommentRequest request) throws JsonProcessingException {
 
         commentService.modifyComment(email, id, request.getContent());
     }

@@ -75,9 +75,10 @@ public class CommentService {
 
     }
 
-    public void modifyComment(String email, Long commentId, String content) {
+    public void modifyComment(String email, Long commentId, String content) throws JsonProcessingException {
         Comment comment = getComment(commentId);
         validateIsWriter(email, comment);
+        validateIsCurse(content);
         comment.modifyContent(content);
     }
 
