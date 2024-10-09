@@ -73,7 +73,7 @@ public class SearchService {
 
         //한국의 경도는 124도에서 132도, 위도는 33~ 43도
         if (longitude < 124 || longitude > 133 || latitude < 33 || latitude > 44) {
-            throw new BadRequestException("잘못된 좌표입니다.");
+            throw new BadRequestException("서비스 불가능 지역에서 온 요청입니다");
         }
 
         if (targetLongitude < 124 || targetLongitude > 133 || targetLatitude < 33 || targetLatitude > 44) {

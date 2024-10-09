@@ -1,4 +1,4 @@
-package net.binder.api.memberlikebin.entity;
+package net.binder.api.likeanddislike.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
