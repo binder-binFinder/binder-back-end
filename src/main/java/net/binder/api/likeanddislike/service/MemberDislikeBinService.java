@@ -1,13 +1,13 @@
-package net.binder.api.memberdislikebin.service;
+package net.binder.api.likeanddislike.service;
 
 import lombok.RequiredArgsConstructor;
 import net.binder.api.bin.entity.Bin;
 import net.binder.api.bin.service.BinService;
 import net.binder.api.common.exception.BadRequestException;
+import net.binder.api.likeanddislike.repository.MemberDislikeBinRepository;
 import net.binder.api.member.entity.Member;
 import net.binder.api.member.service.MemberService;
-import net.binder.api.memberdislikebin.entity.MemberDislikeBin;
-import net.binder.api.memberdislikebin.repository.MemberDislikeBinRepository;
+import net.binder.api.likeanddislike.entity.MemberDislikeBin;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,16 +18,9 @@ public class MemberDislikeBinService {
 
     private final MemberDislikeBinRepository memberDislikeBinRepository;
 
-    private final MemberService memberService;
-
     private final BinService binService;
 
-    public void saveDislike(String email, Long binId){
-        Member member = memberService.findByEmail(email);
-
-        if (memberDislikeBinRepository.existsByMember_IdAndBin_Id(member.getId(), binId)) {
-            throw new BadRequestException("이미 싫어요를 누른 쓰레기통입니다.");
-        }
+    public void createDislike(Member member, Long binId){
 
         Bin bin = binService.findById(binId);
         bin.increaseDislike();
@@ -38,14 +31,13 @@ public class MemberDislikeBinService {
         memberDislikeBinRepository.save(memberDislikeBin);
     }
 
-    public void deleteDisLike(String email, Long binId){
-        Member member = memberService.findByEmail(email);
-        if (!memberDislikeBinRepository.existsByMember_IdAndBin_Id(member.getId(), binId)) {
-            throw new BadRequestException("싫어요를 누르지 않았던 쓰레기통입니다.");
-        }
-
+    public void deleteDisLike(Long memberId, Long binId){
         Bin bin = binService.findById(binId);
         bin.decreaseDisLike();
-        memberDislikeBinRepository.deleteMemberLikeBinByMember_EmailAndBin_Id(email, binId);
+        memberDislikeBinRepository.deleteMemberLikeBinByMember_IdAndBin_Id(memberId, binId);
+    }
+
+    public boolean isDislikeExist(Long memberId, Long binId){
+        return memberDislikeBinRepository.existsByMember_IdAndBin_Id(memberId, binId);
     }
 }
