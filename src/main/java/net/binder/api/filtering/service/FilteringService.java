@@ -1,91 +1,54 @@
 package net.binder.api.filtering.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import net.binder.api.filtering.dto.CurseCheckResult;
-import net.binder.api.filtering.dto.OpenAiRequest;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.RequestEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
 public class FilteringService {
+    private final CurseReader curseReader;
 
-    private final RestTemplate restTemplate;
+    private final CurseManager curseManager;
 
-    private final String openAiUrl;
+    private final AiCheckManager aiCheckManager;
 
-    private final String openAiModel;
-
-    private final String openAiKey;
-
-    private final ObjectMapper objectMapper;
-
-    public FilteringService(RestTemplate restTemplate, @Value("${openai.api.url}") String openAiUrl,
-                            @Value("${openai.model}") String openAiModel,
-                            @Value("${openai.api.key}") String openAiKey, ObjectMapper objectMapper) {
-        this.restTemplate = restTemplate;
-        this.openAiUrl = openAiUrl;
-        this.openAiModel = openAiModel;
-        this.openAiKey = openAiKey;
-        this.objectMapper = objectMapper;
+    public FilteringService(CurseReader curseReader,
+                            CurseManager curseManager,
+                            AiCheckManager aiCheckManager) {
+        this.curseReader = curseReader;
+        this.curseManager = curseManager;
+        this.aiCheckManager = aiCheckManager;
     }
 
+    @Transactional
     public CurseCheckResult checkCurse(String target) throws JsonProcessingException {
+        // DB에서 검증
+        List<String> dbCheckCurseWords = curseReader.readWordsInTarget(target);
 
-        RequestEntity<OpenAiRequest> request = getOpenAiRequest(
-                target);
+        // 욕설 목록이 있다면 결과 반환
+        if (!dbCheckCurseWords.isEmpty()) {
+            return new CurseCheckResult(true, dbCheckCurseWords, false);
+        }
 
-        String body = restTemplate.exchange(request, String.class).getBody();
+        // DB에서 검증을 못한 경우 AI에게 검증 요청
+        CurseCheckResult curseCheckResult = aiCheckManager.requestAiCheck(target);
 
-        CurseCheckResult curseCheckResult = getCurseCheckResult(body); // GPT의 검증 결과
-
-        if (!curseCheckResult.getIsCurse()) {
+        // 욕설이 없는 경우 결과 그대로 반환
+        if (!curseCheckResult.isCurse()) {
             return curseCheckResult;
         }
 
-        List<String> words = curseCheckResult.getWords(); // GPT가 감지한 욕설 목록
+        // 욕설이 있는 경우 AI의 욕설 목록에서 새로운 단어만 추출하여 DB에 저장
+        List<String> aiCheckCurseWords = curseCheckResult.getWords();
 
-        if (isMatched(target, words)) { // target(본문)이 AI가 찾아낸 욕설을 포함하고 있는 경우
-            log.debug("GPT 정상 target = {}, words = {}", target, String.join(",", words));
-            return curseCheckResult;
-        }
-        // 포함하지 않을 경우
-        log.error("GPT 오류 target = {}, words = {}", target, String.join(",", words));
-        return new CurseCheckResult(false, List.of());
-    }
+        List<String> newCurseWords = curseReader.findNewCurseWords(aiCheckCurseWords);
 
-    private RequestEntity<OpenAiRequest> getOpenAiRequest(String target) {
-        return RequestEntity
-                .post(openAiUrl)
-                .header("Authorization", "Bearer " + openAiKey)
-                .body(new OpenAiRequest(openAiModel, target));
-    }
+        curseManager.addWords(newCurseWords);
 
-    private CurseCheckResult getCurseCheckResult(String body) throws JsonProcessingException {
-        JsonNode root = objectMapper.readTree(body);
-
-        String content = root.path("choices")
-                .path(0)
-                .path("message")
-                .path("content")
-                .asText();
-
-        return objectMapper.readValue(content, CurseCheckResult.class);
-    }
-
-    private boolean isMatched(String target, List<String> words) {
-
-        for (String word : words) {
-            if (target.contains(word)) {
-                return true;
-            }
-        }
-        return false;
+        return curseCheckResult;
     }
 }
