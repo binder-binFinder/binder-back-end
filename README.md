@@ -1,4 +1,4 @@
-<img width="1200" alt="image" src="https://github.com/user-attachments/assets/9a0a9ab6-fe80-4382-8065-0a63a5d85465" align="center" >
+<img width="1470" alt="image" src="https://github.com/user-attachments/assets/41f00c43-d549-49ea-9e0a-6deac0fcca05">
 
 <div align="center">
     <a href="https://www.notion.so/Binder-85edd66e39e54bc290c8e053ff51fbfa?pvs=4" target="_blank">팀 노션</a> <br>
@@ -19,8 +19,7 @@
 
 
 ## ERD
-
-![binder_ERD](https://github.com/user-attachments/assets/228d7f8f-b4ea-41bf-8156-c934d00cac50)
+![image](https://github.com/user-attachments/assets/ac445f60-f0ff-495a-b5d4-ceb600f78bab)
 
 </br></br>
 
