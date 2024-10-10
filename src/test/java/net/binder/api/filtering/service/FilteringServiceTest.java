@@ -13,18 +13,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @Transactional
-class FilteringManagerTest {
+class FilteringServiceTest {
 
     @Autowired
-    private FilteringManager filteringManager;
+    private FilteringService filteringService;
 
     @Test
     @DisplayName("비속어가 포함됐는지 여부와 비속어로 분류된 단어 목록을 확인할 수 있다.")
     void checkCurse() throws JsonProcessingException {
         //when
-        CurseCheckResult curseCheckResult1 = filteringManager.checkCurse("시1발");
-        CurseCheckResult curseCheckResult2 = filteringManager.checkCurse("개1새1끼");
-        CurseCheckResult curseCheckResult3 = filteringManager.checkCurse("이건 욕설이 아니에요");
+        CurseCheckResult curseCheckResult1 = filteringService.checkCurse("시1발");
+        CurseCheckResult curseCheckResult2 = filteringService.checkCurse("개1새1끼");
+        CurseCheckResult curseCheckResult3 = filteringService.checkCurse("이건 욕설이 아니에요");
 
         //then
         assertThat(curseCheckResult1.getIsCurse()).isTrue();

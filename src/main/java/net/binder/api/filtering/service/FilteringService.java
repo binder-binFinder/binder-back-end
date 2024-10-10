@@ -9,12 +9,12 @@ import net.binder.api.filtering.dto.CurseCheckResult;
 import net.binder.api.filtering.dto.OpenAiRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.RequestEntity;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-@Component
+@Service
 @Slf4j
-public class FilteringManager {
+public class FilteringService {
 
     private final RestTemplate restTemplate;
 
@@ -26,7 +26,7 @@ public class FilteringManager {
 
     private final ObjectMapper objectMapper;
 
-    public FilteringManager(RestTemplate restTemplate, @Value("${openai.api.url}") String openAiUrl,
+    public FilteringService(RestTemplate restTemplate, @Value("${openai.api.url}") String openAiUrl,
                             @Value("${openai.model}") String openAiModel,
                             @Value("${openai.api.key}") String openAiKey, ObjectMapper objectMapper) {
         this.restTemplate = restTemplate;
