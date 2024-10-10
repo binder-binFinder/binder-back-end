@@ -25,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
-@Transactional
 public class CommentService {
 
     public static final int PAGE_SIZE = 20;
@@ -42,6 +41,7 @@ public class CommentService {
 
     private final FilteringService filteringService;
 
+    @Transactional
     public Long createComment(String email, Long binId, String content) throws JsonProcessingException {
         Member member = memberService.findByEmail(email);
         Bin bin = binService.findById(binId);
@@ -75,6 +75,7 @@ public class CommentService {
 
     }
 
+    @Transactional
     public void modifyComment(String email, Long commentId, String content) throws JsonProcessingException {
         Comment comment = getComment(commentId);
         validateIsWriter(email, comment);
@@ -82,6 +83,7 @@ public class CommentService {
         comment.modifyContent(content);
     }
 
+    @Transactional
     public void deleteComment(String email, Long commentId) {
         Comment comment = getComment(commentId);
         validateIsWriter(email, comment);
@@ -111,6 +113,7 @@ public class CommentService {
                 lastCommentId, lastLikeCount, PAGE_SIZE);
     }
 
+    @Transactional
     public void createCommentLike(String email, Long commentId) {
         Member member = memberService.findByEmail(email);
         Comment comment = getCommentWithPessimisticLock(commentId); // 조회와 동시에 배타적 락 획득
@@ -126,6 +129,7 @@ public class CommentService {
         comment.increaseLikeCount();
     }
 
+    @Transactional
     public void createCommentDislike(String email, Long commentId) {
         Member member = memberService.findByEmail(email);
         Comment comment = getCommentWithPessimisticLock(commentId);
@@ -141,6 +145,7 @@ public class CommentService {
         comment.increaseDislikeCount();
     }
 
+    @Transactional
     public void deleteCommentLike(String email, Long commentId) {
         Member member = memberService.findByEmail(email);
         Comment comment = getCommentWithPessimisticLock(commentId);
@@ -151,6 +156,7 @@ public class CommentService {
         comment.decreaseLikeCount();
     }
 
+    @Transactional
     public void deleteCommentDislike(String email, Long commentId) {
         Member member = memberService.findByEmail(email);
         Comment comment = getCommentWithPessimisticLock(commentId);
