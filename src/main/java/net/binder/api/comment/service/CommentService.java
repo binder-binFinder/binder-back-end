@@ -17,7 +17,7 @@ import net.binder.api.comment.repository.CommentSort;
 import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.common.exception.NotFoundException;
 import net.binder.api.filtering.dto.CurseCheckResult;
-import net.binder.api.filtering.service.FilteringManager;
+import net.binder.api.filtering.service.FilteringService;
 import net.binder.api.member.entity.Member;
 import net.binder.api.member.service.MemberService;
 import org.springframework.stereotype.Service;
@@ -40,7 +40,7 @@ public class CommentService {
 
     private final CommentDislikeRepository commentDislikeRepository;
 
-    private final FilteringManager filteringManager;
+    private final FilteringService filteringService;
 
     public Long createComment(String email, Long binId, String content) throws JsonProcessingException {
         Member member = memberService.findByEmail(email);
@@ -223,7 +223,7 @@ public class CommentService {
     }
 
     private void validateIsCurse(String content) throws JsonProcessingException {
-        CurseCheckResult curseCheckResult = filteringManager.checkCurse(content);
+        CurseCheckResult curseCheckResult = filteringService.checkCurse(content);
         if (curseCheckResult.getIsCurse()) {
             String words = extractCurseWords(curseCheckResult);
 

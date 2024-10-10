@@ -14,7 +14,7 @@ import org.springframework.web.client.RestTemplate;
 
 @Component
 @Slf4j
-public class FilteringManager {
+public class AiCheckManager {
 
     private final RestTemplate restTemplate;
 
@@ -26,9 +26,12 @@ public class FilteringManager {
 
     private final ObjectMapper objectMapper;
 
-    public FilteringManager(RestTemplate restTemplate, @Value("${openai.api.url}") String openAiUrl,
-                            @Value("${openai.model}") String openAiModel,
-                            @Value("${openai.api.key}") String openAiKey, ObjectMapper objectMapper) {
+
+    public AiCheckManager(
+            RestTemplate restTemplate,
+            @Value("${openai.api.url}") String openAiUrl,
+            @Value("${openai.model}") String openAiModel,
+            @Value("${openai.api.key}") String openAiKey, ObjectMapper objectMapper) {
         this.restTemplate = restTemplate;
         this.openAiUrl = openAiUrl;
         this.openAiModel = openAiModel;
@@ -36,8 +39,8 @@ public class FilteringManager {
         this.objectMapper = objectMapper;
     }
 
-    public CurseCheckResult checkCurse(String target) throws JsonProcessingException {
-
+    public CurseCheckResult requestAiCheck(String target) throws JsonProcessingException {
+        log.debug("AI 검증을 시작합니다. target = {}", target);
         RequestEntity<OpenAiRequest> request = getOpenAiRequest(
                 target);
 
@@ -57,8 +60,9 @@ public class FilteringManager {
         }
         // 포함하지 않을 경우
         log.error("GPT 오류 target = {}, words = {}", target, String.join(",", words));
-        return new CurseCheckResult(false, List.of());
+        return new CurseCheckResult(false, List.of(), true);
     }
+
 
     private RequestEntity<OpenAiRequest> getOpenAiRequest(String target) {
         return RequestEntity
@@ -76,7 +80,8 @@ public class FilteringManager {
                 .path("content")
                 .asText();
 
-        return objectMapper.readValue(content, CurseCheckResult.class);
+        CurseCheckResult curseCheckResult = objectMapper.readValue(content, CurseCheckResult.class);
+        return new CurseCheckResult(curseCheckResult.isCurse(), curseCheckResult.getWords(), true);
     }
 
     private boolean isMatched(String target, List<String> words) {
