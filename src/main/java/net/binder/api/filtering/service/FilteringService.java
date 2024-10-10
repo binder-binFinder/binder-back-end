@@ -5,6 +5,7 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import net.binder.api.filtering.dto.CurseCheckResult;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -24,7 +25,7 @@ public class FilteringService {
         this.aiCheckManager = aiCheckManager;
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public CurseCheckResult checkCurse(String target) throws JsonProcessingException {
         // DB에서 검증
         List<String> dbCheckCurseWords = curseReader.readWordsInTarget(target);
