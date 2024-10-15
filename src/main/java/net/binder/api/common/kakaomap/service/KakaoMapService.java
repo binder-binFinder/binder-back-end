@@ -4,9 +4,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.binder.api.bin.util.PointUtil;
 import net.binder.api.common.binsetup.dto.PublicBinData;
+import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.common.kakaomap.dto.ProcessedBinData;
 import org.springframework.beans.factory.annotation.Value;
+import org.locationtech.jts.geom.Point;
 import org.springframework.http.RequestEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -28,57 +31,79 @@ public class KakaoMapService {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
-    public List<ProcessedBinData> getPoints(List<PublicBinData> list) {
+    public List<ProcessedBinData> getProcessedBins(List<PublicBinData> list) {
         return list.parallelStream()
-                .map(this::getPoint)
+                .map(this::getProcessBin)
                 .filter(Objects::nonNull)
                 .toList();
     }
 
-    public ProcessedBinData getPoint(PublicBinData initialBinData) {
-        String body = fetchDataFromApi(initialBinData);
-        return parseResponse(initialBinData, body);
+    public Point getPoint(String address) {
+        String body = fetchDataFromApi(address);
+        JsonNode document = parseDocument(body);
+
+        if(document==null){
+            throw new BadRequestException("입력된 주소는 존재하지 않습니다.");
+        }
+
+        JsonNode roadAddressNode = getNode(document, "road_address");
+        JsonNode addressNode = getNode(document, "address");
+
+        if (!roadAddressNode.isEmpty() && addressNode.path("x").asText().isBlank()) {
+            return PointUtil.getPoint(getX(roadAddressNode), getY(roadAddressNode));
+        }
+        return PointUtil.getPoint(getX(addressNode), getY(addressNode));
     }
 
-    private String fetchDataFromApi(PublicBinData initialBinData) {
+    public ProcessedBinData getProcessBin(PublicBinData initialBinData) {
+        String body = fetchDataFromApi(initialBinData.getAddress());
+        JsonNode document = parseDocument(body);
+        if (document == null) {
+            return null;
+        }
+        return getBinInfo(initialBinData, document);
+    }
+
+    private String fetchDataFromApi(String address) {
         RequestEntity<Void> req = RequestEntity
-                .get(SEARCH_URL + QUERY_PARAM + initialBinData.getAddress())
+                .get(SEARCH_URL + QUERY_PARAM + address)
                 .header("Authorization", KAKAO_MAP_KEY)
                 .build();
         return restTemplate.exchange(req, String.class).getBody();
     }
 
-    private ProcessedBinData parseResponse(PublicBinData initialBinData, String body) {
+    private JsonNode parseDocument(String body) {
         try {
             JsonNode rootNode = objectMapper.readTree(body);
             JsonNode documentsNode = rootNode.path("documents");
             if (documentsNode.isArray() && !documentsNode.isEmpty()) {
-                JsonNode firstDocument = documentsNode.get(0);
-                return getProcessedBinData(initialBinData, firstDocument);
+                return documentsNode.get(0);
             }
         } catch (IOException | NumberFormatException e) {
         }
         return null;
     }
 
-    private static ProcessedBinData getProcessedBinData(PublicBinData initialBinData, JsonNode firstDocument) {
-        JsonNode roadAddressNode = firstDocument.path("road_address");
-        JsonNode addressNode = firstDocument.path("address");
-        double x, y;
-        String address;
+    private ProcessedBinData getBinInfo(PublicBinData initialBinData, JsonNode document) {
+        JsonNode roadAddressNode = getNode(document, "road_address");
+        JsonNode addressNode = getNode(document, "address");
 
-
-
-        if (roadAddressNode.isEmpty()) {
-            x = Double.parseDouble(addressNode.path("x").asText());
-            y = Double.parseDouble(addressNode.path("y").asText());
-            address = addressNode.path("address_name").asText();
-        } else {
-            x = Double.parseDouble(roadAddressNode.path("x").asText());
-            y = Double.parseDouble(roadAddressNode.path("y").asText());
-            address = roadAddressNode.path("address_name").asText();
+        if (!roadAddressNode.isEmpty() && !addressNode.path("x").asText().isBlank()) {
+            return ProcessedBinData.from(initialBinData, getX(roadAddressNode), getY(roadAddressNode), getNode(roadAddressNode, "address_name").asText());
         }
 
-        return ProcessedBinData.from(initialBinData, x, y, address);
+        return ProcessedBinData.from(initialBinData, getX(addressNode), getY(addressNode), getNode(addressNode, "address_name").asText());
+    }
+
+    private static JsonNode getNode(JsonNode document, String title) {
+        return document.path(title);
+    }
+
+    private double getY(JsonNode addressNode) {
+        return Double.parseDouble(addressNode.path("y").asText());
+    }
+
+    private double getX(JsonNode addressNode) {
+        return Double.parseDouble(addressNode.path("x").asText());
     }
 }
