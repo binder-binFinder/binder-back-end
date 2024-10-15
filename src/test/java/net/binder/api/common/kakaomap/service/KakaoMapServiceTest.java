@@ -11,7 +11,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class KakaoMapServiceTest {
@@ -23,7 +22,7 @@ class KakaoMapServiceTest {
     @Test
     void test1(){
         PublicBinData publicBinData = new PublicBinData("경복궁 4번출구", "종로구 사직로 125", BinType.GENERAL, null );
-        ProcessedBinData processedBinData = kakaoMapService.getPoint(publicBinData);
+        ProcessedBinData processedBinData = kakaoMapService.getProcessBin(publicBinData);
 
         assertThat(processedBinData.getTitle()).isEqualTo("경복궁 4번출구");
         assertThat(processedBinData.getAddress()).isEqualTo("서울 종로구 사직로 125");

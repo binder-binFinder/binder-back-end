@@ -13,8 +13,11 @@ import net.binder.api.bin.entity.BinRegistrationStatus;
 import net.binder.api.bin.repository.BinModificationRepository;
 import net.binder.api.bin.repository.BinRegistrationRepository;
 import net.binder.api.bin.repository.BinRepository;
+import net.binder.api.bin.util.DistanceCalculator;
+import net.binder.api.bin.util.PointUtil;
 import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.common.exception.NotFoundException;
+import net.binder.api.common.kakaomap.service.KakaoMapService;
 import net.binder.api.complaint.service.ComplaintCountReader;
 import net.binder.api.member.entity.Member;
 import net.binder.api.member.service.MemberService;
@@ -30,6 +33,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class BinService {
 
+    private static final double OFFSET = 0.001;
+
     private final BinRepository binRepository;
 
     private final BinRegistrationRepository binRegistrationRepository;
@@ -40,11 +45,13 @@ public class BinService {
 
     private final ComplaintCountReader complaintCountReader;
 
+    private final KakaoMapService kakaoMapService;
+
 
     public void requestBinRegistration(BinCreateRequest binCreateRequest, String email) {
         Member member = memberService.findByEmail(email);
 
-        Point point = getPoint(binCreateRequest.getLatitude(), binCreateRequest.getLongitude());
+        Point point = getPoint(binCreateRequest.getAddress(), binCreateRequest.getLongitude(), binCreateRequest.getLatitude());
         BinRegistration binRegistration = getBinRegistration(member);
 
         Bin bin = getBin(binCreateRequest, point);
@@ -112,13 +119,15 @@ public class BinService {
                 .build();
     }
 
-    private Point getPoint(Double latitude, Double longitude) {
-        GeometryFactory geometryFactory = new GeometryFactory();
-        Coordinate coordinate = new Coordinate(longitude, latitude);
+    private Point getPoint(String address, Double longitude, Double latitude) {
+        Point point = kakaoMapService.getPoint(address);
+        double distance = DistanceCalculator.calculateDistance(point.getY(), point.getX(), latitude, longitude);
 
-        Point point = geometryFactory.createPoint(coordinate);
-        point.setSRID(4326);
-        return point;
+        if(distance>=500){
+            throw new BadRequestException("지정한 위치와 좌표가 일치하지 않습니다.");
+        }
+
+        return PointUtil.getPoint(longitude, latitude);
     }
 
     private BinRegistration getBinRegistration(Member member) {
@@ -154,5 +163,4 @@ public class BinService {
             throw new BadRequestException("아직 처리되지 않는 수정 요청 건이 존재합니다.");
         }
     }
-
 }

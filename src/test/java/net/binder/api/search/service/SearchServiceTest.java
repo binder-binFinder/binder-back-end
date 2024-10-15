@@ -86,7 +86,7 @@ class SearchServiceTest {
                 new PublicBinData("강남역2번출구 앞", "서울 강남구 강남대로 382", BinType.RECYCLE, null),
                 new PublicBinData("서초동 1330-18", "서울 서초구 서초대로78길 42", BinType.CIGAR, null)
         );
-        List<ProcessedBinData> bins = kakaoMapService.getPoints(list);
+        List<ProcessedBinData> bins = kakaoMapService.getProcessedBins(list);
         binBatchInsertRepository.batchInsertInitialBins(bins);
         entityManager.flush();
     }

@@ -2,9 +2,11 @@ package net.binder.api.common.binsetup.dto;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import net.binder.api.bin.entity.BinType;
 
 @Getter
+@NoArgsConstructor
 public class PublicBinData {
 
     private String title;
