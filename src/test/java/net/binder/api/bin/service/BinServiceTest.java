@@ -1,7 +1,5 @@
 package net.binder.api.bin.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.List;
 import net.binder.api.bin.dto.BinCreateRequest;
 import net.binder.api.bin.dto.BinDetailResponse;
@@ -14,6 +12,7 @@ import net.binder.api.bin.entity.BinRegistration;
 import net.binder.api.bin.entity.BinRegistrationStatus;
 import net.binder.api.bookmark.entity.Bookmark;
 import net.binder.api.bookmark.repository.BookmarkRepository;
+import net.binder.api.common.exception.BadRequestException;
 import net.binder.api.complaint.entity.Complaint;
 import net.binder.api.complaint.entity.ComplaintStatus;
 import net.binder.api.complaint.repository.ComplaintRepository;
@@ -28,6 +27,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+
+import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
@@ -63,9 +64,9 @@ class BinServiceTest {
     void requestBinRegistration() {
 
         //given
-        BinCreateRequest binCreateRequest = new BinCreateRequest("title", "address", BinType.BEVERAGE, "image.img",
-                30.0,
-                150.0);
+        BinCreateRequest binCreateRequest = new BinCreateRequest("title", "서울 송파구 장지동 892", BinType.BEVERAGE, "image.img",
+                37.4778575578812,
+                127.143608413143);
 
         //when
         binService.requestBinRegistration(binCreateRequest, member.getEmail());
@@ -75,8 +76,8 @@ class BinServiceTest {
         assertThat(bins.size()).isEqualTo(1);
         Bin bin = bins.get(0);
 
-        assertThat(bin.getPoint().getX()).isEqualTo(150);
-        assertThat(bin.getPoint().getY()).isEqualTo(30);
+        assertThat((Double) bin.getPoint().getX()).isCloseTo(127.143608413143, within(0.00000000001));
+        assertThat((Double) bin.getPoint().getY()).isCloseTo(37.4778575578812, within(0.00000000001));
         assertThat(bin.getBinRegistration().getMember()).isEqualTo(member);
         assertThat(bin.getBinRegistration().getStatus()).isEqualTo(BinRegistrationStatus.PENDING);
     }
@@ -149,4 +150,37 @@ class BinServiceTest {
         assertThat(binInfoForMember.getIsLiked()).isTrue();
         assertThat(binInfoForMember.getIsDisliked()).isFalse();
     }
+
+    @Test
+    @DisplayName("쓰레기통을 등록할 때 실제 좌표와 500m 이상 차이가 나면 등록을 실패한다.")
+    void wrong_points(){
+        //given
+        BinCreateRequest binCreateRequest = new BinCreateRequest("title", "서울 송파구 장지동 892", BinType.BEVERAGE, "image.img",
+                37.48456552662,
+                127.147803459446);
+
+        //when
+        assertThatThrownBy(()->binService.requestBinRegistration(binCreateRequest, member.getEmail()))
+                .isInstanceOf(BadRequestException.class).hasMessage("지정한 위치와 좌표가 일치하지 않습니다.");
+    }
+
+
+    @Test
+    @DisplayName("쓰레기통을 등록할 때 실제 좌표와 500m 이하로 차이가 날 땐 등록된다.")
+    void wrong_points_but_success(){
+        //given
+        BinCreateRequest binCreateRequest = new BinCreateRequest("title", "서울 송파구 장지동 892", BinType.BEVERAGE, "image.img",
+                37.480423888668,
+                127.139329027926);
+
+        //when
+        binService.requestBinRegistration(binCreateRequest, member.getEmail());
+        List<Bin> bins = binRepository.findAll();
+        assertThat(bins.size()).isEqualTo(1);
+        Bin bin = bins.get(0);
+
+        assertThat(bin.getBinRegistration().getMember()).isEqualTo(member);
+        assertThat(bin.getBinRegistration().getStatus()).isEqualTo(BinRegistrationStatus.PENDING);
+    }
+
 }

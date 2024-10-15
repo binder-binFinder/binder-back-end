@@ -9,6 +9,7 @@ import net.binder.api.common.binsetup.dto.PublicBinData;
 import net.binder.api.common.binsetup.repository.BinBatchInsertRepository;
 import net.binder.api.common.kakaomap.dto.ProcessedBinData;
 import net.binder.api.common.kakaomap.service.KakaoMapService;
+import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -66,7 +67,7 @@ class BinRepositoryTest {
                 new PublicBinData("신촌역로14", "서울 서대문구 신촌역로 14", BinType.RECYCLE, null),
                 new PublicBinData("신촌역로14", "서울 서대문구 신촌역로 14", BinType.GENERAL, null)
         );
-        List<ProcessedBinData> bins = kakaoMapService.getPoints(list);
+        List<ProcessedBinData> bins = kakaoMapService.getProcessedBins(list);
         binBatchInsertRepository.batchInsertInitialBins(bins);
         entityManager.flush();
     }
@@ -99,11 +100,6 @@ class BinRepositoryTest {
                 }
                 checkCoordinate(bin, processedBinData);
             } catch (NullPointerException e) {
-                /*
-                DB에 들어간 데이터 중에 '서울 용산구 한강대로 405'이거 하나만 NullPointerException이 뜸.
-                좌표는 제대로 들어간 게 맞지만 예외가 떠서 이것잠 try~catch로 잡음
-                 */
-                System.out.println(bin.getAddress());
             }
         });
     }
@@ -112,7 +108,7 @@ class BinRepositoryTest {
         ProcessedBinData processedBinData = null;
         String address = bin.getAddress();
         if (!address.isEmpty()) {
-            processedBinData = kakaoMapService.getPoint(new PublicBinData(bin.getTitle(), address, bin.getType(), null));
+            processedBinData = kakaoMapService.getProcessBin(new PublicBinData(bin.getTitle(), address, bin.getType(), null));
 
             //카카오맵에 도로명 주소 정보가 있을 때 테스트
             if (processedBinData != null) {
@@ -141,8 +137,8 @@ class BinRepositoryTest {
 
     private void checkCoordinate(Bin bin, ProcessedBinData processedBinData) {
 
-        assertThat(bin.getPoint().getX()).isEqualTo(processedBinData.getLongitude(), within(0.00000000001));
-        assertThat(bin.getPoint().getY()).isEqualTo(processedBinData.getLatitude(), within(0.000000000001));
+        assertThat(bin.getPoint().getX()).isCloseTo(processedBinData.getLongitude(), within(0.00000000001));
+        assertThat(bin.getPoint().getY()).isCloseTo(processedBinData.getLatitude(), within(0.00000000001));
     }
 
     private ProcessedBinData getJibunAddress(PublicBinData initialBinData) {
