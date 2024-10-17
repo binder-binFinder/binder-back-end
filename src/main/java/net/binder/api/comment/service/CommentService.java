@@ -41,7 +41,8 @@ public class CommentService {
 
     private final FilteringService filteringService;
 
-    @Transactional
+    private final CommentManager commentManager;
+
     public Long createComment(String email, Long binId, String content) throws JsonProcessingException {
         Member member = memberService.findByEmail(email);
         Bin bin = binService.findById(binId);
@@ -50,9 +51,7 @@ public class CommentService {
 
         validateIsCurse(content);
 
-        commentRepository.save(comment);
-
-        return comment.getId();
+        return commentManager.add(comment);
     }
 
     @Transactional(readOnly = true)
@@ -75,22 +74,19 @@ public class CommentService {
 
     }
 
-    @Transactional
     public void modifyComment(String email, Long commentId, String content) throws JsonProcessingException {
         Comment comment = getComment(commentId);
         validateIsWriter(email, comment);
         validateIsCurse(content);
-        comment.modifyContent(content);
+        commentManager.update(comment, content);
+
     }
 
-    @Transactional
     public void deleteComment(String email, Long commentId) {
         Comment comment = getComment(commentId);
         validateIsWriter(email, comment);
 
-        boolean isDeleted = comment.softDelete();
-
-        if (!isDeleted) {
+        if (!commentManager.delete(comment)) {
             throw new BadRequestException("이미 삭제된 댓글입니다.");
         }
     }
